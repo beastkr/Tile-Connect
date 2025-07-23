@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.SceneAsset",
-    "_name": "GameScene",
+    "_name": "Prototype",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -56,7 +56,7 @@
     "_globals": {
       "__id__": 9
     },
-    "_id": "60eced6b-949b-4a64-b2ee-bb47c3944a96"
+    "_id": "37888114-60a9-47f6-8dde-a53ead84b7c5"
   },
   {
     "__type__": "cc.Node",
