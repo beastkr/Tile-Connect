@@ -7,17 +7,19 @@ export class AssetLoader extends Component {
     private progressBar!: ProgressBar
 
     protected __preload(): void {
+        console.log('preloading')
         if (!this.progressBar) throw new Error('ProgressBar is required')
         director.preloadScene('Prototype')
         resources.preloadDir('sprite')
-        resources.preloadDir('font')
+        resources.preloadDir('sprite/AllTiles')
+        // resources.preloadDir('font')
         resources.preloadDir('texture-2d')
         resources.preloadDir('ui-assets')
     }
 
     start() {
         resources.loadDir(
-            'images',
+            'sprite/AllTiles',
             SpriteFrame,
             (finished, total) => {
                 this.updateProgressBar(finished / total)
