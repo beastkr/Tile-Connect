@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "04124b1f-d19d-4774-9456-a68851c555da",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "04124b1f-d19d-4774-9456-a68851c555da@6c48a",
+      "displayName": "NotoNaskhArabic-Bold Atlas #45683",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "04124b1f-d19d-4774-9456-a68851c555da",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "04124b1f-d19d-4774-9456-a68851c555da@f9941",
+      "displayName": "NotoNaskhArabic-Bold Atlas #45683",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": -172.5,
+        "offsetY": -2.5,
+        "trimX": 1,
+        "trimY": 6,
+        "width": 677,
+        "height": 1017,
+        "rawWidth": 1024,
+        "rawHeight": 1024,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -338.5,
+            -508.5,
+            0,
+            338.5,
+            -508.5,
+            0,
+            -338.5,
+            508.5,
+            0,
+            338.5,
+            508.5,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            1,
+            1018,
+            678,
+            1018,
+            1,
+            1,
+            678,
+            1
+          ],
+          "nuv": [
+            0.0009765625,
+            0.0009765625,
+            0.662109375,
+            0.0009765625,
+            0.0009765625,
+            0.994140625,
+            0.662109375,
+            0.994140625
+          ],
+          "minPos": [
+            -338.5,
+            -508.5,
+            0
+          ],
+          "maxPos": [
+            338.5,
+            508.5,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "04124b1f-d19d-4774-9456-a68851c555da@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false,
+    "redirect": "04124b1f-d19d-4774-9456-a68851c555da@6c48a"
+  }
+}
