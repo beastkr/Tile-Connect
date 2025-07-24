@@ -1,25 +1,23 @@
-import { Theme, Turn } from '../../type/global'
-import { Level } from '../level/Level'
+import { Turn } from '../../type/global'
 import { BaseTurn } from './BaseTurn'
-const mockUpLevel = new Level(
-    6,
-    5,
-    [
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 3],
-        [1, 2, 5, 4, 3],
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 3],
-    ],
-    Theme.CAKE
-)
+
 export class LoadTurn extends BaseTurn {
     public onEnter(): void {
+        this.game.unChoose()
+        this.turnOffInput()
+
+        this.game.matchPair = []
         // this.game.node.setScale(getScale())
-        this.game.createBoard(mockUpLevel)
+        this.game.createBoard(this.game.currentLevel)
+        this.turnOnInput()
         this.game.switchTurn(Turn.START)
     }
 
     onExit(): void {}
+    private turnOnInput() {
+        this.game.board?.setUpManager(this.game)
+    }
+    private turnOffInput() {
+        this.game.board?.resetInput()
+    }
 }
