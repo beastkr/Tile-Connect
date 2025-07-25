@@ -3,6 +3,10 @@ import { BaseTurn } from './BaseTurn'
 
 export class StartTurn extends BaseTurn {
     public onEnter(): void {
+        if (this.game.isWin()) {
+            this.game.switchTurn(Turn.LOAD)
+            return
+        }
         if (this.game.matchPair.length > 0) {
             this.game.switchTurn(Turn.MATCH)
             return
