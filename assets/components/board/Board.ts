@@ -3,6 +3,8 @@ import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { Level } from '../level/Level'
+import GameManager from '../manager/GameManager'
+import PathPool from '../pool/PathPool'
 import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
@@ -12,13 +14,16 @@ const { ccclass, property } = _decorator
 @ccclass('Board')
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
+    pathPool: PathPool = new PathPool()
 
     public match(tile1: Tile, tile2: Tile): void {
         if (this.canMatch(tile1, tile2)) {
+            const path = this.getPath(tile1, tile2)
             tile1.onDead(this, true, tile2)
-            tile1.onDead(this, false, tile1)
+            tile2.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
+            this.drawPath(path.path, this.pathPool)
         }
     }
 
@@ -157,6 +162,7 @@ class Board extends Component implements TileConnect.IBoard {
     }
 
     public setUpManager(game: TileConnect.IGameManager): void {
+        this.pathPool = (game as GameManager).pathPool!
         for (const row of this.board) {
             for (const tile of row)
                 tile.addOnClickCallback((tile: TileConnect.ITile) => game.choose(tile))
@@ -211,6 +217,17 @@ class Board extends Component implements TileConnect.IBoard {
                     tile?.attachSubType(sub as BaseSubTile, key)
                 }
             }
+        }
+    }
+    public drawPath(path: Vec2[], pool: PathPool) {
+        for (let i = 0; i < path.length - 1; i++) {
+            const from = path[i]
+            const posFrom = (this.board[from.y][from.x] as Tile).node.getPosition().toVec2()
+            const to = path[i + 1]
+            const posTo = (this.board[to.y][to.x] as Tile).node.getPosition().toVec2()
+            const p = pool.getFirstItem()
+            p?.createPath(posFrom, posTo)
+            console.log('draw path from', from, 'to', to)
         }
     }
 }

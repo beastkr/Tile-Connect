@@ -10,6 +10,7 @@ import {
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
+import PathPool from '../pool/PathPool'
 import TilePool from '../pool/TilePool'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
@@ -47,7 +48,7 @@ const mockUpLevel = new Level(
         [1, 2, 3],
         [1, 2, 3],
     ],
-    Theme.DRINK,
+    Theme.FRUIT,
     layer
 )
 @ccclass('GameManager')
@@ -65,6 +66,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         SubType,
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
+    @property(PathPool)
+    public pathPool: PathPool | null = null
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
     // protected onLoad(): void {
@@ -77,6 +80,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     // }
 
     protected start(): void {
+        this.pathPool?.initialize(this)
         this.tilePool?.initialize(this)
         this.subTilePoolInit()
         this.turnInit()
