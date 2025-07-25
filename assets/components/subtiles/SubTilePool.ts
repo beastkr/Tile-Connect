@@ -8,7 +8,7 @@ const { ccclass, property } = _decorator
 class SubTilePool extends Component implements TileConnect.IObjectPool<BaseSubTile> {
     @property(Prefab)
     private subTilePrefab: Prefab | null = null
-    private size: number = 108
+    private size: number = 70
     private itemList: BaseSubTile[] = []
     public constructor(game: GameManager) {
         super()

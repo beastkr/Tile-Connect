@@ -186,7 +186,6 @@ class Board extends Component implements TileConnect.IBoard {
                     realY < level.gridHeight
                 ) {
                     tile?.setTypeID(level.grid[realY][realX])
-
                     tile?.reScale(level.scale)
                 } else {
                     tile?.hide()

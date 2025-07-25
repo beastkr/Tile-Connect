@@ -6,6 +6,7 @@ import {
     Size,
     Sprite,
     SpriteFrame,
+    tween,
     UITransform,
     Vec2,
     Vec3,
@@ -130,6 +131,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.node.setPosition(new Vec3(pos.x, pos.y))
         // console.log('moved to: ', pos)
     }
+
     public moveToRealPositionWithPadding(level: Level): void {
         const PADDING = 1
         const pos = getTilePositionByLevel(
@@ -137,7 +139,10 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             this.coordinate.y - PADDING,
             level
         )
-        this.node.setPosition(new Vec3(pos.x, pos.y))
+        const targetPos = new Vec3(pos.x, pos.y, 0)
+
+        // Optional: bạn có thể stop tween cũ trước khi tạo tween mới nếu cần
+        tween(this.node).to(0.2, { position: targetPos }, { easing: 'quadOut' }).start()
     }
     public reScale(scale: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))

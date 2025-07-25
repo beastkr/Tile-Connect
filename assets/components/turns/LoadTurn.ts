@@ -3,6 +3,9 @@ import { BaseTurn } from './BaseTurn'
 
 export class LoadTurn extends BaseTurn {
     public onEnter(): void {
+        this.game.subtilePool.forEach((element) => {
+            element.returnAll()
+        })
         this.game.unChoose()
         this.turnOffInput()
 
