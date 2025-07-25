@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Size, UITransform, Vec2 } from 'cc'
+import { _decorator, Color, Component, Node, Sprite, tween, Vec2, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 const { ccclass, property } = _decorator
 
@@ -14,28 +14,37 @@ export class Path extends Component implements TileConnect.IPoolObject {
         this.updateVisual(this.node)
     }
 
-    private calcDir(): { direction: Vec2; angle: number; length: number } {
-        const vec = this.tailCoord.subtract(this.headCoord)
-        const direction = vec.normalize()
+    private calcDir(): { angle: number; length: number } {
+        const vec = this.tailCoord.clone().subtract(this.headCoord.clone())
+        const direction = vec.clone().normalize()
         const angle = (Math.atan2(direction.y, direction.x) * 180) / Math.PI
         const length = vec.length()
-        return { direction, angle, length }
+        return { angle, length }
     }
 
     private updateVisual(target: Node) {
+        const sprite = this.node.getComponent(Sprite)
         const { angle, length } = this.calcDir()
-        target.angle = -angle
+        target.angle = angle - 90
 
         // Đặt vị trí node tại headCoord (đã là pixel position)
         target.setPosition(this.headCoord.x, this.headCoord.y)
-
+        console.log('length: ', length)
+        target.setScale(new Vec3(1.5, length / 12))
         // Resize chiều dài
-        const uiTransform = target.getComponent(UITransform)
-        if (uiTransform) {
-            const newWidth = length // length đã là pixel
-            const currentSize = uiTransform.contentSize
-            uiTransform.setContentSize(new Size(newWidth, currentSize.height))
-        }
+        // const uiTransform = target.getComponent(UITransform)
+        // if (uiTransform) {
+        //     const newWidth = length // length đã là pixel
+        //     const currentSize = uiTransform.contentSize
+        //     uiTransform.setContentSize(new Size(newWidth, 500))
+        // }
+        tween(sprite!)
+            .to(0.5, { color: new Color(255, 255, 255, 0) })
+            .call(() => {
+                sprite!.color = new Color(255, 255, 255, 255)
+                this.kill()
+            })
+            .start()
     }
 
     isUsed(): boolean {
