@@ -13,6 +13,7 @@ import {
 } from 'cc'
 import { getTilePath, getTilePositionByLevel, SubType, Theme, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
 const { ccclass, property } = _decorator
@@ -25,6 +26,12 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private backGroundSpite: Sprite | null = null
     @property(Node)
     public wholeSprite: Node | null = null
+    @property(Node)
+    public choosingEffect: Node | null = null
+    @property(Node)
+    public rotatedChoosingEff: Node | null = null
+
+    private selfPromise: Promise<void>[] = []
 
     private used: boolean = false
     private theme: Theme = Theme.NONE
@@ -87,16 +94,16 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public reSpawn(): void {
         this.used = true
-        this.node.active = true
+        this.wholeSprite!.active = true
     }
     public hide() {
         this.setTypeID(TileType.NONE)
-        this.node.active = false
+        this.wholeSprite!.active = false
     }
     public kill(): void {
         this.setTypeID(TileType.NONE)
         this.used = false
-        this.node.active = false
+        this.wholeSprite!.active = false
         for (const sub of this.subTileList) {
             this.detachSubType(sub[0])
         }
@@ -132,7 +139,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         // console.log('moved to: ', pos)
     }
 
-    public moveToRealPositionWithPadding(level: Level): void {
+    public moveToRealPositionWithPadding(level: Level, tweening: boolean = true): void {
         const PADDING = 1
         const pos = getTilePositionByLevel(
             this.coordinate.x - PADDING,
@@ -142,17 +149,61 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         const targetPos = new Vec3(pos.x, pos.y, 0)
 
         // Optional: bạn có thể stop tween cũ trước khi tạo tween mới nếu cần
-        tween(this.node).to(0.2, { position: targetPos }, { easing: 'quadOut' }).start()
+        if (tweening)
+            AnimationHandler.animTile.push(
+                new Promise<void>((resolve) => {
+                    tween(this.node)
+                        .to(0.5, { position: targetPos }, { easing: 'quadOut' })
+                        .call(() => {
+                            resolve()
+                        })
+                        .start()
+                })
+            )
+        else {
+            this.node.setPosition(targetPos)
+        }
     }
     public reScale(scale: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))
     }
     public onChoose() {
-        this.wholeSprite?.setScale(this.wholeSprite.scale.multiplyScalar(1.2))
+        this.choosingEffect!.active = true
+        Promise.all(this.selfPromise).then(() => {
+            this.selfPromise.push(
+                new Promise<void>((resolve) => {
+                    tween(this.wholeSprite!)
+                        .to(0.1, { scale: this.wholeSprite?.scale.clone().multiplyScalar(1 / 1.8) })
+                        .to(0.1, { scale: this.wholeSprite?.scale.clone() })
+                        .call(() => {
+                            resolve()
+                        })
+                        .start()
+                })
+            )
+        })
+        tween(this.rotatedChoosingEff!)
+            .repeatForever(tween().by(1, { angle: 360 }))
+            .start()
+
+        // this.wholeSprite?.setScale(this.wholeSprite.scale.multiplyScalar(1.2))
     }
     public onUnchoose() {
-        this.wholeSprite?.setScale(this.wholeSprite?.scale.multiplyScalar(1 / 1.2))
+        this.choosingEffect!.active = false
+        // Promise.all(this.selfPromise).then(() => {
+        //     this.selfPromise.push(
+        //         new Promise<void>((resolve) => {
+        //             tween(this.wholeSprite!)
+        //                 .to(0.1, { scale: this.wholeSprite?.scale.clone().multiplyScalar(1 / 1.8) })
+        //                 .to(0.1, { scale: this.wholeSprite?.scale.clone() })
+        //                 .call(() => {
+        //                     resolve()
+        //                 })
+        //                 .start()
+        //         })
+        //     )
+        // })
     }
 }
 

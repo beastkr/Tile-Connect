@@ -5,4 +5,5 @@ const { ccclass, property } = _decorator
 export class AnimationHandler extends Component {
     static animList: Promise<void>[] = []
     static animTile: Promise<void>[] = []
+    static matchAnim: Promise<void>[] = []
 }

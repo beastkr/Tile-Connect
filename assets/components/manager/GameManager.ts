@@ -15,13 +15,21 @@ import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 const { ccclass, property } = _decorator
 const layer = new Map<SubType, number[][]>()
-layer.set(SubType.ROCKET, [
-    [1, 0, 0],
-    [1, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
+// layer.set(SubType.ROCKET, [
+//     [1, 0, 0],
+//     [1, 0, 0],
+//     [0, 0, 0],
+//     [0, 0, 0],
+//     [0, 0, 0],
+//     [0, 0, 0],
+// ])
+layer.set(SubType.GRAVITY, [
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
 ])
 const mockUpLevel = new Level(
     6,
@@ -137,6 +145,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             return
         }
         if (this.isSame(tile, this.firstChosen)) {
+            this.firstChosen?.onChoose()
             this.unChoose()
             return
         }

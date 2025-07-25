@@ -179,7 +179,7 @@ class Board extends Component implements TileConnect.IBoard {
                 }
 
                 tile?.setCoordinate(new Vec2(x, y))
-                tile?.moveToRealPositionWithPadding(level)
+                tile?.moveToRealPositionWithPadding(level, false)
             }
         }
     }
