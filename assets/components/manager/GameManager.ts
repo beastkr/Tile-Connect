@@ -20,6 +20,14 @@ import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 const { ccclass, property } = _decorator
 const layer = new Map<SubType, number[][]>()
+layer.set(SubType.ROCKET, [
+    [1, 0, 0],
+    [1, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+])
 layer.set(SubType.GRAVITY, [
     [1, 1, 1],
     [1, 1, 1],
@@ -168,6 +176,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         if (this.currentTurn) this.currentTurn.onExit()
         this.currentTurn = this.turnList.get(newTurn)!
         this.currentTurn.onEnter()
+    }
+    public turnOnInput() {
+        this.board?.setUpManager(this)
+    }
+    public turnOffInput() {
+        this.board?.resetInput()
     }
 }
 
