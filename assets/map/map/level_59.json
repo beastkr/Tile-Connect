@@ -1,0 +1,19 @@
+{
+    "Level": 59,
+    "Difficulty": 0.5,
+    "GridHeight": 4,
+    "GridWidth": 3,
+    "Theme": "FOOD",
+    "Tiles": {
+        "TotalTiles": 12,
+        "RocketTiles": 0,
+        "BombEffects": 1,
+        "NormalTiles": {
+            "0": 2,
+            "1": 2,
+            "2": 4,
+            "3": 2,
+            "4": 2
+        }
+    }
+}
