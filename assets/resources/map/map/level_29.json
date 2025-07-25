@@ -1,0 +1,21 @@
+{
+    "Level": 29,
+    "Difficulty": 4.5,
+    "GridHeight": 7,
+    "GridWidth": 8,
+    "Theme": "DRINK",
+    "Tiles": {
+        "TotalTiles": 56,
+        "RocketTiles": 4,
+        "BombEffects": 4,
+        "NormalTiles": {
+            "0": 6,
+            "1": 6,
+            "2": 8,
+            "3": 6,
+            "4": 14,
+            "5": 6,
+            "6": 6
+        }
+    }
+}

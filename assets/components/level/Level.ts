@@ -23,4 +23,17 @@ export class Level {
         this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
         if (layer) this.layer = layer
     }
+    public change(h: number,
+        w: number,
+        grid: number[][],
+        theme: Theme,
+        layer?: Map<SubType, number[][]>) {
+        this.theme = theme
+        this.gridHeight = h
+        this.gridWidth = w
+        this.grid = grid
+        this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight)
+        this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
+        if (layer) this.layer = layer
+    }
 }

@@ -1,11 +1,9 @@
-import { ShuffleLevel } from './ShuffleLevel';
 import { _decorator, Component, director, ProgressBar, resources, SpriteFrame } from 'cc'
 const { ccclass, property } = _decorator
 @ccclass('AssetLoader')
 export class AssetLoader extends Component {
     @property(ProgressBar)
     private progressBar!: ProgressBar
-    private ShuffleLevel:ShuffleLevel |undefined
     protected __preload(): void {
         console.log('preloading')
         if (!this.progressBar) throw new Error('ProgressBar is required')

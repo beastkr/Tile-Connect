@@ -1,0 +1,21 @@
+{
+    "Level": 48,
+    "Difficulty": 4.0,
+    "GridHeight": 7,
+    "GridWidth": 8,
+    "Theme": "BUTTERFLY",
+    "Tiles": {
+        "TotalTiles": 56,
+        "RocketTiles": 4,
+        "BombEffects": 4,
+        "NormalTiles": {
+            "0": 8,
+            "1": 10,
+            "2": 8,
+            "3": 8,
+            "4": 6,
+            "5": 6,
+            "6": 6
+        }
+    }
+}

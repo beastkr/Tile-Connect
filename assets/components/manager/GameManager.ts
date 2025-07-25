@@ -18,41 +18,13 @@ import { EndTurn } from '../turns/EndTurn'
 import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
+import { LevelLoader } from '../level/LevelLoader'
 const { ccclass, property } = _decorator
-const layer = new Map<SubType, number[][]>()
-layer.set(SubType.ROCKET, [
-    [1, 0, 0],
-    [1, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-])
-layer.set(SubType.GRAVITY, [
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-])
-const mockUpLevel = new Level(
-    6,
-    3,
-    [
-        [3, 2, 1],
-        [3, 2, 1],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-    ],
-    Theme.DRINK,
-    layer
-)
+
+const hi=new LevelLoader()
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
-    currentLevel: Level = mockUpLevel
+    currentLevel: Level = hi.getCurrentLevel()
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
