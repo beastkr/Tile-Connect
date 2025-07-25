@@ -81,12 +81,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.subTilePoolInit()
         this.turnInit()
     }
-    protected update(dt: number): void {
-        if (this.isWin()) {
-            this.switchTurn(Turn.LOAD)
-            return
-        }
-    }
+    // protected update(dt: number): void {
+    //     if (this.isWin()) {
+    //         this.switchTurn(Turn.LOAD)
+    //         return
+    //     }
+    // }
 
     private subTilePoolInit() {
         this.subtilePool.set(

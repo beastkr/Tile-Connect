@@ -1,5 +1,6 @@
 import { _decorator, Component, tween, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
 
 @ccclass('Star')
@@ -8,12 +9,19 @@ export class Star extends Component implements TileConnect.IPoolObject {
 
     putAt(pos: Vec3) {
         this.node.setPosition(pos)
-        tween(this.node)
-            .delay(0.8)
-            .to(0.5, { position: new Vec3(0, 0, 0) }, { easing: 'quadOut' })
-            .delay(0.2)
-            .call(() => this.kill())
-            .start()
+        AnimationHandler.animList.push(
+            new Promise<void>((resolve) => {
+                tween(this.node)
+                    .delay(0.8)
+                    .to(0.5, { position: new Vec3(0, 0, 0) }, { easing: 'quadOut' })
+                    .delay(0.2)
+                    .call(() => {
+                        this.kill()
+                        resolve()
+                    })
+                    .start()
+            })
+        )
     }
 
     isUsed(): boolean {

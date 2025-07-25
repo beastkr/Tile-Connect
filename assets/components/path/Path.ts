@@ -1,5 +1,6 @@
 import { _decorator, Color, Component, Node, Sprite, tween, Vec2, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
 
 @ccclass('Path')
@@ -38,13 +39,18 @@ export class Path extends Component implements TileConnect.IPoolObject {
         //     const currentSize = uiTransform.contentSize
         //     uiTransform.setContentSize(new Size(newWidth, 500))
         // }
-        tween(sprite!)
-            .to(0.5, { color: new Color(255, 255, 255, 0) })
-            .call(() => {
-                sprite!.color = new Color(255, 255, 255, 255)
-                this.kill()
+        AnimationHandler.animList.push(
+            new Promise<void>((resolve) => {
+                tween(sprite!)
+                    .to(0.5, { color: new Color(255, 255, 255, 0) })
+                    .call(() => {
+                        sprite!.color = new Color(255, 255, 255, 255)
+                        this.kill()
+                        resolve()
+                    })
+                    .start()
             })
-            .start()
+        )
     }
 
     isUsed(): boolean {

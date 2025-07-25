@@ -1,5 +1,6 @@
 import { _decorator, Sprite, tween, Vec3 } from 'cc'
 import { TileType } from '../../type/global'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
@@ -68,31 +69,39 @@ export class RocketSubTile extends BaseSubTile {
             // Tính hướng xoay
             const angle1 = getAngleBetween(start1, pos1)
             const angle2 = getAngleBetween(start2, pos2)
-
-            tween(this.rocket1.node)
-                .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle1 }, { easing: 'backOut' })
-                .to(0.5, { position: pos1 }, { easing: 'quadOut' }) // thêm angle vào đây
-                .call(() => {
-                    selected[0].onDead(board, isMain, selected[1])
-                    selected[0].kill()
-                    this.rocket1!.node.active = false
-                    this.rocket1!.node.setScale(new Vec3(1, 1, 1))
-                    this.rocket1!.node.angle = 0 // reset angle nếu cần
-                    this.node.parent?.getComponent(GameManager)?.turnOnInput()
+            AnimationHandler.animTile.push(
+                new Promise<void>((resolve) => {
+                    tween(this.rocket1!.node)
+                        .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle1 }, { easing: 'backOut' })
+                        .to(0.5, { position: pos1 }, { easing: 'quadOut' }) // thêm angle vào đây
+                        .call(() => {
+                            selected[0].onDead(board, isMain, selected[1])
+                            selected[0].kill()
+                            this.rocket1!.node.active = false
+                            this.rocket1!.node.setScale(new Vec3(1, 1, 1))
+                            this.rocket1!.node.angle = 0 // reset angle nếu cần
+                            this.node.parent?.getComponent(GameManager)?.turnOnInput()
+                            resolve()
+                        })
+                        .start()
                 })
-                .start()
-
-            tween(this.rocket2.node)
-                .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle2 }, { easing: 'backOut' })
-                .to(0.5, { position: pos2 }, { easing: 'quadOut' }) // thêm angle ở đây
-                .call(() => {
-                    selected[1].onDead(board, isMain, selected[0])
-                    selected[1].kill()
-                    this.rocket2!.node.active = false
-                    this.rocket2!.node.setScale(new Vec3(1, 1, 1))
-                    this.rocket2!.node.angle = 0
+            )
+            AnimationHandler.animTile.push(
+                new Promise<void>((resolve) => {
+                    tween(this.rocket2!.node)
+                        .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle2 }, { easing: 'backOut' })
+                        .to(0.5, { position: pos2 }, { easing: 'quadOut' }) // thêm angle ở đây
+                        .call(() => {
+                            selected[1].onDead(board, isMain, selected[0])
+                            selected[1].kill()
+                            this.rocket2!.node.active = false
+                            this.rocket2!.node.setScale(new Vec3(1, 1, 1))
+                            this.rocket2!.node.angle = 0
+                            resolve()
+                        })
+                        .start()
                 })
-                .start()
+            )
         }
     }
 }
