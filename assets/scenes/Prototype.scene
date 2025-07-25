@@ -988,7 +988,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "RocketPool",
+    "_name": "ROCKET",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1074,7 +1074,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "GravityPool",
+    "_name": "GRAVITY",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {

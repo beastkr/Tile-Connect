@@ -1,12 +1,5 @@
 import { _decorator, Component, find } from 'cc'
-import {
-    GRAVITY_NODE_PATH,
-    ROCKET_NODE_PATH,
-    SubType,
-    Theme,
-    TileType,
-    Turn,
-} from '../../type/global'
+import { SUBTILE_PATH, SubType, Theme, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -89,14 +82,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     // }
 
     private subTilePoolInit() {
-        this.subtilePool.set(
-            SubType.ROCKET,
-            find(ROCKET_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
-        )
-        this.subtilePool.set(
-            SubType.GRAVITY,
-            find(GRAVITY_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
-        )
+        const poolRoot = find(SUBTILE_PATH)
+        for (const child of poolRoot?.children!) {
+            this.subtilePool.set(
+                child.name as SubType,
+                child?.getComponent(SubTilePool) as SubTilePool
+            )
+        }
+
         this.subtilePool.forEach((sub) => {
             sub.initialize(this)
         })
