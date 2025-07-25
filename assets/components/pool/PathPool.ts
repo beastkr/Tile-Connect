@@ -1,0 +1,48 @@
+import { _decorator, Component, instantiate, Node, Prefab } from 'cc'
+import { TileConnect } from '../../type/type'
+import GameManager from '../manager/GameManager'
+import { Path } from '../path/Path'
+const { ccclass, property } = _decorator
+
+@ccclass('PathPool')
+class PathPool extends Component implements TileConnect.IObjectPool<Path> {
+    @property(Prefab)
+    private pathPrefab: Prefab | null = null
+    @property(Number)
+    private size: number = 0
+    private itemList: Path[] = []
+
+    public initialize(game: GameManager) {
+        for (let i = 0; i < this.size; i++) {
+            const node = instantiate(this.pathPrefab) as Node | null
+            if (node) {
+                console.log('added child')
+                game.node.addChild(node)
+            }
+            this.itemList.push(node?.getComponent(Path) as Path)
+        }
+        this.returnAll()
+    }
+
+    public getFirstItem(): Path | null {
+        for (const tile of this.itemList)
+            if (!tile.isUsed()) {
+                tile.reSpawn()
+                return tile
+            }
+        return null
+    }
+
+    public returnPool(object: Path): void {
+        object.kill()
+    }
+    public returnMultiple(objects: Path[]): void {
+        for (const tile of objects) {
+            tile.kill()
+        }
+    }
+    public returnAll(): void {
+        this.returnMultiple(this.itemList)
+    }
+}
+export default PathPool
