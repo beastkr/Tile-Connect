@@ -1,4 +1,5 @@
 import { Vec2, Vec3, view } from 'cc'
+import { Level } from '../components/level/Level'
 import GameConfig from '../constants/GameConfig'
 
 export enum SubType {
@@ -43,10 +44,17 @@ export enum Theme {
 }
 
 export function getTilePath(id: number, theme: Theme): string {
+    if (id == TileType.ROCKET) return 'sprite/AllTiles/rocket/spriteFrame'
     return `sprite/AllTiles/${theme + String(id)}/spriteFrame`
 }
 
-export function getTilePosition(row: number, col: number, h: number, w: number): Vec2 {
+export function getTilePosition(
+    row: number,
+    col: number,
+    h: number,
+    w: number,
+    scale: number
+): Vec2 {
     const halfWidth = (w * GameConfig.TileSize) / 2
     const halfHeight = (h * GameConfig.TileSize) / 2
 
@@ -57,8 +65,26 @@ export function getTilePosition(row: number, col: number, h: number, w: number):
 }
 export function getScale() {
     const visibleSize = view.getVisibleSize() // Size { width, height }
-    const scaleX = Math.max(1, visibleSize.width / 720)
-    const scaleY = Math.max(1, visibleSize.width / 1280)
-    const scale = Math.min(scaleX, scaleY)
+    const scaleX = visibleSize.width / 720
+    const scaleY = visibleSize.width / 1280
+    const scale = Math.max(scaleX, scaleY)
     return new Vec3(scale, scale)
 }
+export function getTilePositionByLevel(
+    col: number, // x
+    row: number, // y
+    level: Level,
+    padding: number = 0
+): Vec2 {
+    const tileSize = level.tileSize + 5
+    const fullWidth = (level.gridWidth + padding * 2) * tileSize
+    const fullHeight = (level.gridHeight + padding * 2) * tileSize
+
+    const posX = col * tileSize + tileSize / 2 - fullWidth / 2
+    const posY = -(row * tileSize + tileSize / 2 - fullHeight / 2)
+
+    return new Vec2(posX, posY)
+}
+
+export const ROCKET_NODE_PATH = 'Canvas/SubtilePool/RocketPool'
+export const GRAVITY_NODE_PATH = 'Canvas/SubtilePool/GravityPool'

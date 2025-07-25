@@ -1,6 +1,8 @@
 import { Vec2 } from 'cc'
+import Board from '../components/board/Board'
 import { Level } from '../components/level/Level'
 import GameManager from '../components/manager/GameManager'
+import SubTilePool from '../components/subtiles/SubTilePool'
 import { SubType, Theme, Turn } from './global'
 
 export namespace TileConnect {
@@ -22,15 +24,17 @@ export namespace TileConnect {
         attachSubType(subTile: ISubTile, key: SubType): void
         detachSubType(key: SubType): void
 
-        onDead(): void
+        onDead(board: Board, isMain: boolean, other: ITile): void
 
         moveToRealPosition(level: Level): void
     }
 
     /*Base SubTile Interface*/
     export interface ISubTile {
-        onDead(): void
+        onDead(board: Board, isMain: boolean, other: ISubTile): void
         onResolve(): void
+        onAttach(tile: ITile): void
+        onDetach(): void
     }
 
     export interface IBoard {
@@ -42,6 +46,7 @@ export namespace TileConnect {
         getPath(tile1: ITile, tile2: ITile): { path: Vec2[]; turnNum: number }
         setUpManager(game: IGameManager): void
         resetInput(): void
+        addSubTile(pool: SubTilePool, level: Level, key: SubType): void
     }
 
     export interface ITurn {
@@ -67,6 +72,7 @@ export namespace TileConnect {
     }
 
     export interface IGameManager {
+        currentLevel: Level
         choose(tile: ITile): void
         unChoose(): void
         match(): void

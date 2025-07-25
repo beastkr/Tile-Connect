@@ -1,9 +1,11 @@
 import { _decorator, Component, Size, Vec2 } from 'cc'
 import GameConfig from '../../constants/GameConfig'
-import { TileType } from '../../type/global'
+import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { Level } from '../level/Level'
 import TilePool from '../pool/TilePool'
+import { BaseSubTile } from '../subtiles/BaseSubTile'
+import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
 const { ccclass, property } = _decorator
 
@@ -13,6 +15,8 @@ class Board extends Component implements TileConnect.IBoard {
 
     public match(tile1: Tile, tile2: Tile): void {
         if (this.canMatch(tile1, tile2)) {
+            tile1.onDead(this, true, tile2)
+            tile1.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
         }
@@ -46,30 +50,42 @@ class Board extends Component implements TileConnect.IBoard {
             dir: Vec2
             turn: number
             path: Vec2[]
+            f: number
+        }
+
+        const heuristic = (pos: Vec2): number => {
+            return Math.abs(pos.x - end.x) + Math.abs(pos.y - end.y)
         }
 
         const visited = Array.from({ length: height }, () =>
             Array.from({ length: width }, () => Array(4).fill(Infinity))
         )
 
-        const queue: Node[] = []
+        const open: Node[] = []
 
         for (let d = 0; d < 4; d++) {
             const dir = directions[d]
             const next = start.clone().add(dir)
             if (!this.validate(next, end)) continue
 
-            queue.push({
+            const h = heuristic(next)
+            const node: Node = {
                 pos: next,
-                dir: dir,
+                dir,
                 turn: 0,
                 path: [start.clone(), next.clone()],
-            })
+                f: 0 + h,
+            }
+            open.push(node)
             visited[next.y][next.x][d] = 0
         }
 
-        while (queue.length > 0) {
-            const { pos, dir, turn, path } = queue.shift()!
+        while (open.length > 0) {
+            // Sort by lowest f-cost
+            open.sort((a, b) => a.f - b.f)
+            const current = open.shift()!
+
+            const { pos, dir, turn, path } = current
 
             if (pos.equals(end)) {
                 return { path, turnNum: turn }
@@ -92,11 +108,16 @@ class Board extends Component implements TileConnect.IBoard {
                 }
                 newPath.push(next.clone())
 
-                queue.push({
+                const h = heuristic(next)
+                const g = newTurn
+                const f = g + h
+
+                open.push({
                     pos: next,
                     dir: newDir,
                     turn: newTurn,
                     path: newPath,
+                    f,
                 })
             }
         }
@@ -143,6 +164,7 @@ class Board extends Component implements TileConnect.IBoard {
     }
 
     public create(pool: TilePool, level: Level): void {
+        pool.returnAll()
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
@@ -164,12 +186,31 @@ class Board extends Component implements TileConnect.IBoard {
                     realY < level.gridHeight
                 ) {
                     tile?.setTypeID(level.grid[realY][realX])
+
+                    tile?.reScale(level.scale)
                 } else {
                     tile?.hide()
                 }
 
                 tile?.setCoordinate(new Vec2(x, y))
                 tile?.moveToRealPositionWithPadding(level)
+            }
+        }
+    }
+    public addSubTile(pool: SubTilePool, level: Level, key: SubType) {
+        const subTileMap = level.layer.get(key)
+        if (!subTileMap) return
+
+        const extra = 1
+        for (let y = 0; y < level.gridHeight; y++) {
+            for (let x = 0; x < level.gridWidth; x++) {
+                const value = subTileMap[y]?.[x]
+
+                if (value === 1) {
+                    const sub = pool.getFirstItem()
+                    const tile = this.board[y + extra][x + extra]
+                    tile?.attachSubType(sub as BaseSubTile, key)
+                }
             }
         }
     }

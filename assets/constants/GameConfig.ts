@@ -1,7 +1,5 @@
 const GameConfig = {
-    GridHeigh: 4,
-    GridWidth: 4,
-    TileSize: 82,
+    TileSize: 85,
 } as const
 
 export default GameConfig

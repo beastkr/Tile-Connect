@@ -1,33 +1,94 @@
-import { _decorator, Component } from 'cc'
-import { SubType, TileType, Turn } from '../../type/global'
+import { _decorator, Component, find } from 'cc'
+import {
+    GRAVITY_NODE_PATH,
+    ROCKET_NODE_PATH,
+    SubType,
+    Theme,
+    TileType,
+    Turn,
+} from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
 import TilePool from '../pool/TilePool'
+import SubTilePool from '../subtiles/SubTilePool'
+import Tile from '../tiles/Tile'
 import { BaseTurn } from '../turns/BaseTurn'
 import { EndTurn } from '../turns/EndTurn'
 import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 const { ccclass, property } = _decorator
-
+const layer = new Map<SubType, number[][]>()
+layer.set(SubType.GRAVITY, [
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1],
+])
+const mockUpLevel = new Level(
+    6,
+    3,
+    [
+        [3, 2, 1],
+        [3, 2, 1],
+        [1, 2, 3],
+        [1, 2, 3],
+        [1, 2, 3],
+        [1, 2, 3],
+    ],
+    Theme.DRINK,
+    layer
+)
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
+    currentLevel: Level = mockUpLevel
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
+    matchPair: { tile1: TileConnect.ITile; tile2: TileConnect.ITile }[] = []
 
     @property(TilePool)
     tilePool: TileConnect.IObjectPool<TileConnect.ITile> | null = null
-
-    subtilePool: Record<SubType, TileConnect.IObjectPool<TileConnect.ISubTile>> | null = null
-    firstChosen: TileConnect.ITile | null = null
-    secondChosen: TileConnect.ITile | null = null
+    @property(Map<SubType, TileConnect.IObjectPool<TileConnect.ISubTile>>)
+    subtilePool: Map<SubType, TileConnect.IObjectPool<TileConnect.ISubTile>> = new Map<
+        SubType,
+        TileConnect.IObjectPool<TileConnect.ISubTile>
+    >()
+    firstChosen: Tile | null = null
+    secondChosen: Tile | null = null
+    // protected onLoad(): void {
+    //     this.resize()
+    //     view.on('canvas-resize', this.resize, this)
+    // }
+    // resize() {
+    //     const scale = getScale()
+    //     this.node.setScale(scale)
+    // }
 
     protected start(): void {
         this.tilePool?.initialize(this)
+        this.subTilePoolInit()
         this.turnInit()
     }
+    protected update(dt: number): void {}
+
+    private subTilePoolInit() {
+        this.subtilePool.set(
+            SubType.ROCKET,
+            find(ROCKET_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+        this.subtilePool.set(
+            SubType.GRAVITY,
+            find(GRAVITY_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+        this.subtilePool.forEach((sub) => {
+            sub.initialize(this)
+        })
+    }
+
     public isWin(): boolean {
         for (const row of this.board!.board) {
             for (const tile of row) {
@@ -58,7 +119,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public choose(tile: TileConnect.ITile): void {
         console.log(tile.getCoordinate())
         if (!this.firstChosen || !this.sameType(this.firstChosen, tile)) {
-            this.firstChosen = tile
+            this.firstChosen?.onUnchoose()
+            this.firstChosen = tile as Tile
+            this.firstChosen.onChoose()
             console.log(
                 'first: ',
                 this.firstChosen.getCoordinate(),
@@ -71,33 +134,35 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.unChoose()
             return
         }
-        this.secondChosen = tile
+        this.secondChosen = tile as Tile
         console.log(
             'first: ',
             this.firstChosen.getCoordinate(),
             'second: ',
             this.secondChosen?.getCoordinate()
         )
+        this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
         this.switchTurn(Turn.MATCH)
+        // this.unChoose()
     }
     public unChoose(): void {
+        this.firstChosen?.onUnchoose()
         this.firstChosen = null
         this.secondChosen = null
     }
     public match(): void {
-        if (this.firstChosen && this.secondChosen) {
-            console.log(
-                'matching: ',
-                this.firstChosen.getCoordinate(),
-                this.secondChosen.getCoordinate()
-            )
-            this.board?.match(this.firstChosen, this.secondChosen)
+        if (this.matchPair.length > 0) {
+            this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
+            this.matchPair.shift()
         }
     }
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
         this.board?.create(this.tilePool!, level)
+        for (const pool of this.subtilePool) {
+            this.board?.addSubTile(pool[1] as SubTilePool, level, pool[0])
+        }
     }
     public switchTurn(newTurn: Turn): void {
         if (this.currentTurn) this.currentTurn.onExit()

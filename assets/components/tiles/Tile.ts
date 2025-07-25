@@ -1,6 +1,18 @@
-import { _decorator, Component, resources, Sprite, SpriteFrame, Vec2, Vec3 } from 'cc'
-import { getTilePath, getTilePosition, SubType, Theme, TileType } from '../../type/global'
+import {
+    _decorator,
+    Component,
+    Node,
+    resources,
+    Size,
+    Sprite,
+    SpriteFrame,
+    UITransform,
+    Vec2,
+    Vec3,
+} from 'cc'
+import { getTilePath, getTilePositionByLevel, SubType, Theme, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
+import Board from '../board/Board'
 import { Level } from '../level/Level'
 const { ccclass, property } = _decorator
 
@@ -10,6 +22,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private itemTypeSprite: Sprite | null = null
     @property(Sprite)
     private backGroundSpite: Sprite | null = null
+    @property(Node)
+    public wholeSprite: Node | null = null
 
     private used: boolean = false
     private theme: Theme = Theme.NONE
@@ -59,8 +73,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         return this.coordinate
     }
 
-    public setCoordinate(newCoordinate: Vec2): void {
-        this.coordinate = newCoordinate
+    public setCoordinate(coord: Vec2): void {
+        this.coordinate = new Vec2(coord.x, coord.y) // đảm bảo không trỏ nhầm reference cũ
     }
 
     public getTypeID(): number {
@@ -82,6 +96,9 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.setTypeID(TileType.NONE)
         this.used = false
         this.node.active = false
+        for (const sub of this.subTileList) {
+            this.detachSubType(sub[0])
+        }
     }
     public setTypeID(id: TileType): void {
         if (id == this.typeID) return
@@ -95,36 +112,42 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
 
     public attachSubType(subTile: TileConnect.ISubTile, key: SubType): void {
         this.subTileList.set(key, subTile)
+        subTile.onAttach(this)
     }
 
     public detachSubType(key: SubType): void {
         this.subTileList.delete(key)
     }
 
-    public onDead(): void {
-        this.subTileList.forEach((subTile) => {
-            subTile.onDead()
-        })
+    public onDead(board: Board, isMain: boolean, other: Tile): void {
+        for (const sub of this.subTileList) {
+            const otherSub = other.subTileList.get(sub[0])
+            sub[1].onDead(board, isMain, otherSub!)
+        }
     }
     public moveToRealPosition(level: Level): void {
-        const pos = getTilePosition(
-            this.coordinate.x,
-            this.coordinate.y,
-            level.gridHeight,
-            level.gridWidth
-        )
+        const pos = getTilePositionByLevel(this.coordinate.x, this.coordinate.y, level)
         this.node.setPosition(new Vec3(pos.x, pos.y))
         // console.log('moved to: ', pos)
     }
     public moveToRealPositionWithPadding(level: Level): void {
         const PADDING = 1
-        const pos = getTilePosition(
-            this.coordinate.y - PADDING,
+        const pos = getTilePositionByLevel(
             this.coordinate.x - PADDING,
-            level.gridHeight,
-            level.gridWidth
+            this.coordinate.y - PADDING,
+            level
         )
         this.node.setPosition(new Vec3(pos.x, pos.y))
+    }
+    public reScale(scale: number) {
+        this.wholeSprite?.setScale(new Vec3(scale, scale))
+        this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))
+    }
+    public onChoose() {
+        this.wholeSprite?.setScale(this.wholeSprite.scale.multiplyScalar(1.2))
+    }
+    public onUnchoose() {
+        this.wholeSprite?.setScale(this.wholeSprite?.scale.multiplyScalar(1 / 1.2))
     }
 }
 
