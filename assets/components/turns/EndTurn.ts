@@ -9,14 +9,10 @@ import { BaseTurn } from './BaseTurn'
 export class EndTurn extends BaseTurn {
     onEnter(): void {
         if (this.game.isWin()) {
-
-            
-            return
-
             Promise.all(AnimationHandler.animList).then(() => {
-              LevelLoader.checkNeedToChange('completed')
-              LevelLoader.changeLevel()
-              this.game.switchTurn(Turn.LOAD)
+                LevelLoader.checkNeedToChange('completed')
+                LevelLoader.changeLevel()
+                this.game.switchTurn(Turn.LOAD)
             })
             return // prevent calling START below
         }
