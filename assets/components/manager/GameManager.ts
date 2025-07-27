@@ -1,4 +1,15 @@
 import { _decorator, Component, find } from 'cc'
+
+import {
+    BOOM_NODE_PATH,
+    GRAVITY_NODE_PATH,
+    ROCKET_NODE_PATH,
+    SubType,
+    Theme,
+    TileType,
+    Turn,
+} from '../../type/global'
+=======
 import { SUBTILE_PATH, SubType, Theme, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
@@ -13,41 +24,16 @@ import { EndTurn } from '../turns/EndTurn'
 import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
+import { LevelLoader } from '../level/LevelLoader'
+
 const { ccclass, property } = _decorator
-const layer = new Map<SubType, number[][]>()
-// layer.set(SubType.ROCKET, [
-//     [1, 0, 0],
-//     [1, 0, 0],
-//     [0, 0, 0],
-//     [0, 0, 0],
-//     [0, 0, 0],
-//     [0, 0, 0],
-// ])
-layer.set(SubType.GRAVITY, [
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-])
-const mockUpLevel = new Level(
-    6,
-    3,
-    [
-        [3, 2, 1],
-        [3, 2, 1],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-    ],
-    Theme.FRUIT,
-    layer
-)
+
+const hi = new LevelLoader()
+
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
-    currentLevel: Level = mockUpLevel
+    
+    currentLevel: Level = hi.getCurrentLevel()
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
@@ -90,6 +76,20 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     // }
 
     private subTilePoolInit() {
+
+        this.subtilePool.set(
+            SubType.ROCKET,
+            find(ROCKET_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+        this.subtilePool.set(
+            SubType.GRAVITY,
+            find(GRAVITY_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+        this.subtilePool.set(
+            SubType.BOOM,
+            find(BOOM_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+
         const poolRoot = find(SUBTILE_PATH)
         for (const child of poolRoot?.children!) {
             this.subtilePool.set(

@@ -1,0 +1,22 @@
+{
+    "Level": 88,
+    "Difficulty": 4.0,
+    "GridHeight": 8,
+    "GridWidth": 10,
+    "Theme": "FRUIT",
+    "Tiles": {
+        "TotalTiles": 80,
+        "RocketTiles": 2,
+        "BombEffects": 4,
+        "NormalTiles": {
+            "0": 10,
+            "1": 10,
+            "2": 10,
+            "3": 10,
+            "4": 10,
+            "5": 10,
+            "6": 8,
+            "7": 10
+        }
+    }
+}

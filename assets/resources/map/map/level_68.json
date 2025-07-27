@@ -1,0 +1,22 @@
+{
+    "Level": 68,
+    "Difficulty": 4.0,
+    "GridHeight": 7,
+    "GridWidth": 10,
+    "Theme": "CAKE",
+    "Tiles": {
+        "TotalTiles": 70,
+        "RocketTiles": 2,
+        "BombEffects": 4,
+        "NormalTiles": {
+            "0": 8,
+            "1": 8,
+            "2": 10,
+            "3": 8,
+            "4": 8,
+            "5": 8,
+            "6": 8,
+            "7": 10
+        }
+    }
+}

@@ -1,12 +1,22 @@
 import { Turn } from '../../type/global'
+
+import { LevelLoader } from '../level/LevelLoader'
+
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
+
 import { BaseTurn } from './BaseTurn'
 
 export class EndTurn extends BaseTurn {
     onEnter(): void {
         if (this.game.isWin()) {
+
+            
+            return
+
             Promise.all(AnimationHandler.animList).then(() => {
-                this.game.switchTurn(Turn.LOAD)
+              LevelLoader.checkNeedToChange('completed')
+              LevelLoader.changeLevel()
+              this.game.switchTurn(Turn.LOAD)
             })
             return // prevent calling START below
         }
