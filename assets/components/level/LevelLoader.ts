@@ -50,6 +50,7 @@ export class LevelLoader {
                     resolve(null);
                 } else {
                     const data = asset!.json as LevelData;
+                    console.log(data.Theme)
                     resolve(data);
                 }
             });

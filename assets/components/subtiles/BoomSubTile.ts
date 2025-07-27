@@ -13,14 +13,16 @@ export class BoomSubTile extends BaseSubTile {
     coundown: Sprite | null = null
     @property(Sprite)
     boom: Sprite | null = null
-    private time:number=0;
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         tile.node.addChild(this.node)
         this.coundown!.node.active=true
-        this.boom!.node.active=true
-        console.log(this.tile!.node.position)
-        console.log(this.node.position)     
+        this.boom!.node.active=true     
+    }
+    public onDead(board: Board, isMain: boolean, other: BaseSubTile): void {
+       this.tile?.node.removeChild(this.node)
+       this.coundown!.node.active=false
+       this.boom!.node.active=false
     }
     
     

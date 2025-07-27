@@ -11,7 +11,7 @@ export class EndTurn extends BaseTurn {
         if (this.game.isWin()) {
 
             
-            return
+            
 
             Promise.all(AnimationHandler.animList).then(() => {
               LevelLoader.checkNeedToChange('completed')

@@ -1,15 +1,16 @@
 import { _decorator, Component, Node, Sprite } from 'cc';
+import { LevelLoader } from '../level/LevelLoader';
 const { ccclass, property } = _decorator;
 
 @ccclass('Countdown')
 export class Countdown extends Component {
-    private timer: number = 60; 
+    private timer: number = 10; 
     private currentTime: number = 0;  
     
     start() {
         const sprite = this.node.getComponent(Sprite);
         if (sprite) {
-            sprite.fillRange = 0;
+            sprite.fillRange = -1;
         }
     }
 
@@ -20,7 +21,7 @@ export class Countdown extends Component {
         
         const sprite = this.node.getComponent(Sprite);
         if (sprite) {
-            sprite.fillRange = progress;
+            sprite.fillRange =-1+ progress;
         }
         
         if (this.currentTime >= this.timer) {
@@ -31,13 +32,14 @@ export class Countdown extends Component {
     private onCountdownComplete() {
         console.log("Countdown completed!");
         this.enabled = false;
+        this.resetCountdown()
     }
     
     public resetCountdown() {
         this.currentTime = 0;
         const sprite = this.node.getComponent(Sprite);
         if (sprite) {
-            sprite.fillRange = 0;
+            sprite.fillRange = -1;
         }
         this.enabled = true;
     }
