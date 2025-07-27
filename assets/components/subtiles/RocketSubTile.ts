@@ -16,7 +16,7 @@ export class RocketSubTile extends BaseSubTile {
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         tile.setTypeID(TileType.ROCKET)
-        console.log( this.tile?.node.position)
+        console.log(this.tile?.node.position)
     }
     public onDead(board: Board, isMain: boolean, other: RocketSubTile): void {
         if (!isMain) return
