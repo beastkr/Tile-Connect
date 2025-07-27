@@ -27,6 +27,9 @@ export namespace TileConnect {
         onDead(board: Board, isMain: boolean, other: ITile): void
 
         moveToRealPosition(level: Level): void
+
+        onChoose(): void
+        onUnchoose(): void
     }
 
     /*Base SubTile Interface*/

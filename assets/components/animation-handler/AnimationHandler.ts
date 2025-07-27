@@ -1,14 +1,9 @@
-import { _decorator, Component, Node } from 'cc';
-const { ccclass, property } = _decorator;
+import { _decorator, Component } from 'cc'
+const { ccclass, property } = _decorator
 
 @ccclass('AnimationHandler')
 export class AnimationHandler extends Component {
-    start() {
-
-    }
-
-    update(deltaTime: number) {
-        
-    }
+    static animList: Promise<void>[] = []
+    static animTile: Promise<void>[] = []
+    static matchAnim: Promise<void>[] = []
 }
-

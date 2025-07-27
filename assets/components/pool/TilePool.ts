@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab } from 'cc'
+import { _decorator, Component, instantiate, Node, Prefab, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
@@ -35,6 +35,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
 
     public returnPool(object: Tile): void {
         object.kill()
+        object.node.setPosition(new Vec3())
     }
     public returnMultiple(objects: Tile[]): void {
         for (const tile of objects) {

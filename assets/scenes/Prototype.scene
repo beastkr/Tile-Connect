@@ -23,7 +23,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 39
+      "__id__": 42
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -54,7 +54,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 40
+      "__id__": 43
     },
     "_id": "37888114-60a9-47f6-8dde-a53ead84b7c5"
   },
@@ -95,13 +95,13 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 36
+        "__id__": 39
       },
       {
-        "__id__": 37
+        "__id__": 40
       },
       {
-        "__id__": 38
+        "__id__": 41
       }
     ],
     "_prefab": null,
@@ -948,12 +948,15 @@
       },
       {
         "__id__": 32
+      },
+      {
+        "__id__": 35
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 35
+        "__id__": 38
       }
     ],
     "_prefab": null,
@@ -988,7 +991,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "RocketPool",
+    "_name": "ROCKET",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1074,7 +1077,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "GravityPool",
+    "_name": "GRAVITY",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1157,6 +1160,92 @@
       "__expectedType__": "cc.Prefab"
     },
     "_id": "e5d1UDKNNOIK01caHab5jv"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "BOOM",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 28
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 36
+      },
+      {
+        "__id__": 37
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 33554432,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "b2Fyj4Od9JLK5H09H/1EXs"
+  },
+  {
+    "__type__": "cc.UITransform",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 35
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 100,
+      "height": 100
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_id": "739CC8kXNPm4U/GinnBQg+"
+  },
+  {
+    "__type__": "6abaecMCXJMGaMNASv2EoDQ",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 35
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "subTilePrefab": {
+      "__uuid__": "b2d8c0ea-c16f-4961-8ebd-b5fc975844a0",
+      "__expectedType__": "cc.Prefab"
+    },
+    "_id": "34A+wHcZ9Hrrsk77YBtsId"
   },
   {
     "__type__": "cc.UITransform",
@@ -1259,28 +1348,28 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 41
-    },
-    "shadows": {
-      "__id__": 42
-    },
-    "_skybox": {
-      "__id__": 43
-    },
-    "fog": {
       "__id__": 44
     },
-    "octree": {
+    "shadows": {
       "__id__": 45
     },
-    "skin": {
+    "_skybox": {
       "__id__": 46
     },
-    "lightProbeInfo": {
+    "fog": {
       "__id__": 47
     },
-    "postSettings": {
+    "octree": {
       "__id__": 48
+    },
+    "skin": {
+      "__id__": 49
+    },
+    "lightProbeInfo": {
+      "__id__": 50
+    },
+    "postSettings": {
+      "__id__": 51
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

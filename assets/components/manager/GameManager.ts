@@ -1,15 +1,12 @@
 import { _decorator, Component, find } from 'cc'
-import {
-    GRAVITY_NODE_PATH,
-    ROCKET_NODE_PATH,
-    SubType,
-    Theme,
-    TileType,
-    Turn,
-} from '../../type/global'
+
+import { SubType, TileType, Turn } from '../../type/global'
+
+import { SUBTILE_PATH } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
+import { LevelLoader } from '../level/LevelLoader'
 import PathPool from '../pool/PathPool'
 import StarPool from '../pool/StarPool'
 import TilePool from '../pool/TilePool'
@@ -20,33 +17,14 @@ import { EndTurn } from '../turns/EndTurn'
 import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
+
 const { ccclass, property } = _decorator
-const layer = new Map<SubType, number[][]>()
-layer.set(SubType.ROCKET, [
-    [1, 0, 0],
-    [1, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-])
-const mockUpLevel = new Level(
-    6,
-    3,
-    [
-        [3, 2, 1],
-        [3, 2, 1],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-        [1, 2, 3],
-    ],
-    Theme.FRUIT,
-    layer
-)
+
+const hi = new LevelLoader()
+
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
-    currentLevel: Level = mockUpLevel
+    currentLevel: Level = hi.getCurrentLevel()
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
@@ -81,22 +59,22 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.subTilePoolInit()
         this.turnInit()
     }
-    protected update(dt: number): void {
-        if (this.isWin()) {
-            this.switchTurn(Turn.LOAD)
-            return
-        }
-    }
+    // protected update(dt: number): void {
+    //     if (this.isWin()) {
+    //         this.switchTurn(Turn.LOAD)
+    //         return
+    //     }
+    // }
 
     private subTilePoolInit() {
-        this.subtilePool.set(
-            SubType.ROCKET,
-            find(ROCKET_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
-        )
-        this.subtilePool.set(
-            SubType.GRAVITY,
-            find(GRAVITY_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
-        )
+        const poolRoot = find(SUBTILE_PATH)
+        for (const child of poolRoot?.children!) {
+            this.subtilePool.set(
+                child.name as SubType,
+                child?.getComponent(SubTilePool) as SubTilePool
+            )
+        }
+
         this.subtilePool.forEach((sub) => {
             sub.initialize(this)
         })
@@ -144,6 +122,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             return
         }
         if (this.isSame(tile, this.firstChosen)) {
+            this.firstChosen?.onChoose()
             this.unChoose()
             return
         }
