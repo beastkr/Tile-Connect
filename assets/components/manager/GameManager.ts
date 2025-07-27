@@ -1,4 +1,5 @@
 import { _decorator, Component, find } from 'cc'
+
 import {
     BOOM_NODE_PATH,
     GRAVITY_NODE_PATH,
@@ -8,9 +9,13 @@ import {
     TileType,
     Turn,
 } from '../../type/global'
+=======
+import { SUBTILE_PATH, SubType, Theme, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
+import PathPool from '../pool/PathPool'
+import StarPool from '../pool/StarPool'
 import TilePool from '../pool/TilePool'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
@@ -22,7 +27,9 @@ import { StartTurn } from '../turns/StartTurn'
 import { LevelLoader } from '../level/LevelLoader'
 
 const { ccclass, property } = _decorator
+
 const hi = new LevelLoader()
+
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     
@@ -39,6 +46,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         SubType,
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
+    @property(PathPool)
+    public pathPool: PathPool | null = null
+    @property(StarPool)
+    public starPool: StarPool | null = null
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
     // protected onLoad(): void {
@@ -52,17 +63,20 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     protected start(): void {
         this.tilePool?.initialize(this)
+        this.pathPool?.initialize(this)
+        this.starPool?.initialize(this)
         this.subTilePoolInit()
         this.turnInit()
     }
-    protected update(dt: number): void {
-        if (this.isWin()) {
-            this.switchTurn(Turn.LOAD)
-            return
-        }
-    }
+    // protected update(dt: number): void {
+    //     if (this.isWin()) {
+    //         this.switchTurn(Turn.LOAD)
+    //         return
+    //     }
+    // }
 
     private subTilePoolInit() {
+
         this.subtilePool.set(
             SubType.ROCKET,
             find(ROCKET_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
@@ -75,6 +89,15 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             SubType.BOOM,
             find(BOOM_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
         )
+
+        const poolRoot = find(SUBTILE_PATH)
+        for (const child of poolRoot?.children!) {
+            this.subtilePool.set(
+                child.name as SubType,
+                child?.getComponent(SubTilePool) as SubTilePool
+            )
+        }
+
         this.subtilePool.forEach((sub) => {
             sub.initialize(this)
         })
@@ -122,6 +145,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             return
         }
         if (this.isSame(tile, this.firstChosen)) {
+            this.firstChosen?.onChoose()
             this.unChoose()
             return
         }

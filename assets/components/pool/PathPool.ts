@@ -1,30 +1,30 @@
-import { _decorator, Component, instantiate, Node, Prefab, Vec3 } from 'cc'
+import { _decorator, Component, instantiate, Node, Prefab } from 'cc'
 import { TileConnect } from '../../type/type'
 import GameManager from '../manager/GameManager'
-import Tile from '../tiles/Tile'
+import { Path } from '../path/Path'
 const { ccclass, property } = _decorator
 
-@ccclass('TilePool')
-class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
+@ccclass('PathPool')
+class PathPool extends Component implements TileConnect.IObjectPool<Path> {
     @property(Prefab)
-    private tilePrefab: Prefab | null = null
+    private pathPrefab: Prefab | null = null
     @property(Number)
     private size: number = 0
-    private itemList: Tile[] = []
+    private itemList: Path[] = []
 
     public initialize(game: GameManager) {
         for (let i = 0; i < this.size; i++) {
-            const node = instantiate(this.tilePrefab) as Node | null
+            const node = instantiate(this.pathPrefab) as Node | null
             if (node) {
                 console.log('added child')
                 game.node.addChild(node)
             }
-            this.itemList.push(node?.getComponent(Tile) as Tile)
+            this.itemList.push(node?.getComponent(Path) as Path)
         }
         this.returnAll()
     }
 
-    public getFirstItem(): Tile | null {
+    public getFirstItem(): Path | null {
         for (const tile of this.itemList)
             if (!tile.isUsed()) {
                 tile.reSpawn()
@@ -33,11 +33,10 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
         return null
     }
 
-    public returnPool(object: Tile): void {
+    public returnPool(object: Path): void {
         object.kill()
-        object.node.setPosition(new Vec3())
     }
-    public returnMultiple(objects: Tile[]): void {
+    public returnMultiple(objects: Path[]): void {
         for (const tile of objects) {
             tile.kill()
         }
@@ -46,4 +45,4 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
         this.returnMultiple(this.itemList)
     }
 }
-export default TilePool
+export default PathPool

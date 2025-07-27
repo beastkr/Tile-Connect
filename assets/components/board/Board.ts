@@ -3,6 +3,9 @@ import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { Level } from '../level/Level'
+import GameManager from '../manager/GameManager'
+import PathPool from '../pool/PathPool'
+import StarPool from '../pool/StarPool'
 import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
@@ -12,11 +15,15 @@ const { ccclass, property } = _decorator
 @ccclass('Board')
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
+    game: GameManager | null = null
 
     public match(tile1: Tile, tile2: Tile): void {
         if (this.canMatch(tile1, tile2)) {
+            const path = this.getPath(tile1, tile2)
+            this.drawPath(path.path, this.game?.pathPool!)
+            this.putStar(path.path, this.game?.starPool!)
             tile1.onDead(this, true, tile2)
-            tile1.onDead(this, false, tile1)
+            tile2.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
         }
@@ -45,47 +52,37 @@ class Board extends Component implements TileConnect.IBoard {
             new Vec2(-1, 0), // left
         ]
 
-        type Node = {
+        type State = {
             pos: Vec2
             dir: Vec2
             turn: number
             path: Vec2[]
-            f: number
         }
 
-        const heuristic = (pos: Vec2): number => {
-            return Math.abs(pos.x - end.x) + Math.abs(pos.y - end.y)
-        }
-
+        // 3D visited array: [y][x][direction] to track minimum turns to reach
         const visited = Array.from({ length: height }, () =>
             Array.from({ length: width }, () => Array(4).fill(Infinity))
         )
 
-        const open: Node[] = []
+        const queue: State[] = []
 
         for (let d = 0; d < 4; d++) {
             const dir = directions[d]
             const next = start.clone().add(dir)
             if (!this.validate(next, end)) continue
 
-            const h = heuristic(next)
-            const node: Node = {
+            visited[next.y][next.x][d] = 0
+
+            queue.push({
                 pos: next,
                 dir,
                 turn: 0,
                 path: [start.clone(), next.clone()],
-                f: 0 + h,
-            }
-            open.push(node)
-            visited[next.y][next.x][d] = 0
+            })
         }
 
-        while (open.length > 0) {
-            // Sort by lowest f-cost
-            open.sort((a, b) => a.f - b.f)
-            const current = open.shift()!
-
-            const { pos, dir, turn, path } = current
+        while (queue.length > 0) {
+            const { pos, dir, turn, path } = queue.shift()!
 
             if (pos.equals(end)) {
                 return { path, turnNum: turn }
@@ -102,22 +99,11 @@ class Board extends Component implements TileConnect.IBoard {
 
                 visited[next.y][next.x][d] = newTurn
 
-                const newPath = [...path]
-                if (!dir.equals(newDir)) {
-                    newPath.push(pos.clone())
-                }
-                newPath.push(next.clone())
-
-                const h = heuristic(next)
-                const g = newTurn
-                const f = g + h
-
-                open.push({
+                queue.push({
                     pos: next,
                     dir: newDir,
                     turn: newTurn,
-                    path: newPath,
-                    f,
+                    path: [...path, next.clone()],
                 })
             }
         }
@@ -157,6 +143,7 @@ class Board extends Component implements TileConnect.IBoard {
     }
 
     public setUpManager(game: TileConnect.IGameManager): void {
+        this.game = game as GameManager
         for (const row of this.board) {
             for (const tile of row)
                 tile.addOnClickCallback((tile: TileConnect.ITile) => game.choose(tile))
@@ -192,7 +179,7 @@ class Board extends Component implements TileConnect.IBoard {
                 }
 
                 tile?.setCoordinate(new Vec2(x, y))
-                tile?.moveToRealPositionWithPadding(level)
+                tile?.moveToRealPositionWithPadding(level, false)
             }
         }
     }
@@ -211,6 +198,27 @@ class Board extends Component implements TileConnect.IBoard {
                     tile?.attachSubType(sub as BaseSubTile, key)
                 }
             }
+        }
+    }
+    public drawPath(path: Vec2[], pool: PathPool) {
+        for (let i = 0; i < path.length - 1; i++) {
+            const from = path[i]
+            const posFrom = (this.board[from.y][from.x] as Tile).node.getPosition().toVec2()
+
+            const to = path[i + 1]
+            const posTo = (this.board[to.y][to.x] as Tile).node.getPosition().toVec2()
+            const p = pool.getFirstItem()
+            console.log('from: ', posFrom, 'to: ', posTo)
+            p?.createPath(posFrom, posTo)
+            console.log('draw path from', from, 'to', to)
+        }
+    }
+    public putStar(path: Vec2[], pool: StarPool) {
+        for (let i = 0; i < path.length; i++) {
+            const from = path[i]
+            const pos = (this.board[from.y][from.x] as Tile).node.getPosition().clone()
+            const star = pool.getFirstItem()
+            star?.putAt(pos)
         }
     }
 }
