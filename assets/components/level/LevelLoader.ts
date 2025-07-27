@@ -16,18 +16,18 @@ interface LevelData {
 }
 
 export class LevelLoader {
-    private currentLevel!: Level;
-    private current: number = 1;
-    private needToChange: boolean = false;
-    private data: LevelData | null = null;
-    private shuffleLevel: ShuffleLevel | null = null;
-    private maxLevel: number = 100; 
-    
+    private static currentLevel: Level;
+    private static current: number = 5;
+    private static needToChange: boolean = false;
+    private static data: LevelData | null = null;
+    private static shuffleLevel: ShuffleLevel | null = null;
+    private static maxLevel: number = 100;
+
     constructor() {
-        this.loadLevel(this.current);
+        LevelLoader.loadLevel(LevelLoader.current);
     }
 
-    public checkNeedToChange(condition: 'completed' | 'failed' | 'skip'): void {
+    public static checkNeedToChange(condition: 'completed' | 'failed' | 'skip'): void {
         switch (condition) {
             case 'completed':
                 this.needToChange = true;
@@ -41,24 +41,24 @@ export class LevelLoader {
         }
     }
 
-    private async loadLevelData(levelNumber: number): Promise<LevelData | null> {
-    return new Promise((resolve, reject) => {
-        const path = `map/map/level_${levelNumber}`;
-        resources.load(path, JsonAsset, (err, asset) => {
-            if (err) {
-                console.error(`Không load được level ${levelNumber}:`, err);
-                resolve(null);
-            } else {
-                const data = asset!.json as LevelData;
-                resolve(data);
-            }
+    private static async loadLevelData(levelNumber: number): Promise<LevelData | null> {
+        return new Promise((resolve, reject) => {
+            const path = `map/map/level_${levelNumber}`;
+            resources.load(path, JsonAsset, (err, asset) => {
+                if (err) {
+                    console.error(`Không load được level ${levelNumber}:`, err);
+                    resolve(null);
+                } else {
+                    const data = asset!.json as LevelData;
+                    resolve(data);
+                }
+            });
         });
-    });
-}
+    }
 
-    private async loadLevel(levelNumber: number): Promise<boolean> {
+    private static async loadLevel(levelNumber: number): Promise<boolean> {
         const levelData = await this.loadLevelData(levelNumber);
-        
+
         if (!levelData) {
             console.error(`Không thể load level ${levelNumber}`);
             return false;
@@ -66,40 +66,65 @@ export class LevelLoader {
 
         this.data = levelData;
         this.shuffleLevel = new ShuffleLevel(levelData);
-        
+
         const shuffleResult = this.shuffleLevel.shuffleUntilGood(50);
-        
+
         if (!shuffleResult.success) {
-            console.warn(`Level ${levelNumber} không thể tạo grid phù hợp sau ${shuffleResult.attempts} lần thử`);
+            this.shuffleLevel.shuffle()
+            const layerMap = this.shuffleLevel.getMapLayer(this.shuffleLevel.getGrid())
+
+            const theme = LevelLoader.getThemeFromString(levelData.Theme);
+
+            if (!LevelLoader.currentLevel) {
+                LevelLoader.currentLevel = new Level(
+                    levelData.GridHeight,
+                    levelData.GridWidth,
+                    shuffleResult.grid,
+                    theme,
+                    layerMap
+                );
+                console.log(LevelLoader.currentLevel)
+
+            }
+            else {
+                LevelLoader.currentLevel.change(levelData.GridHeight,
+                    levelData.GridWidth,
+                    shuffleResult.grid,
+                    theme,
+                    layerMap)
+            }
+        }
+        else {
+            const layerMap = this.shuffleLevel.getMapLayer(shuffleResult.grid);
+
+            const theme = this.getThemeFromString(levelData.Theme);
+
+            if (!LevelLoader.currentLevel) {
+                LevelLoader.currentLevel = new Level(
+                    levelData.GridHeight,
+                    levelData.GridWidth,
+                    shuffleResult.grid,
+                    theme,
+                    layerMap
+                );
+                console.log(LevelLoader.currentLevel)
+
+            }
+            else {
+                LevelLoader.currentLevel.change(levelData.GridHeight,
+                    levelData.GridWidth,
+                    shuffleResult.grid,
+                    theme,
+                    layerMap)
+            }
         }
 
-        const layerMap = this.shuffleLevel.getMapLayer(shuffleResult.grid);
-        
-        const theme = this.getThemeFromString(levelData.Theme);
-        
-       if(!this.currentLevel) {this.currentLevel = new Level(
-            levelData.GridHeight,
-            levelData.GridWidth,
-            shuffleResult.grid,
-            theme,
-            layerMap
-        );
-                console.log(this.currentLevel)
-
-    }
-        else{
-            this.currentLevel.change( levelData.GridHeight,
-            levelData.GridWidth,
-            shuffleResult.grid,
-            theme,
-            layerMap)
-        }
 
         console.log(`Level ${levelNumber} đã được load thành công (${shuffleResult.attempts} attempts)`);
         return true;
     }
 
-    private getThemeFromString(themeString: string): Theme {
+    private static getThemeFromString(themeString: string): Theme {
         switch (themeString.toUpperCase()) {
             case 'CAKE':
                 return Theme.CAKE;
@@ -114,97 +139,97 @@ export class LevelLoader {
         }
     }
 
-    public async changeLevel(): Promise<boolean> {
-        if (!this.needToChange) {
+    public static async changeLevel(): Promise<boolean> {
+        if (!LevelLoader.needToChange) {
             console.log("Không cần change level");
             return false;
         }
 
-        const nextLevel = this.current + 1;
+        const nextLevel = LevelLoader.current + 1;
         if (nextLevel > this.maxLevel) {
             console.log("Đã hoàn thành tất cả level!");
             return false;
         }
 
         const success = await this.loadLevel(nextLevel);
-        
+
         if (success) {
-            this.current = nextLevel;
-            this.needToChange = false;
+            LevelLoader.current = nextLevel;
+            LevelLoader.needToChange = false;
             return true;
         }
-        
+
         return false;
     }
 
     public async jumpToLevel(levelNumber: number): Promise<boolean> {
-        if (levelNumber < 1 || levelNumber > this.maxLevel) {
-            console.error(`Level ${levelNumber} không hợp lệ (1-${this.maxLevel})`);
+        if (levelNumber < 1 || levelNumber > LevelLoader.maxLevel) {
+            console.error(`Level ${levelNumber} không hợp lệ (1-${LevelLoader.maxLevel})`);
             return false;
         }
 
-        const success = await this.loadLevel(levelNumber);
-        
+        const success = await LevelLoader.loadLevel(levelNumber);
+
         if (success) {
-            this.current = levelNumber;
-            this.needToChange = false;
-            console.log(`Jump đến level ${this.current}`);
+            LevelLoader.current = levelNumber;
+            LevelLoader.needToChange = false;
+            console.log(`Jump đến level ${LevelLoader.current}`);
             return true;
         }
-        
+
         return false;
     }
 
     public async restartLevel(): Promise<boolean> {
-        return await this.loadLevel(this.current);
+        return await LevelLoader.loadLevel(LevelLoader.current);
     }
 
     public async previousLevel(): Promise<boolean> {
-        if (this.current <= 1) {
+        if (LevelLoader.current <= 1) {
             console.log("Đã ở level đầu tiên");
             return false;
         }
 
-        const prevLevel = this.current - 1;
-        const success = await this.loadLevel(prevLevel);
-        
+        const prevLevel = LevelLoader.current - 1;
+        const success = await LevelLoader.loadLevel(prevLevel);
+
         if (success) {
-            this.current = prevLevel;
-            this.needToChange = false;
-            console.log(`Quay lại level ${this.current}`);
+            LevelLoader.current = prevLevel;
+            LevelLoader.needToChange = false;
+            console.log(`Quay lại level ${LevelLoader.current}`);
             return true;
         }
-        
+
         return false;
     }
 
     // Getters
     public getCurrentLevel(): Level {
-        return this.currentLevel;
+        return LevelLoader.currentLevel;
     }
 
     public getCurrentLevelNumber(): number {
-        return this.current;
+        return LevelLoader.current;
     }
 
     public getNeedToChange(): boolean {
-        return this.needToChange;
+        return LevelLoader.needToChange;
     }
 
     public getLevelData(): LevelData | null {
-        return this.data;
+        return LevelLoader.data;
     }
 
     public getShuffleLevel(): ShuffleLevel | null {
-        return this.shuffleLevel;
+        return LevelLoader.shuffleLevel;
     }
 
     // Setters
     public setNeedToChange(value: boolean): void {
-        this.needToChange = value;
+        LevelLoader.needToChange = value;
     }
 
     public setMaxLevel(max: number): void {
-        this.maxLevel = max;
+        LevelLoader.maxLevel = max;
     }
 }

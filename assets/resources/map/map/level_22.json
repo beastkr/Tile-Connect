@@ -1,17 +1,18 @@
 {
     "Level": 22,
     "Difficulty": 1.0,
-    "GridHeight": 4,
-    "GridWidth": 3,
-    "Theme": "FRUIT",
+    "GridHeight": 3,
+    "GridWidth": 4,
+    "Theme": "DRINK",
     "Tiles": {
         "TotalTiles": 12,
         "RocketTiles": 0,
-        "BombEffects": 1,
+        "BombEffects": 0,
         "NormalTiles": {
             "0": 4,
-            "1": 4,
-            "2": 4
+            "1": 2,
+            "2": 2,
+            "3": 4
         }
     }
 }

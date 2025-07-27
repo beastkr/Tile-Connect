@@ -25,7 +25,6 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private backGroundSpite: Sprite | null = null
     @property(Node)
     public wholeSprite: Node | null = null
-
     private used: boolean = false
     private theme: Theme = Theme.NONE
     private coordinate: Vec2 = new Vec2()

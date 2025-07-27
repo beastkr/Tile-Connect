@@ -2,14 +2,8 @@ import json
 import random
 import math
 import csv
-
 import os
-#độ khó của game:
-# + kích thước grid
-# + số lượng subtile
-# + số lượng negative tile và số lượng positive tile
-# tăng độ khó theo cycle 
-# balance game = level+difficulty
+
 class LevelGenerator:
     def __init__(self, level: int):
         self.level = level
@@ -27,40 +21,97 @@ class LevelGenerator:
             return (cycle - pos_in_cycle) / 2.0
     
     def _generate_grid_size(self):
-        base_height = 4 + int(self.difficulty * 0.8)
-        base_width = 3 + int(self.difficulty * 0.8)
-        height = min(base_height + random.randint(0, 1), 7)
-        width = min(base_width + random.randint(0, 1), 10)
+        base_height = 3 + int(self.difficulty * 0.8)
+        base_width = 4 + int(self.difficulty * 0.8)
         
+        level_cycle = self.level % 20  
+        level_phase = self.level % 10 
+        
+        # Level-based adjustments
+        height_adjustment = 0
+        width_adjustment = 0
+        
+        # Tăng size theo từng milestone level
+        if self.level > 80:
+            height_adjustment += 2
+            width_adjustment += 2
+        elif self.level > 60:
+            height_adjustment += 1.5
+            width_adjustment += 1.5
+        elif self.level > 40:
+            height_adjustment += 1
+            width_adjustment += 1
+        elif self.level > 20:
+            height_adjustment += 0.5
+            width_adjustment += 0.5
+        
+        if level_phase <= 2: 
+            height_adjustment -= 0.3
+            width_adjustment -= 0.2
+        elif level_phase >= 7: 
+            height_adjustment += 0.3
+            width_adjustment += 0.5
+        
+        height = int(base_height + height_adjustment)
+        width = int(base_width + width_adjustment)
+        
+        if random.random() < 0.3:  
+            height += random.choice([0, 1])
+            width += random.choice([0, 1])
+        
+        max_height = min(8, 6 + (self.level // 25)) 
+        max_width = min(12, 8 + (self.level // 20))  
+        
+        height = max(3, min(height, max_height))
+        width = max(4, min(width, max_width))
+        
+        return self._ensure_even_tiles(height, width, max_height, max_width)
+    
+    def _ensure_even_tiles(self, height, width, max_height, max_width):
         while True:
             total_tiles = height * width
             if total_tiles % 2 == 0:
                 return height, width
-            if width < 10:
+            
+            if width < max_width:
                 width += 1
-            elif height < 7:
+            elif height < max_height:
                 height += 1
             else:
-                if random.choice([True, False]):
-                    width -= 1
+                if width > height + 2:  
+                    width = max(4, width - 1)
+                elif height > width + 1:  
+                    height = max(3, height - 1)
                 else:
-                    height -= 1
+                    if random.choice([True, False]):
+                        width = max(4, width - 1)
+                    else:
+                        height = max(3, height - 1)
     
     def _generate_theme(self):
-        return random.choice(['FRUIT', 'BUTTERFLY', 'DRINK','CAKE'])
+        themes = ['FRUIT', 'BUTTERFLY', 'DRINK', 'CAKE']
+        
+        return random.choice(themes)
     
     def _generate_tiles_and_specials(self):
         total_tiles = self._grid_height * self._grid_width
         
-        max_specials = min(total_tiles // 4, 6)
-        num_rocket_tiles = max(0, round(max_specials * (0.3 + 0.1 * self.difficulty)))
+        max_specials = min(total_tiles // 4, 8) 
         
+        rocket_base_ratio = 0.2 + 0.05 * self.difficulty
+        level_bonus = min(0.1, self.level * 0.001)  
+        rocket_ratio = min(0.4, rocket_base_ratio + level_bonus)
+        
+        num_rocket_tiles = max(0, round(max_specials * rocket_ratio))
         if num_rocket_tiles % 2 != 0:
             num_rocket_tiles = max(0, num_rocket_tiles - 1)
         
-        bomb_ratio = 0.15 + 0.08 * self.difficulty
-        bomb_ratio = min(bomb_ratio, 0.6)
-        max_bombs = min((total_tiles - num_rocket_tiles) // 4, 8)
+        bomb_ratio = 0.1 + 0.06 * self.difficulty
+        if self.level > 50:
+            bomb_ratio += 0.05
+        bomb_ratio = min(bomb_ratio, 0.5)
+        
+        max_bombs = min((total_tiles - num_rocket_tiles) // 4, 10)
         num_bomb_effects = round(max_bombs * bomb_ratio)
         
         if self.level < 4:
@@ -69,47 +120,45 @@ class LevelGenerator:
         remaining_tiles = total_tiles - num_rocket_tiles 
         
         num_tile_types = self._calculate_num_tile_types()
-        
         selected_tile_types = list(range(num_tile_types))
-        
         tile_distribution = self._distribute_normal_tiles(remaining_tiles, selected_tile_types)
-        
-        rockets =  num_rocket_tiles
-        bomb_effects =  num_bomb_effects
         
         return {
             'TotalTiles': total_tiles,
-            'RocketTiles': rockets,
-            'BombEffects': bomb_effects,
+            'RocketTiles': num_rocket_tiles,
+            'BombEffects': num_bomb_effects,
             'TileDistribution': tile_distribution
         }
     
     def _calculate_num_tile_types(self):
+        base_types = 3
         
-        if self.difficulty <= 1:
+        if self.level <= 5:
+            base_types = 3
+        elif self.level <= 15:
             base_types = 4
-        elif self.difficulty <= 2:
+        elif self.level <= 30:
             base_types = 5
-        elif self.difficulty <= 3:
-            base_types = 5
-        elif self.difficulty <= 4:
+        elif self.level <= 50:
             base_types = 6
-        else:
+        elif self.level <= 75:
             base_types = 7
+        else:
+            base_types = 8
         
-        variation = 0
-        if self.level % 10 >= 7:  
-            variation = 1
-        elif self.level % 10 <= 2:
-            variation = -1
+        difficulty_bonus = int(self.difficulty * 0.5)
+        base_types += difficulty_bonus
         
-        num_types = max(3, min(7, base_types + variation))
+        level_phase = self.level % 10
+        if level_phase <= 2:  
+            base_types -= 1
+        elif level_phase >= 8: 
+            base_types += 1
         
-        return num_types
+        return max(3, min(8, base_types))
+    
     def _distribute_normal_tiles(self, total_normal_tiles, tile_types):
-        
         num_types = len(tile_types)
-        
         min_pairs_per_type = 1
         base_tiles = min_pairs_per_type * 2 * num_types
         
@@ -120,56 +169,28 @@ class LevelGenerator:
             distribution = {}
             for i, tile_type in enumerate(tile_types):
                 count = pairs_per_type * 2
-                if i < remaining // 2:  
+                if i < remaining // 2:
                     count += 2
                 distribution[tile_type] = count
-            
             return distribution
         
         distribution = {tile_type: min_pairs_per_type * 2 for tile_type in tile_types}
-        
         remaining_tiles = total_normal_tiles - base_tiles
         extra_pairs = remaining_tiles // 2
         
+        # Phân bố đều hơn
         pairs_per_type = extra_pairs // num_types
         leftover_pairs = extra_pairs % num_types
         
         for tile_type in tile_types:
             distribution[tile_type] += pairs_per_type * 2
         
-        for i in range(leftover_pairs):
-            selected_type = random.choice(tile_types)
-            distribution[selected_type] += 2
+        # Phân bố leftover pairs một cách balanced
+        leftover_types = random.sample(tile_types, min(leftover_pairs, len(tile_types)))
+        for tile_type in leftover_types:
+            distribution[tile_type] += 2
         
         return distribution
-    
-    def _calculate_tile_weights(self, tile_types):
-        weights = []
-        
-        for i, tile_type in enumerate(tile_types):
-            # Base weight
-            weight = 1.0
-            
-            if self.difficulty < 2:
-                if tile_type < 4:
-                    weight *= 1.5
-                else:
-                    weight *= 0.7
-            elif self.difficulty < 4:
-                if tile_type < 6:
-                    weight *= 1.2
-                else:
-                    weight *= 0.9
-            else:
-                weight *= 1.0
-            
-            level_factor = 1 + (self.level % 10) * 0.05
-            if tile_type == (self.level % len(tile_types)):
-                weight *= level_factor
-            
-            weights.append(weight)
-        
-        return weights
     
     def export_level_data(self):
         return {
@@ -192,8 +213,6 @@ class LevelGenerator:
             json.dump(self.export_level_data(), f, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
-   
-    
     levels = []
     for i in range(1, 101):
         generator = LevelGenerator(i)

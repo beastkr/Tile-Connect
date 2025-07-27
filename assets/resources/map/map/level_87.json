@@ -1,21 +1,22 @@
 {
     "Level": 87,
     "Difficulty": 3.5,
-    "GridHeight": 7,
-    "GridWidth": 6,
-    "Theme": "BUTTERFLY",
+    "GridHeight": 8,
+    "GridWidth": 9,
+    "Theme": "DRINK",
     "Tiles": {
-        "TotalTiles": 42,
-        "RocketTiles": 4,
-        "BombEffects": 3,
+        "TotalTiles": 72,
+        "RocketTiles": 2,
+        "BombEffects": 4,
         "NormalTiles": {
-            "0": 8,
-            "1": 6,
-            "2": 4,
-            "3": 6,
-            "4": 6,
-            "5": 4,
-            "6": 4
+            "0": 10,
+            "1": 8,
+            "2": 8,
+            "3": 10,
+            "4": 10,
+            "5": 8,
+            "6": 8,
+            "7": 8
         }
     }
 }

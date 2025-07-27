@@ -89,7 +89,6 @@ export class ShuffleLevel {
             attempts++;
             this.shuffle();
         } while (!this.isEasyEnough() && attempts < maxAttempts);
-
         return {
             grid: this.grid,
             attempts,
@@ -138,7 +137,7 @@ export class ShuffleLevel {
             const { x, y } = bombCandidates.splice(index, 1)[0];
             BoomLayer[y][x] = 1;
         }
-
+        console.log(BoomLayer)
         this.layerList.set(SubType.ROCKET, RocketLayer);
         this.layerList.set(SubType.BOOM, BoomLayer);
         return this.layerList;

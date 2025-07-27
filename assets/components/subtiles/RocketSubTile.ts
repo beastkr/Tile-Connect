@@ -15,7 +15,7 @@ export class RocketSubTile extends BaseSubTile {
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         tile.setTypeID(TileType.ROCKET)
-        console.log('nnnn')
+        console.log( this.tile?.node.position)
     }
     public onDead(board: Board, isMain: boolean, other: RocketSubTile): void {
         if (!isMain) return
@@ -54,10 +54,8 @@ export class RocketSubTile extends BaseSubTile {
         const start2 = other.tile!.node.getPosition()
         const pos1 = selected[0].node.getPosition()
         const pos2 = selected[1].node.getPosition()
-
         this.rocket1?.node.setPosition(start1)
         this.rocket2?.node.setPosition(start2)
-
         this.node.parent?.getComponent(GameManager)?.turnOffInput()
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {

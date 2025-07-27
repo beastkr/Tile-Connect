@@ -1,5 +1,6 @@
 import { _decorator, Component, find } from 'cc'
 import {
+    BOOM_NODE_PATH,
     GRAVITY_NODE_PATH,
     ROCKET_NODE_PATH,
     SubType,
@@ -19,11 +20,12 @@ import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 import { LevelLoader } from '../level/LevelLoader'
-const { ccclass, property } = _decorator
 
-const hi=new LevelLoader()
+const { ccclass, property } = _decorator
+const hi = new LevelLoader()
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
+    
     currentLevel: Level = hi.getCurrentLevel()
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
@@ -68,6 +70,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.subtilePool.set(
             SubType.GRAVITY,
             find(GRAVITY_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
+        )
+        this.subtilePool.set(
+            SubType.BOOM,
+            find(BOOM_NODE_PATH)?.getComponent(SubTilePool) as SubTilePool
         )
         this.subtilePool.forEach((sub) => {
             sub.initialize(this)
