@@ -14,6 +14,7 @@ export enum Turn {
     MATCH,
     END,
     PAUSE,
+    FAIL
 }
 
 export enum TileType {

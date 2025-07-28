@@ -7,6 +7,7 @@ interface LevelData {
     GridHeight: number;
     GridWidth: number;
     Theme: string;
+    Time:number;
     Difficulty: number;
     Tiles: {
         NormalTiles: { [key: string]: number };
@@ -82,7 +83,9 @@ export class LevelLoader {
                     levelData.GridWidth,
                     shuffleResult.grid,
                     theme,
+                    levelData.Time,
                     layerMap
+
                 );
                 console.log(LevelLoader.currentLevel)
 
@@ -92,7 +95,8 @@ export class LevelLoader {
                     levelData.GridWidth,
                     shuffleResult.grid,
                     theme,
-                    layerMap)
+                    levelData.Time,
+                    layerMap);
             }
         }
         else {
@@ -106,7 +110,9 @@ export class LevelLoader {
                     levelData.GridWidth,
                     shuffleResult.grid,
                     theme,
+                    levelData.Time,
                     layerMap
+                    
                 );
                 console.log(LevelLoader.currentLevel)
 
@@ -116,7 +122,9 @@ export class LevelLoader {
                     levelData.GridWidth,
                     shuffleResult.grid,
                     theme,
-                    layerMap)
+                    levelData.Time,
+                    layerMap
+                    )
             }
         }
 
@@ -139,7 +147,7 @@ export class LevelLoader {
                 return Theme.CAKE;
         }
     }
-
+    
     public static async changeLevel(): Promise<boolean> {
         if (!LevelLoader.needToChange) {
             console.log("Không cần change level");
