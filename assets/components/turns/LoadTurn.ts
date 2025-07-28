@@ -8,7 +8,7 @@ export class LoadTurn extends BaseTurn {
         })
         this.game.unChoose()
         this.turnOffInput()
-
+        this.game.time = this.game.currentLevel.getTime()
         this.game.matchPair = []
         // this.game.node.setScale(getScale())
         this.game.createBoard(this.game.currentLevel)

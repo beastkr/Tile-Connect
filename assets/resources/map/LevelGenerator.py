@@ -11,7 +11,13 @@ class LevelGenerator:
         self._grid_height, self._grid_width = self._generate_grid_size()
         self.theme = self._generate_theme()
         self.tile_data = self._generate_tiles_and_specials()
-    
+        self._time=self._time_estimate()
+    def _time_estimate(self):
+        if self._grid_width*self._grid_height<20:
+            return 60
+        elif self._grid_width*self._grid_height<40:
+            return 90
+        else: return 120
     def _calculate_difficulty(self, level: int):
         cycle = 20
         pos_in_cycle = level % cycle
@@ -19,7 +25,6 @@ class LevelGenerator:
             return pos_in_cycle / 2.0
         else:
             return (cycle - pos_in_cycle) / 2.0
-    
     def _generate_grid_size(self):
         base_height = 3 + int(self.difficulty * 0.8)
         base_width = 4 + int(self.difficulty * 0.8)
@@ -178,14 +183,12 @@ class LevelGenerator:
         remaining_tiles = total_normal_tiles - base_tiles
         extra_pairs = remaining_tiles // 2
         
-        # Phân bố đều hơn
         pairs_per_type = extra_pairs // num_types
         leftover_pairs = extra_pairs % num_types
         
         for tile_type in tile_types:
             distribution[tile_type] += pairs_per_type * 2
         
-        # Phân bố leftover pairs một cách balanced
         leftover_types = random.sample(tile_types, min(leftover_pairs, len(tile_types)))
         for tile_type in leftover_types:
             distribution[tile_type] += 2
@@ -205,6 +208,7 @@ class LevelGenerator:
                 'BombEffects': self.tile_data['BombEffects'],
                 'NormalTiles': self.tile_data['TileDistribution']
             },
+            'Time':self._time
         }
     
     def save_to_file(self, path: str):
@@ -228,11 +232,12 @@ if __name__ == "__main__":
             'RocketTiles': tiles['RocketTiles'],
             'BombEffects': tiles['BombEffects'],
             'NormalTilesSum': normal_sum,
-            'Difficulty': generator.difficulty
+            'Difficulty': generator.difficulty,
+            'Time': data['Time']
         })
 
     with open('levels_summary.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum','Difficulty']
+        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum','Difficulty','Time']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for row in levels:
