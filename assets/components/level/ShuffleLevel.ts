@@ -11,6 +11,7 @@ export class ShuffleLevel {
     private data:any
     private RocketTile: number;
     private difficulty: number;
+    private Timer:number;
     private grid: number[][] = [];
     private layerList: Map<SubType, number[][]> = new Map();
     constructor(data:any) {
@@ -18,6 +19,7 @@ export class ShuffleLevel {
         this.gridWidth = data.GridWidth;
         this.RocketTile = data.Tiles.RocketTiles;
         this.difficulty = data.Difficulty;
+        this.Timer=data.Time;
         this.data=data
 
     }
@@ -26,6 +28,8 @@ export class ShuffleLevel {
         this.gridWidth = data.GridWidth;
         this.RocketTile = data.Tiles.RocketTiles;
         this.difficulty = data.Difficulty;
+        this.Timer=data.Time;
+
         this.data=data
     }
     public shuffle(): number[][] {

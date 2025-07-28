@@ -1,4 +1,4 @@
-import { _decorator, Component, find } from 'cc'
+import { _decorator, Component, find, Label } from 'cc'
 
 import { SubType, TileType, Turn } from '../../type/global'
 
@@ -18,6 +18,7 @@ import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 
+import{FailTurn} from '../turns/FailTurn'
 const { ccclass, property } = _decorator
 
 const hi = new LevelLoader()
@@ -25,11 +26,11 @@ const hi = new LevelLoader()
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     currentLevel: Level = hi.getCurrentLevel()
+    time: number = 0
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
     matchPair: { tile1: TileConnect.ITile; tile2: TileConnect.ITile }[] = []
-
     @property(TilePool)
     tilePool: TileConnect.IObjectPool<TileConnect.ITile> | null = null
     @property(Map<SubType, TileConnect.IObjectPool<TileConnect.ISubTile>>)
@@ -38,6 +39,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
     @property(PathPool)
+
     public pathPool: PathPool | null = null
     @property(StarPool)
     public starPool: StarPool | null = null
@@ -59,12 +61,6 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.subTilePoolInit()
         this.turnInit()
     }
-    // protected update(dt: number): void {
-    //     if (this.isWin()) {
-    //         this.switchTurn(Turn.LOAD)
-    //         return
-    //     }
-    // }
 
     private subTilePoolInit() {
         const poolRoot = find(SUBTILE_PATH)
@@ -94,7 +90,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.MATCH, new MatchTurn(this))
         this.turnList.set(Turn.END, new EndTurn(this))
         this.turnList.set(Turn.LOAD, new LoadTurn(this))
-
+        this.turnList.set(Turn.FAIL,new FailTurn(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -167,6 +163,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public turnOffInput() {
         this.board?.resetInput()
     }
+ 
 }
 
 export default GameManager
