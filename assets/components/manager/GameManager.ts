@@ -18,7 +18,7 @@ import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 
-import{FailTurn} from '../turns/FailTurn'
+import { FailTurn } from '../turns/FailTurn'
 const { ccclass, property } = _decorator
 
 const hi = new LevelLoader()
@@ -39,7 +39,6 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
     @property(PathPool)
-
     public pathPool: PathPool | null = null
     @property(StarPool)
     public starPool: StarPool | null = null
@@ -90,7 +89,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.MATCH, new MatchTurn(this))
         this.turnList.set(Turn.END, new EndTurn(this))
         this.turnList.set(Turn.LOAD, new LoadTurn(this))
-        this.turnList.set(Turn.FAIL,new FailTurn(this))
+        this.turnList.set(Turn.FAIL, new FailTurn(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -163,7 +162,6 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public turnOffInput() {
         this.board?.resetInput()
     }
- 
 }
 
 export default GameManager

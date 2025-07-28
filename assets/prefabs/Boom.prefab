@@ -358,6 +358,9 @@
     "__prefab": {
       "__id__": 16
     },
+    "frstscale": 0.4,
+    "scndscale": 0.3,
+    "time": 0.4,
     "_id": ""
   },
   {
