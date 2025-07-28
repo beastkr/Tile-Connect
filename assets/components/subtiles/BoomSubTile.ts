@@ -1,30 +1,30 @@
-import { TileType } from './../../type/global';
-import { _decorator, Sprite, Tween, tween, Vec3 } from 'cc'
+import { _decorator, Sprite } from 'cc'
 import Board from '../board/Board'
-import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
+import { Countdown } from './Countdown'
 const { ccclass, property } = _decorator
 
 @ccclass('BoomSubTile')
 export class BoomSubTile extends BaseSubTile {
-    private timer:number=30;
+    private timer: number = 30
     @property(Sprite)
     coundown: Sprite | null = null
     @property(Sprite)
     boom: Sprite | null = null
+    @property(Countdown)
+    cd: Countdown | null = null
+
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         tile.node.addChild(this.node)
-        this.coundown!.node.active=true
-        this.boom!.node.active=true     
+        this.coundown!.node.active = true
+        this.boom!.node.active = true
     }
     public onDead(board: Board, isMain: boolean, other: BaseSubTile): void {
-       this.tile?.node.removeChild(this.node)
-       this.coundown!.node.active=false
-       this.boom!.node.active=false
+        this.cd?.resetCountdown()
+        this.tile?.node.removeChild(this.node)
+        this.coundown!.node.active = false
+        this.boom!.node.active = false
     }
-    
-    
-
 }

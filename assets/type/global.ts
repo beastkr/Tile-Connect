@@ -89,4 +89,12 @@ export function getTilePositionByLevel(
 export const SUBTILE_PATH = 'Canvas/SubtilePool'
 export const ROCKET_NODE_PATH = 'Canvas/SubtilePool/RocketPool'
 export const GRAVITY_NODE_PATH = 'Canvas/SubtilePool/GravityPool'
-export const BOOM_NODE_PATH='Canvas/SubtilePool/BoomPool'
+export const BOOM_NODE_PATH = 'Canvas/SubtilePool/BoomPool'
+
+export enum Direction {
+    NONE = 0,
+    UP = 1,
+    RIGHT = 2,
+    DOWN = 3,
+    LEFT = 4,
+}
