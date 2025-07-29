@@ -27,4 +27,11 @@ export class BoomSubTile extends BaseSubTile {
         this.coundown!.node.active = false
         this.boom!.node.active = false
     }
+    public onDetach(): void {
+        this.cd?.resetCountdown()
+        this.tile?.node.removeChild(this.node)
+        this.coundown!.node.active = false
+        this.boom!.node.active = false
+        super.onDetach()
+    }
 }

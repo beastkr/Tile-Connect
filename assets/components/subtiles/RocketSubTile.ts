@@ -2,7 +2,6 @@ import { _decorator, Sprite, tween, Vec3 } from 'cc'
 import { TileType } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
-import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
 const { ccclass, property } = _decorator
@@ -26,7 +25,7 @@ export class RocketSubTile extends BaseSubTile {
         for (const row of board.board) {
             for (const tile of row) {
                 const type = tile.getTypeID()
-                if (type === TileType.NONE || type === TileType.ROCKET) continue
+                if (type === TileType.NONE || tile === this.tile || tile === other.tile) continue
 
                 if (!tileMap.has(type)) {
                     tileMap.set(type, [])
@@ -57,7 +56,7 @@ export class RocketSubTile extends BaseSubTile {
         const pos2 = selected[1].node.getPosition()
         this.rocket1?.node.setPosition(start1)
         this.rocket2?.node.setPosition(start2)
-        this.node.parent?.getComponent(GameManager)?.turnOffInput()
+        // this.node.parent?.getComponent(GameManager)?.turnOffInput()
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {
             const pos1 = selected[0].node.getPosition()
@@ -78,7 +77,7 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
-                            this.node.parent?.getComponent(GameManager)?.turnOnInput()
+                            // this.node.parent?.getComponent(GameManager)?.turnOnInput()
                             resolve()
                         })
                         .start()
