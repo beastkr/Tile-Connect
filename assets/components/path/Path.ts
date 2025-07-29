@@ -8,11 +8,29 @@ export class Path extends Component implements TileConnect.IPoolObject {
     private used: boolean = false
     private headCoord: Vec2 = new Vec2()
     private tailCoord: Vec2 = new Vec2()
+    // @property(Node)
+    // tailNode: Node | null = null
+    // @property(Node)
+    // tailPoint: Node | null = null
+    // @property(Node)
+    // headNode: Node | null = null
 
-    public createPath(first: Vec2, second: Vec2) {
+    // showHeadTail() {
+    //     this.tailNode!.active = true
+    //     this.headNode!.active = true
+    // }
+    // hideHeadTail() {
+    //     this.tailNode!.active = false
+    //     this.headNode!.active = false
+    // }
+    public createPath(first: Vec2, second: Vec2, fading: boolean = true) {
         this.headCoord = first
         this.tailCoord = second
-        this.updateVisual(this.node)
+        this.updateVisual(this.node, fading)
+        // if (!fading) {
+        //     this.showHeadTail()
+        //     this.tailNode?.setWorldPosition(this.tailPoint?.getWorldPosition()!)
+        // }
     }
 
     private calcDir(): { angle: number; length: number } {
@@ -23,15 +41,16 @@ export class Path extends Component implements TileConnect.IPoolObject {
         return { angle, length }
     }
 
-    private updateVisual(target: Node) {
-        const sprite = this.node.getComponent(Sprite)
+    public updateVisual(tg: Node, tweening: boolean = true) {
+        const target = tg.getChildByName('Path')!
+        const sprite = target.getComponent(Sprite)
         const { angle, length } = this.calcDir()
-        target.angle = angle - 90
+        tg.angle = angle - 90
 
         // Đặt vị trí node tại headCoord (đã là pixel position)
-        target.setPosition(this.headCoord.x, this.headCoord.y)
+        tg.setPosition(this.headCoord.x, this.headCoord.y)
         console.log('length: ', length)
-        target.setScale(new Vec3(1.5, length / 12))
+        target.setScale(new Vec3(1, length / 12))
         // Resize chiều dài
         // const uiTransform = target.getComponent(UITransform)
         // if (uiTransform) {
@@ -39,18 +58,20 @@ export class Path extends Component implements TileConnect.IPoolObject {
         //     const currentSize = uiTransform.contentSize
         //     uiTransform.setContentSize(new Size(newWidth, 500))
         // }
-        AnimationHandler.animList.push(
-            new Promise<void>((resolve) => {
-                tween(sprite!)
-                    .to(0.5, { color: new Color(255, 255, 255, 0) })
-                    .call(() => {
-                        sprite!.color = new Color(255, 255, 255, 255)
-                        this.kill()
-                        resolve()
-                    })
-                    .start()
-            })
-        )
+        if (tweening) {
+            AnimationHandler.animList.push(
+                new Promise<void>((resolve) => {
+                    tween(sprite!)
+                        .to(0.5, { color: new Color(255, 255, 255, 0) })
+                        .call(() => {
+                            sprite!.color = new Color(255, 255, 255, 255)
+                            this.kill()
+                            resolve()
+                        })
+                        .start()
+                })
+            )
+        }
     }
 
     isUsed(): boolean {
@@ -63,6 +84,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
     }
 
     kill(): void {
+        // this.hideHeadTail()
         this.used = false
         this.node.active = false
     }

@@ -1,13 +1,15 @@
-import { _decorator } from 'cc'
+import { _decorator, Vec2 } from 'cc'
 import { TileType } from '../../type/global'
 import Board from '../board/Board'
+import PathPool from '../pool/PathPool'
+import StarPool from '../pool/StarPool'
 import Tile from '../tiles/Tile'
-import { BaseItem } from './BaseItem'
+import BaseItem from './BaseItem'
 
 const { ccclass, property } = _decorator
 
 @ccclass('HintItem')
-export class HintItem extends BaseItem {
+class HintItem extends BaseItem {
     onUse(): void {
         if (this.clicked) return
         super.onUse()
@@ -45,8 +47,40 @@ export class HintItem extends BaseItem {
     }
 
     private showHintEffect(tile1: Tile, tile2: Tile) {
+        this.game?.unChoose()
         const board = this.game?.board as Board
         const path = this.game?.board?.getPath(tile1, tile2)
-        board.drawPath(path!.path, this.game!.pathPool!)
+        this.game?.hintTile.push(tile1, tile2)
+        tile1.onHint()
+        tile2.onHint()
+        this.drawPath(path!.path, this.game!.pathPool!)
+        this.putStar(path!.path, this.game!.starPool!)
+    }
+    public drawPath(path: Vec2[], pool: PathPool) {
+        for (let i = 0; i < path.length - 1; i++) {
+            const from = path[i]
+            const posFrom = (this.game!.board?.board[from.y][from.x] as Tile).node
+                .getPosition()
+                .toVec2()
+
+            const to = path[i + 1]
+            const posTo = (this.game!.board?.board[to.y][to.x] as Tile).node.getPosition().toVec2()
+            const p = pool.getFirstItem()
+            console.log('from: ', posFrom, 'to: ', posTo)
+            p?.createPath(posFrom, posTo, false)
+            this.game!.hintPath.push(p!)
+
+            console.log('draw path from', from, 'to', to)
+        }
+    }
+    public putStar(path: Vec2[], pool: StarPool) {
+        for (let i = 0; i < path.length; i++) {
+            const from = path[i]
+            const pos = (this.game?.board?.board[from.y][from.x] as Tile).node.getPosition().clone()
+            const star = pool.getFirstItem()
+            star?.putAtForHint(pos)
+            this.game?.hintPoint.push(star!)
+        }
     }
 }
+export default HintItem

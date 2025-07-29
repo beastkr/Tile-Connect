@@ -1,12 +1,12 @@
+import { JsonAsset, resources } from 'cc'
+import { Theme } from '../../type/global'
+import { TileConnect } from '../../type/type'
 import { Level } from './Level'
 import { ShuffleLevel } from './ShuffleLevel'
-import { Theme, SubType } from '../../type/global'
-import { JsonAsset, resources } from 'cc'
-import { TileConnect } from '../../type/type'
 
 export class LevelLoader {
     private static currentLevel: Level
-    private static current: number = 5
+    private static current: number = 7
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
     private static shuffleLevel: ShuffleLevel | null = null

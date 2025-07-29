@@ -1,5 +1,5 @@
-import { Popup } from './../../type/global'
 import { _decorator, Component, Node } from 'cc'
+import { Popup } from './../../type/global'
 const { ccclass, property } = _decorator
 
 @ccclass('UImanager')

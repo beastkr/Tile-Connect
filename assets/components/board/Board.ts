@@ -18,6 +18,7 @@ class Board extends Component implements TileConnect.IBoard {
     game: GameManager | null = null
 
     public match(tile1: Tile, tile2: Tile): void {
+        if (tile1.underKill || tile2.underKill) return
         if (this.canMatch(tile1, tile2)) {
             const path = this.getPath(tile1, tile2)
             this.drawPath(path.path, this.game?.pathPool!)
@@ -155,7 +156,7 @@ class Board extends Component implements TileConnect.IBoard {
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
-
+        this.board = []
         for (let y = 0; y < height; y++) {
             this.board[y] = []
             for (let x = 0; x < width; x++) {
