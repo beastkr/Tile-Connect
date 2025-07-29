@@ -50,6 +50,9 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
 
     public onClickCallbacks: ((tile: TileConnect.ITile) => void)[] = []
+    public getSubtileList() {
+        return this.subTileList
+    }
 
     public setTheme(theme: Theme) {
         if (theme == this.theme) return
@@ -125,6 +128,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
 
     public detachSubType(key: SubType): void {
+        this.subTileList.get(key)?.onDetach()
         this.subTileList.delete(key)
     }
 

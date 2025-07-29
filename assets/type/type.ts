@@ -98,4 +98,8 @@ export namespace TileConnect {
     export interface ITurnManager {
         switchTurn(newTurn: Turn): void
     }
+    export interface IItem {
+        quantity: number
+        onUse(): void
+    }
 }

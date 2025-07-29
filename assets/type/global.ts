@@ -103,3 +103,11 @@ export enum Direction {
     DOWN = 3,
     LEFT = 4,
 }
+
+export const directionValue = {
+    none: new Vec2(0, 0),
+    up: new Vec2(0, 1),
+    right: new Vec2(1, 0),
+    down: new Vec2(0, -1),
+    left: new Vec2(-1, 0),
+}
