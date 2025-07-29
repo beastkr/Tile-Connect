@@ -39,7 +39,18 @@ export namespace TileConnect {
         onAttach(tile: ITile): void
         onDetach(): void
     }
-
+    export interface ILevelData {
+        GridHeight: number
+        GridWidth: number
+        Theme: string
+        Time: number
+        Difficulty: number
+        Tiles: {
+            NormalTiles: { [key: string]: number }
+            RocketTiles: number
+            BombEffects: number
+        }
+    }
     export interface IBoard {
         board: ITile[][]
 

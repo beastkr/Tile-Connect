@@ -14,7 +14,7 @@ export enum Turn {
     MATCH,
     END,
     PAUSE,
-    FAIL
+    FAIL,
 }
 
 export enum TileType {
@@ -29,7 +29,11 @@ export enum TileType {
     TYPE7 = 7,
     ROCKET = 8,
 }
-
+export enum Popup {
+    FAILPOPUP = 'failPopUp',
+    // BOOMPOPUP = 'boomPopup',
+    // PAUSEPOPUP = 'pausePopup',
+}
 export enum Theme {
     NONE = '',
     CAKE = 'Img0_',

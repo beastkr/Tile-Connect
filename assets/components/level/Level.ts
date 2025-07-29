@@ -32,6 +32,7 @@ export class Level {
         grid: number[][],
         theme: Theme,
         time: number,
+
         layer?: Map<SubType, number[][]>
     ) {
         this.theme = theme
