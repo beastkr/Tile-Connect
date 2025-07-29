@@ -6,7 +6,7 @@ import { TileConnect } from '../../type/type'
 
 export class LevelLoader {
     private static currentLevel: Level
-    private static current: number = 5
+    private static current: number = 1
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
     private static shuffleLevel: ShuffleLevel | null = null
