@@ -1,11 +1,7 @@
-import { Popup, Turn } from '../../type/global'
+import { Popup } from '../../type/global'
 
-import { LevelLoader } from '../level/LevelLoader'
-
-import { AnimationHandler } from '../animation-handler/AnimationHandler'
-
-import { BaseTurn } from './BaseTurn'
 import { UImanager } from '../ui-manager/UImanager'
+import { BaseTurn } from './BaseTurn'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
