@@ -184,6 +184,46 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+
+    public shuffle() {
+        console.log('shuffle')
+        const flatten: Tile[] = []
+        this.game?.stopHint()
+
+        // Collect all non-NONE tiles into flatten array
+        for (const row of this.board) {
+            for (const tile of row) {
+                if (tile.getTypeID() !== TileType.NONE) {
+                    flatten.push(tile as Tile)
+                }
+            }
+        }
+
+        // Fisher–Yates shuffle
+        for (let i = flatten.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
+        }
+
+        // Reassign shuffled tiles back to the board, skipping NONEs
+        let index = 0
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[i].length; j++) {
+                if (this.board[i][j].getTypeID() !== TileType.NONE) {
+                    const shuffledTile = flatten[index++]
+                    this.board[i][j] = shuffledTile
+
+                    shuffledTile.setCoordinate(new Vec2(j, i))
+                }
+            }
+        }
+        for (const row of this.board) {
+            for (const tile of row) {
+                ;(tile as Tile).moveToRealPositionWithPadding(this.game?.currentLevel!)
+            }
+        }
+    }
+
     public addSubTile(pool: SubTilePool, level: Level, key: SubType) {
         const subTileMap = level.layer.get(key)
         if (!subTileMap) return

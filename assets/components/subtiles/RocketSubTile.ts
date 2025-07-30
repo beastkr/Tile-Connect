@@ -92,7 +92,7 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
-
+                            this.kill()
                             resolve()
                         })
                         .start()
@@ -114,6 +114,7 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket2!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket2!.node.angle = 0
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+                            other.kill()
                             resolve()
                         })
                         .start()

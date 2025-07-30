@@ -41,6 +41,9 @@ export class ItemManager extends Component {
     useBoom() {
         this.useItem(Item.BOOM)
     }
+    useShuffle() {
+        this.useItem(Item.SHUFFLE)
+    }
 
     unlockItem(itemType: Item) {
         this.itemList.get(itemType)?.unlock()

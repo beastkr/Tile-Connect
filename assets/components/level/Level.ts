@@ -21,7 +21,7 @@ export class Level {
         this.gridHeight = h
         this.gridWidth = w
         this.grid = grid
-        this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight)
+        this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 5
         this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
         if (layer) this.layer = layer
         this.time = time

@@ -174,7 +174,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.itemManager?.intialize()
         this.board?.create(this.tilePool!, level)
         for (const pool of this.subtilePool) {
-            this.board?.addSubTile(pool[1] as SubTilePool, level, pool[0])
+            this.board?.addSubTile(pool[1] as SubTilePool, this.currentLevel, pool[0])
         }
     }
     public switchTurn(newTurn: Turn): void {

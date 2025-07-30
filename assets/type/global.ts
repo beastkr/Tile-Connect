@@ -116,4 +116,5 @@ export const directionValue = {
 export enum Item {
     HINT = 'HintItem',
     BOOM = 'BoomDefuseItem',
+    SHUFFLE = 'ShuffleItem',
 }
