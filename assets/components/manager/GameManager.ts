@@ -21,7 +21,12 @@ import { StartTurn } from '../turns/StartTurn'
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
 import { FailTurn } from '../turns/FailTurn'
+
 import { ItemManager } from './ItemManager'
+
+import { WinTurn } from '../turns/WinTurn'
+import { UImanager } from '../ui-manager/UImanager'
+
 const { ccclass, property } = _decorator
 
 const hi = new LevelLoader()
@@ -113,6 +118,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.END, new EndTurn(this))
         this.turnList.set(Turn.LOAD, new LoadTurn(this))
         this.turnList.set(Turn.FAIL, new FailTurn(this))
+        this.turnList.set(Turn.WIN, new WinTurn(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -184,6 +190,16 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public turnOnInput() {
         this.board?.setUpManager(this)
+    }
+    public restart() {
+        UImanager.hideAllPopups()
+        this.switchTurn(Turn.LOAD)
+    }
+    public moveOn() {
+        UImanager.hideAllPopups()
+        LevelLoader.checkNeedToChange('completed')
+        LevelLoader.changeLevel()
+        this.switchTurn(Turn.LOAD)
     }
     public turnOffInput() {
         this.board?.resetInput()
