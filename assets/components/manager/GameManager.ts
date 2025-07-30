@@ -193,6 +193,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public restart() {
         UImanager.hideAllPopups()
+        LevelLoader.checkNeedToChange('failed')
+        LevelLoader.changeLevel()
         this.switchTurn(Turn.LOAD)
     }
     public moveOn() {

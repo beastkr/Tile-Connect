@@ -1,6 +1,3 @@
-
-import { Popup } from '../../type/global'
-
 import { Victory } from './../ui-manager/victory-popup/victoryPopup'
 import { Popup, Turn } from '../../type/global'
 import { LevelLoader } from '../level/LevelLoader'
@@ -15,7 +12,6 @@ export class FailTurn extends BaseTurn {
 
         console.log('Fail')
         UImanager.showPopup(Popup.FAILPOPUP)
-
     }
 
     onExit(): void {}
