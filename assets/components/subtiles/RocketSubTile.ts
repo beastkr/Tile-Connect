@@ -1,4 +1,4 @@
-import { _decorator, Sprite, tween, Vec3 } from 'cc'
+import { _decorator, Node, Sprite, tween, Vec3 } from 'cc'
 import { TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
@@ -9,16 +9,22 @@ const { ccclass, property } = _decorator
 
 @ccclass('RocketSubTile')
 export class RocketSubTile extends BaseSubTile {
+    @property(Node)
+    particle: Node | null = null
     @property(Sprite)
     rocket1: Sprite | null = null
     @property(Sprite)
     rocket2: Sprite | null = null
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
+        this.particle!.active = true
+        this.tile?.node.addChild(this.particle!)
         tile.setTypeID(TileType.ROCKET)
         console.log(this.tile?.node.position)
     }
     public onDead(board: Board, isMain: boolean, other: RocketSubTile): void {
+        this.tile?.node.removeChild(this.particle!)
+        this.tile!.node.active = false
         if (!this.tile) return
         if (!isMain) return
         const tileMap = new Map<TileType, Tile[]>()
