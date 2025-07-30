@@ -36,6 +36,7 @@ export enum Popup {
     WINPOPUP = 'victoryPopup',
     PAUSEPOPUP = 'pausePopup',
 }
+
 export enum Theme {
     NONE = '',
     CAKE = 'Img0_',
@@ -112,4 +113,10 @@ export const directionValue = {
     right: new Vec2(1, 0),
     down: new Vec2(0, -1),
     left: new Vec2(-1, 0),
+}
+
+export enum Item {
+    HINT = 'HintItem',
+    BOOM = 'BoomDefuseItem',
+    SHUFFLE = 'ShuffleItem',
 }

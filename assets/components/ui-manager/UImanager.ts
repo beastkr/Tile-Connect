@@ -1,6 +1,8 @@
+
 import { Popup } from './../../type/global'
 import { _decorator, Component, Node, tween, Vec3 } from 'cc'
 import { BasePopup } from './basePopup'
+
 
 const { ccclass, property } = _decorator
 

@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Vec3 } from 'cc'
+import { _decorator, Component, Sprite, tween, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
@@ -6,14 +6,19 @@ const { ccclass, property } = _decorator
 @ccclass('Star')
 export class Star extends Component implements TileConnect.IPoolObject {
     private used: boolean = false
-
+    @property(Sprite)
+    circle: Sprite | null = null
+    @property(Sprite)
+    star: Sprite | null = null
     putAt(pos: Vec3) {
         this.node.setPosition(pos)
+        this.star!.node.active = true
+        this.circle!.node.active = false
         AnimationHandler.animList.push(
             new Promise<void>((resolve) => {
                 tween(this.node)
                     .delay(0.8)
-                    .to(0.5, { position: new Vec3(0, 0, 0) }, { easing: 'quadOut' })
+                    .to(0.5, { position: new Vec3(0, 600, 0) }, { easing: 'quadOut' })
                     .delay(0.2)
                     .call(() => {
                         this.kill()
@@ -22,6 +27,11 @@ export class Star extends Component implements TileConnect.IPoolObject {
                     .start()
             })
         )
+    }
+    putAtForHint(pos: Vec3) {
+        this.star!.node.active = false
+        this.node.setPosition(pos)
+        this.circle!.node.active = true
     }
 
     isUsed(): boolean {
@@ -35,6 +45,8 @@ export class Star extends Component implements TileConnect.IPoolObject {
     }
 
     kill(): void {
+        this.star!.node.active = false
+        this.circle!.node.active = false
         this.used = false
         this.node.active = false
     }

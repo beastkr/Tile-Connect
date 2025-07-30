@@ -1,6 +1,6 @@
-import { _decorator, Component, find, Label } from 'cc'
+import { _decorator, Color, Component, find, tween } from 'cc'
 
-import { SubType, TileType, Turn } from '../../type/global'
+import { Item, SubType, TileType, Turn } from '../../type/global'
 
 import { SUBTILE_PATH } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -18,9 +18,15 @@ import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 
+import { Path } from '../path/Path'
+import { Star } from '../star/Star'
 import { FailTurn } from '../turns/FailTurn'
+
+import { ItemManager } from './ItemManager'
+
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
+
 const { ccclass, property } = _decorator
 
 const hi = new LevelLoader()
@@ -40,20 +46,40 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         SubType,
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
+    @property(ItemManager)
+    itemManager: ItemManager | null = null
     @property(PathPool)
     public pathPool: PathPool | null = null
     @property(StarPool)
     public starPool: StarPool | null = null
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
-    // protected onLoad(): void {
-    //     this.resize()
-    //     view.on('canvas-resize', this.resize, this)
-    // }
-    // resize() {
-    //     const scale = getScale()
-    //     this.node.setScale(scale)
-    // }
+    hintPath: Path[] = []
+    hintPoint: Star[] = []
+    hintTile: Tile[] = []
+
+    stopHint() {
+        if (this.hintPath.length == 0) return
+        for (const path of this.hintPath) {
+            path.updateVisual(path.node)
+        }
+        for (const star of this.hintPoint) {
+            tween(star.circle!)
+                .to(0.5, { color: new Color(255, 255, 255, 0) })
+                .call(() => {
+                    star.kill()
+                    star.circle!.color = new Color(255, 255, 255, 255)
+                })
+                .start()
+        }
+        this.hintTile.forEach((tile) => {
+            tile.onUnHint()
+        })
+        this.hintPath = []
+        this.hintPoint = []
+        this.hintTile = []
+        this.itemManager?.unlockItem(Item.HINT)
+    }
 
     protected start(): void {
         this.tilePool?.initialize(this)
@@ -106,11 +132,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public choose(tile: TileConnect.ITile): void {
+        if (tile.getTypeID() == TileType.NONE) return
         console.log(tile.getCoordinate())
         if (!this.firstChosen || !this.sameType(this.firstChosen, tile)) {
             this.firstChosen?.onUnchoose()
             this.firstChosen = tile as Tile
             this.firstChosen.onChoose()
+            this.stopHint()
             console.log(
                 'first: ',
                 this.firstChosen.getCoordinate(),
@@ -149,9 +177,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
+        this.itemManager?.intialize()
         this.board?.create(this.tilePool!, level)
         for (const pool of this.subtilePool) {
-            this.board?.addSubTile(pool[1] as SubTilePool, level, pool[0])
+            this.board?.addSubTile(pool[1] as SubTilePool, this.currentLevel, pool[0])
         }
     }
     public switchTurn(newTurn: Turn): void {

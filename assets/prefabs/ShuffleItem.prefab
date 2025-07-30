@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "BoomDefuseItem",
+    "_name": "ShuffleItem",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "BoomDefuseItem",
+    "_name": "ShuffleItem",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -284,8 +284,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 52,
-      "height": 69
+      "width": 61,
+      "height": 47
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -321,7 +321,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "e60ae2e9-ca99-4ad4-82b7-528604155433@f9941",
+      "__uuid__": "d1b4bcc2-18b8-416e-8574-c15b0397dd95@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -365,7 +365,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 15
@@ -556,8 +556,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 52,
-      "height": 69
+      "width": 61,
+      "height": 47
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -587,13 +587,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
+      "r": 112,
+      "g": 112,
+      "b": 112,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "47dc57ea-eb9e-4795-956d-e433be0df839@f9941",
+      "__uuid__": "a1f5cc19-cd4a-4065-818c-071867e8a847@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -947,7 +947,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 41
@@ -1209,7 +1209,7 @@
     "fileId": "27CXmK2jRBwKvD1+6SAcUC"
   },
   {
-    "__type__": "c5603FwifxAj4rdveJjR9py",
+    "__type__": "438ffQp8BhHubr0sDJ7hdL0",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1246,7 +1246,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "d6m7wucYVF9ax8+nQNaBjO"
+    "fileId": "ebf8yv/X5OU5G/LMYxNeqn"
   },
   {
     "__type__": "cc.PrefabInfo",

@@ -1,7 +1,7 @@
 import { _decorator } from 'cc'
 import { SubType } from '../../type/global'
 import Tile from '../tiles/Tile'
-import { BaseItem } from './BaseItem'
+import BaseItem from './BaseItem'
 const { ccclass, property } = _decorator
 
 @ccclass('BoomDefuseItem')
