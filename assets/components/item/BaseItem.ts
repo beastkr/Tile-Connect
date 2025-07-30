@@ -16,7 +16,7 @@ class BaseItem extends Component implements TileConnect.IItem {
     protected quantityText: RichText | null = null
     protected clicked: boolean = false
     @property(GameManager)
-    protected game: GameManager | null = null
+    public game: GameManager | null = null
     @property(Sprite)
     lockedIcon: Sprite | null = null
     @property(Sprite)
