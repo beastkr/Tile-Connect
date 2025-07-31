@@ -18,6 +18,7 @@ class Board extends Component implements TileConnect.IBoard {
     game: GameManager | null = null
 
     public match(tile1: Tile, tile2: Tile): void {
+        if (tile1.underKill || tile2.underKill) return
         if (this.canMatch(tile1, tile2)) {
             const path = this.getPath(tile1, tile2)
             this.drawPath(path.path, this.game?.pathPool!)
@@ -155,7 +156,7 @@ class Board extends Component implements TileConnect.IBoard {
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
-
+        this.board = []
         for (let y = 0; y < height; y++) {
             this.board[y] = []
             for (let x = 0; x < width; x++) {
@@ -183,6 +184,46 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+
+    public shuffle() {
+        console.log('shuffle')
+        const flatten: Tile[] = []
+        this.game?.stopHint()
+
+        // Collect all non-NONE tiles into flatten array
+        for (const row of this.board) {
+            for (const tile of row) {
+                if (tile.getTypeID() !== TileType.NONE) {
+                    flatten.push(tile as Tile)
+                }
+            }
+        }
+
+        // Fisher–Yates shuffle
+        for (let i = flatten.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
+        }
+
+        // Reassign shuffled tiles back to the board, skipping NONEs
+        let index = 0
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[i].length; j++) {
+                if (this.board[i][j].getTypeID() !== TileType.NONE) {
+                    const shuffledTile = flatten[index++]
+                    this.board[i][j] = shuffledTile
+
+                    shuffledTile.setCoordinate(new Vec2(j, i))
+                }
+            }
+        }
+        for (const row of this.board) {
+            for (const tile of row) {
+                ;(tile as Tile).moveToRealPositionWithPadding(this.game?.currentLevel!)
+            }
+        }
+    }
+
     public addSubTile(pool: SubTilePool, level: Level, key: SubType) {
         const subTileMap = level.layer.get(key)
         if (!subTileMap) return

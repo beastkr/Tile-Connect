@@ -1,6 +1,6 @@
-import { _decorator, Component, find, Label } from 'cc'
+import { _decorator, Color, Component, find, tween } from 'cc'
 
-import { SubType, TileType, Turn } from '../../type/global'
+import { Item, SubType, TileType, Turn } from '../../type/global'
 
 import { SUBTILE_PATH } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -18,7 +18,16 @@ import { LoadTurn } from '../turns/LoadTurn'
 import { MatchTurn } from '../turns/MatchTurn'
 import { StartTurn } from '../turns/StartTurn'
 
-import{FailTurn} from '../turns/FailTurn'
+import { Path } from '../path/Path'
+import { Star } from '../star/Star'
+import { FailTurn } from '../turns/FailTurn'
+
+import { ItemManager } from './ItemManager'
+
+import { WinTurn } from '../turns/WinTurn'
+import { UImanager } from '../ui-manager/UImanager'
+import { PauseTurn } from '../turns/PauseTurn'
+
 const { ccclass, property } = _decorator
 
 const hi = new LevelLoader()
@@ -27,6 +36,7 @@ const hi = new LevelLoader()
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     currentLevel: Level = hi.getCurrentLevel()
     time: number = 0
+    ispause: boolean = false
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
@@ -38,21 +48,40 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         SubType,
         TileConnect.IObjectPool<TileConnect.ISubTile>
     >()
+    @property(ItemManager)
+    itemManager: ItemManager | null = null
     @property(PathPool)
-
     public pathPool: PathPool | null = null
     @property(StarPool)
     public starPool: StarPool | null = null
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
-    // protected onLoad(): void {
-    //     this.resize()
-    //     view.on('canvas-resize', this.resize, this)
-    // }
-    // resize() {
-    //     const scale = getScale()
-    //     this.node.setScale(scale)
-    // }
+    hintPath: Path[] = []
+    hintPoint: Star[] = []
+    hintTile: Tile[] = []
+
+    stopHint() {
+        if (this.hintPath.length == 0) return
+        for (const path of this.hintPath) {
+            path.updateVisual(path.node)
+        }
+        for (const star of this.hintPoint) {
+            tween(star.circle!)
+                .to(0.5, { color: new Color(255, 255, 255, 0) })
+                .call(() => {
+                    star.kill()
+                    star.circle!.color = new Color(255, 255, 255, 255)
+                })
+                .start()
+        }
+        this.hintTile.forEach((tile) => {
+            tile.onUnHint()
+        })
+        this.hintPath = []
+        this.hintPoint = []
+        this.hintTile = []
+        this.itemManager?.unlockItem(Item.HINT)
+    }
 
     protected start(): void {
         this.tilePool?.initialize(this)
@@ -60,6 +89,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.starPool?.initialize(this)
         this.subTilePoolInit()
         this.turnInit()
+        // this.itemManager?.intialize(this)
     }
 
     private subTilePoolInit() {
@@ -90,7 +120,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.MATCH, new MatchTurn(this))
         this.turnList.set(Turn.END, new EndTurn(this))
         this.turnList.set(Turn.LOAD, new LoadTurn(this))
-        this.turnList.set(Turn.FAIL,new FailTurn(this))
+        this.turnList.set(Turn.FAIL, new FailTurn(this))
+        this.turnList.set(Turn.WIN, new WinTurn(this))
+        this.turnList.set(Turn.PAUSE, new PauseTurn(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -104,11 +136,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public choose(tile: TileConnect.ITile): void {
+        if (tile.getTypeID() == TileType.NONE) return
         console.log(tile.getCoordinate())
         if (!this.firstChosen || !this.sameType(this.firstChosen, tile)) {
             this.firstChosen?.onUnchoose()
             this.firstChosen = tile as Tile
             this.firstChosen.onChoose()
+            this.stopHint()
             console.log(
                 'first: ',
                 this.firstChosen.getCoordinate(),
@@ -144,12 +178,16 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.matchPair.shift()
         }
     }
+    public currentNumber(): number {
+        return hi.getCurrentLevelNumber()
+    }
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
+        this.itemManager?.intialize(this)
         this.board?.create(this.tilePool!, level)
         for (const pool of this.subtilePool) {
-            this.board?.addSubTile(pool[1] as SubTilePool, level, pool[0])
+            this.board?.addSubTile(pool[1] as SubTilePool, this.currentLevel, pool[0])
         }
     }
     public switchTurn(newTurn: Turn): void {
@@ -160,10 +198,32 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public turnOnInput() {
         this.board?.setUpManager(this)
     }
+    public restart() {
+        UImanager.hideAllPopups()
+        LevelLoader.checkNeedToChange('failed')
+        LevelLoader.changeLevel()
+        this.switchTurn(Turn.LOAD)
+    }
+    public pause() {
+        this.ispause = true
+        UImanager.hideAllPopups()
+        this.switchTurn(Turn.PAUSE)
+    }
+    public unPause() {
+        this.ispause = false
+        UImanager.hideAllPopups()
+        this.turnOnInput()
+        this.switchTurn(Turn.START)
+    }
+    public moveOn() {
+        UImanager.hideAllPopups()
+        LevelLoader.checkNeedToChange('completed')
+        LevelLoader.changeLevel()
+        this.switchTurn(Turn.LOAD)
+    }
     public turnOffInput() {
         this.board?.resetInput()
     }
- 
 }
 
 export default GameManager

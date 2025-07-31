@@ -6,6 +6,7 @@ import {
     Size,
     Sprite,
     SpriteFrame,
+    Tween,
     tween,
     UITransform,
     Vec2,
@@ -32,12 +33,15 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     @property(Node)
     public rotatedChoosingEff: Node | null = null
 
+    public underKill: boolean = false
     private selfPromise: Promise<void>[] = []
+    private originScale: number = 1
 
     private used: boolean = false
     private theme: Theme = Theme.NONE
     private coordinate: Vec2 = new Vec2()
     private typeID: TileType = TileType.NONE
+    private hintAnimation: Tween<Node> | null = null
 
     private subTileList: Map<SubType, TileConnect.ISubTile> = new Map<
         SubType,
@@ -50,6 +54,9 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
 
     public onClickCallbacks: ((tile: TileConnect.ITile) => void)[] = []
+    public getSubtileList() {
+        return this.subTileList
+    }
 
     public setTheme(theme: Theme) {
         if (theme == this.theme) return
@@ -102,6 +109,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.wholeSprite!.active = false
     }
     public kill(): void {
+        this.underKill = false
         this.setTypeID(TileType.NONE)
         this.used = false
         this.wholeSprite!.active = false
@@ -125,6 +133,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
 
     public detachSubType(key: SubType): void {
+        this.subTileList.get(key)?.onDetach()
         this.subTileList.delete(key)
     }
 
@@ -138,6 +147,37 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         const pos = getTilePositionByLevel(this.coordinate.x, this.coordinate.y, level)
         this.node.setPosition(new Vec3(pos.x, pos.y))
         // console.log('moved to: ', pos)
+    }
+    public onHint() {
+        if (!this.hintAnimation)
+            this.hintAnimation = tween(this.wholeSprite!)
+                .repeatForever(
+                    tween()
+                        .to(0.2, {
+                            scale: new Vec3(this.originScale * 0.8, this.originScale * 0.8),
+                        })
+                        .to(0.1, { angle: 20 }, { easing: 'quadOut' })
+                        .to(0.1, { angle: -20 }, { easing: 'quadOut' })
+                        .to(0.1, { angle: 20 }, { easing: 'quadOut' })
+                        .to(0.1, { angle: 0 }, { easing: 'quadOut' })
+                        .to(0.2, {
+                            scale: new Vec3(this.originScale, this.originScale),
+                        })
+                )
+                .start()
+        else this.hintAnimation.start()
+    }
+    public onUnHint() {
+        if (!this.wholeSprite) return
+        this.hintAnimation?.stop()
+        this.wholeSprite.angle = 0
+        tween(this.wholeSprite!)
+            .to(
+                0.05,
+                { scale: new Vec3(this.originScale, this.originScale) },
+                { easing: 'backOut' }
+            )
+            .start()
     }
 
     public moveToRealPositionWithPadding(level: Level, tweening: boolean = true): void {
@@ -167,6 +207,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public reScale(scale: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
+        this.originScale = scale
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))
     }
     public onChoose() {
@@ -175,8 +216,10 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             this.selfPromise.push(
                 new Promise<void>((resolve) => {
                     tween(this.wholeSprite!)
-                        .to(0.1, { scale: this.wholeSprite?.scale.clone().multiplyScalar(1 / 1.8) })
-                        .to(0.1, { scale: this.wholeSprite?.scale.clone() })
+                        .to(0.1, {
+                            scale: new Vec3(this.originScale * 0.7, this.originScale * 0.7),
+                        })
+                        .to(0.1, { scale: new Vec3(this.originScale, this.originScale) })
                         .call(() => {
                             resolve()
                         })

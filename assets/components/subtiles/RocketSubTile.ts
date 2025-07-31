@@ -1,5 +1,5 @@
-import { _decorator, Sprite, tween, Vec3 } from 'cc'
-import { TileType } from '../../type/global'
+import { _decorator, Node, Sprite, tween, Vec3 } from 'cc'
+import { getScale, Item, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
@@ -9,16 +9,23 @@ const { ccclass, property } = _decorator
 
 @ccclass('RocketSubTile')
 export class RocketSubTile extends BaseSubTile {
+    @property(Node)
+    particle: Node | null = null
     @property(Sprite)
     rocket1: Sprite | null = null
     @property(Sprite)
     rocket2: Sprite | null = null
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
+        this.particle!.active = true
+        this.tile?.wholeSprite!.addChild(this.particle!)
         tile.setTypeID(TileType.ROCKET)
         console.log(this.tile?.node.position)
     }
     public onDead(board: Board, isMain: boolean, other: RocketSubTile): void {
+        this.tile?.node.removeChild(this.particle!)
+        this.tile!.node.active = false
+        if (!this.tile) return
         if (!isMain) return
         const tileMap = new Map<TileType, Tile[]>()
 
@@ -26,7 +33,13 @@ export class RocketSubTile extends BaseSubTile {
         for (const row of board.board) {
             for (const tile of row) {
                 const type = tile.getTypeID()
-                if (type === TileType.NONE || type === TileType.ROCKET) continue
+                if (
+                    type === TileType.NONE ||
+                    (tile as Tile).underKill ||
+                    tile === this.tile ||
+                    tile === other.tile
+                )
+                    continue
 
                 if (!tileMap.has(type)) {
                     tileMap.set(type, [])
@@ -46,6 +59,8 @@ export class RocketSubTile extends BaseSubTile {
         // Chọn ngẫu nhiên 2 tile trong số đó
         const shuffled = tiles.sort(() => Math.random() - 0.5)
         const selected = shuffled.slice(0, 2)
+        selected[0].underKill = true
+        selected[1].underKill = true
 
         console.log('explode random 2 tiles of type:', randomType)
         this.rocket1!.node.active = true
@@ -57,9 +72,10 @@ export class RocketSubTile extends BaseSubTile {
         const pos2 = selected[1].node.getPosition()
         this.rocket1?.node.setPosition(start1)
         this.rocket2?.node.setPosition(start2)
-        this.node.parent?.getComponent(GameManager)?.turnOffInput()
+        // this.node.parent?.getComponent(GameManager)?.turnOffInput()
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {
+            this.node.parent?.getComponent(GameManager)!.itemManager!.lockItem(Item.ROCKET)
             const pos1 = selected[0].node.getPosition()
             const pos2 = selected[1].node.getPosition()
 
@@ -70,15 +86,28 @@ export class RocketSubTile extends BaseSubTile {
             AnimationHandler.animTile.push(
                 new Promise<void>((resolve) => {
                     tween(this.rocket1!.node)
-                        .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle1 }, { easing: 'backOut' })
-                        .to(0.5, { position: pos1 }, { easing: 'quadOut' }) // thêm angle vào đây
+                        .to(
+                            0.2,
+                            {
+                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                angle: angle1,
+                            },
+                            { easing: 'sineOut' }
+                        )
+                        .to(0.2, { position: pos1 }, { easing: 'sineInOut' }) // thêm angle vào đây
                         .call(() => {
-                            selected[0].onDead(board, isMain, selected[1])
+                            this.node.parent
+                                ?.getComponent(GameManager)!
+                                .itemManager!.unlockItem(Item.ROCKET)
+                            selected[0].onDead(board, true, selected[1])
                             selected[0].kill()
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
-                            this.node.parent?.getComponent(GameManager)?.turnOnInput()
+
+                            this.kill()
+                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+
                             resolve()
                         })
                         .start()
@@ -87,14 +116,24 @@ export class RocketSubTile extends BaseSubTile {
             AnimationHandler.animTile.push(
                 new Promise<void>((resolve) => {
                     tween(this.rocket2!.node)
-                        .to(0.3, { scale: new Vec3(2, 2, 1), angle: angle2 }, { easing: 'backOut' })
-                        .to(0.5, { position: pos2 }, { easing: 'quadOut' }) // thêm angle ở đây
+                        .to(
+                            0.2,
+                            {
+                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                angle: angle2,
+                            },
+                            { easing: 'sineOut' }
+                        )
+                        .to(0.2, { position: pos2 }, { easing: 'sineInOut' }) // thêm angle ở đây
                         .call(() => {
-                            selected[1].onDead(board, isMain, selected[0])
+                            selected[1].onDead(board, false, selected[0])
                             selected[1].kill()
                             this.rocket2!.node.active = false
                             this.rocket2!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket2!.node.angle = 0
+
+                            other.kill()
+                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             resolve()
                         })
                         .start()
