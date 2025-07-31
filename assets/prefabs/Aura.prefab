@@ -109,9 +109,9 @@
       "b": 255,
       "a": 255
     },
-    "duration": 0.1,
-    "emissionRate": 20,
-    "life": 0.8,
+    "duration": 0.2,
+    "emissionRate": 60,
+    "life": 1,
     "lifeVar": 0,
     "angle": 0,
     "angleVar": 360,
@@ -130,10 +130,10 @@
     },
     "posVar": {
       "__type__": "cc.Vec2",
-      "x": 20,
-      "y": 20
+      "x": 0,
+      "y": 0
     },
-    "emitterMode": 0,
+    "emitterMode": 1,
     "gravity": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -146,9 +146,9 @@
     "radialAccel": 0,
     "radialAccelVar": 0,
     "rotationIsDir": false,
-    "startRadius": 0,
+    "startRadius": 30,
     "startRadiusVar": 0,
-    "endRadius": 0,
+    "endRadius": 110,
     "endRadiusVar": 0,
     "rotatePerS": 0,
     "rotatePerSVar": 0,
@@ -162,7 +162,7 @@
       "__uuid__": "86cb07c0-469e-460c-ab74-55386677fe84@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_totalParticles": 50,
+    "_totalParticles": 120,
     "_startColor": {
       "__type__": "cc.Color",
       "r": 255,

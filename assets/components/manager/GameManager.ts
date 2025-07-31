@@ -26,6 +26,7 @@ import { ItemManager } from './ItemManager'
 
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
+import { PauseTurn } from '../turns/PauseTurn'
 
 const { ccclass, property } = _decorator
 
@@ -35,6 +36,7 @@ const hi = new LevelLoader()
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     currentLevel: Level = hi.getCurrentLevel()
     time: number = 0
+    ispause: boolean = false
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
@@ -120,6 +122,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.LOAD, new LoadTurn(this))
         this.turnList.set(Turn.FAIL, new FailTurn(this))
         this.turnList.set(Turn.WIN, new WinTurn(this))
+        this.turnList.set(Turn.PAUSE, new PauseTurn(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -175,6 +178,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.matchPair.shift()
         }
     }
+    public currentNumber(): number {
+        return hi.getCurrentLevelNumber()
+    }
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
@@ -194,7 +200,20 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public restart() {
         UImanager.hideAllPopups()
+        LevelLoader.checkNeedToChange('failed')
+        LevelLoader.changeLevel()
         this.switchTurn(Turn.LOAD)
+    }
+    public pause() {
+        this.ispause = true
+        UImanager.hideAllPopups()
+        this.switchTurn(Turn.PAUSE)
+    }
+    public unPause() {
+        this.ispause = false
+        UImanager.hideAllPopups()
+        this.turnOnInput()
+        this.switchTurn(Turn.START)
     }
     public moveOn() {
         UImanager.hideAllPopups()

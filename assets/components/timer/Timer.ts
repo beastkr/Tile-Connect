@@ -25,10 +25,12 @@ export class Timer extends Component {
     }
 
     update(deltaTime: number) {
-        if (!this.gm) return
+        if (!this.gm || this.gm.ispause) return
 
         const s = this.node.getComponent(Label)
-
+        if (this.gm.time > 0 && this.hasTriggeredTimeUp) {
+            this.hasTriggeredTimeUp = false
+        }
         if (this.gm.time > 0) {
             this.gm.time -= deltaTime
 
@@ -40,12 +42,10 @@ export class Timer extends Component {
                 s.string = this.convertTime(Math.ceil(this.gm.time))
             }
         }
-
         if (this.gm.time <= 0 && !this.hasTriggeredTimeUp) {
             console.log('Time up!')
             this.hasTriggeredTimeUp = true
             this.gm.switchTurn(Turn.FAIL)
-
             if (s) {
                 s.string = this.convertTime(0)
             }
