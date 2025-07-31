@@ -7,9 +7,14 @@ export class MatchTurn extends BaseTurn {
     onEnter(): void {
         this.game.stopHint()
         while (this.game.matchPair.length > 0) this.game.match()
-        this.game.unChoose()
+        // this.game.unChoose()
         Promise.all(AnimationHandler.animTile).then(() => {
-            this.game.switchTurn(Turn.END)
+            Promise.all(AnimationHandler.animList).then(() => {
+                // LevelLoader.checkNeedToChange('completed')
+                // LevelLoader.changeLevel()
+                // this.game.switchTurn(Turn.LOAD)
+                this.game.switchTurn(Turn.END)
+            })
         })
     }
     onExit(): void {}

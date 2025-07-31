@@ -88,7 +88,10 @@ export class RocketSubTile extends BaseSubTile {
                     tween(this.rocket1!.node)
                         .to(
                             0.2,
-                            { scale: new Vec3(getScale().x, getScale().y, 1), angle: angle1 },
+                            {
+                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                angle: angle1,
+                            },
                             { easing: 'sineOut' }
                         )
                         .to(0.2, { position: pos1 }, { easing: 'sineInOut' }) // thêm angle vào đây
@@ -101,9 +104,9 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
-                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
 
                             this.kill()
+                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
 
                             resolve()
                         })
@@ -115,7 +118,10 @@ export class RocketSubTile extends BaseSubTile {
                     tween(this.rocket2!.node)
                         .to(
                             0.2,
-                            { scale: new Vec3(getScale().x, getScale().y, 1), angle: angle2 },
+                            {
+                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                angle: angle2,
+                            },
                             { easing: 'sineOut' }
                         )
                         .to(0.2, { position: pos2 }, { easing: 'sineInOut' }) // thêm angle ở đây
@@ -125,8 +131,9 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket2!.node.active = false
                             this.rocket2!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket2!.node.angle = 0
-                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+
                             other.kill()
+                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             resolve()
                         })
                         .start()

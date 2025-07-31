@@ -1,5 +1,5 @@
-import { _decorator, Node, tween, Vec3, view } from 'cc'
-import { TileType, Turn } from '../../type/global'
+import { _decorator, Node, resources, Sprite, SpriteFrame, tween, Vec3, view } from 'cc'
+import { FIREWORK_PATH, ROCKET_PATH, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
@@ -50,21 +50,27 @@ class RocketItem extends BaseItem {
     showRocket(tileList: Tile[]) {
         const segment = view.getVisibleSize().width / 5
         const screenSize = view.getVisibleSize()
+        const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
+        const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
         for (let i = 0; i < tileList.length; i++) {
             this.rockets[i].active = true
-            this.rockets[i].angle = 20
+            // this.rockets[i].angle = 20
+            this.rockets[i].getComponent(Sprite)!.spriteFrame = fireWork
 
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
             const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
+            this.rockets[i].setScale(0.8, 0.8)
             tween(this.rockets[i])
                 .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 100) })
                 .delay(0.2)
-                .to(0.1, { angle: angle })
+                .to(0.1 + 0.1 * i, { angle: angle - 25 })
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
-                .delay(0.2)
+                .delay(0.5)
                 .call(() => {
+                    this.rockets[i].setScale(1.2, 1.2)
+                    this.rockets[i].getComponent(Sprite)!.spriteFrame = rocketFrame
                     this.rockets[i].angle = this.getAngleBetween(
                         this.rockets[i].worldPosition,
                         tileList[i].node.worldPosition
