@@ -1,8 +1,6 @@
-
 import { Popup } from './../../type/global'
 import { _decorator, Component, Node, tween, Vec3 } from 'cc'
 import { BasePopup } from './basePopup'
-
 
 const { ccclass, property } = _decorator
 
@@ -28,7 +26,7 @@ export class UImanager extends Component {
         })
     }
 
-    public static showPopup(popupType: Popup, hideOthers: boolean = true) {
+    public static showPopup(popupType: Popup, hideOthers: boolean = true, curr: number) {
         if (!UImanager.instance) {
             console.warn('UIManager instance not found!')
             return
@@ -48,7 +46,7 @@ export class UImanager extends Component {
                 .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
                 .start()
             if (popupComponent) {
-                popupComponent.onPopupShow()
+                popupComponent.onPopupShow(curr)
             }
         } else {
             console.warn(`Popup not found: ${popupType}`)
