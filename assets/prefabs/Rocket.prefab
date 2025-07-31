@@ -498,7 +498,7 @@
     "lifeVar": 0,
     "angle": 45,
     "angleVar": 0,
-    "startSize": 10,
+    "startSize": 15,
     "startSizeVar": 5,
     "endSize": 0,
     "endSizeVar": 0,
@@ -590,8 +590,6 @@
       "__id__": 0
     },
     "fileId": "23acKOCpdHjI1CNBtH3/1O",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -647,16 +645,16 @@
     "duration": -1,
     "emissionRate": 500,
     "life": 0.3,
-    "lifeVar": 0,
+    "lifeVar": 0.1,
     "angle": 45,
     "angleVar": 0,
-    "startSize": 20,
-    "startSizeVar": 5,
+    "startSize": 25,
+    "startSizeVar": 0,
     "endSize": 0,
-    "endSizeVar": 3,
-    "startSpin": 0,
+    "endSizeVar": 5,
+    "startSpin": 1,
     "startSpinVar": 0,
-    "endSpin": 0,
+    "endSpin": -0.8,
     "endSpinVar": 0,
     "sourcePos": {
       "__type__": "cc.Vec2",
@@ -671,14 +669,14 @@
     "emitterMode": 0,
     "gravity": {
       "__type__": "cc.Vec2",
-      "x": 500,
-      "y": 0
+      "x": 600,
+      "y": 100
     },
-    "speed": 50,
+    "speed": 100,
     "speedVar": 0,
-    "tangentialAccel": 200,
+    "tangentialAccel": 0,
     "tangentialAccelVar": 0,
-    "radialAccel": 10,
+    "radialAccel": 0,
     "radialAccelVar": 0,
     "rotationIsDir": false,
     "startRadius": 100,
@@ -697,12 +695,12 @@
       "__uuid__": "6fac6a06-5c81-47b4-b52a-8dba30a55d49@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_totalParticles": 100,
+    "_totalParticles": 1000,
     "_startColor": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 0,
-      "b": 0,
+      "r": 42,
+      "g": 1,
+      "b": 1,
       "a": 95
     },
     "_startColorVar": {
@@ -710,7 +708,7 @@
       "r": 255,
       "g": 85,
       "b": 0,
-      "a": 110
+      "a": 255
     },
     "_endColor": {
       "__type__": "cc.Color",
@@ -742,8 +740,6 @@
       "__id__": 0
     },
     "fileId": "b6e04uM0BIY7OjTsLTommq",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -782,7 +778,6 @@
       "__id__": 0
     },
     "fileId": "eccRwfZM1PM7y7qr8cOZlR",
-    "instance": null,
-    "targetOverrides": null
+    "instance": null
   }
 ]

@@ -1,5 +1,5 @@
 import { _decorator, Node, Sprite, tween, Vec3 } from 'cc'
-import { TileType, Turn } from '../../type/global'
+import { getScale, Item, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
@@ -18,7 +18,7 @@ export class RocketSubTile extends BaseSubTile {
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         this.particle!.active = true
-        this.tile?.node.addChild(this.particle!)
+        this.tile?.wholeSprite!.addChild(this.particle!)
         tile.setTypeID(TileType.ROCKET)
         console.log(this.tile?.node.position)
     }
@@ -75,6 +75,7 @@ export class RocketSubTile extends BaseSubTile {
         // this.node.parent?.getComponent(GameManager)?.turnOffInput()
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {
+            this.node.parent?.getComponent(GameManager)!.itemManager!.lockItem(Item.ROCKET)
             const pos1 = selected[0].node.getPosition()
             const pos2 = selected[1].node.getPosition()
 
@@ -87,18 +88,23 @@ export class RocketSubTile extends BaseSubTile {
                     tween(this.rocket1!.node)
                         .to(
                             0.2,
-                            { scale: new Vec3(1.5, 1.5, 1), angle: angle1 },
+                            { scale: new Vec3(getScale().x, getScale().y, 1), angle: angle1 },
                             { easing: 'sineOut' }
                         )
-                        .to(0.4, { position: pos1 }, { easing: 'sineInOut' }) // thêm angle vào đây
+                        .to(0.2, { position: pos1 }, { easing: 'sineInOut' }) // thêm angle vào đây
                         .call(() => {
+                            this.node.parent
+                                ?.getComponent(GameManager)!
+                                .itemManager!.unlockItem(Item.ROCKET)
                             selected[0].onDead(board, true, selected[1])
                             selected[0].kill()
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+
                             this.kill()
+
                             resolve()
                         })
                         .start()
@@ -109,10 +115,10 @@ export class RocketSubTile extends BaseSubTile {
                     tween(this.rocket2!.node)
                         .to(
                             0.2,
-                            { scale: new Vec3(1.5, 1.5, 1), angle: angle2 },
+                            { scale: new Vec3(getScale().x, getScale().y, 1), angle: angle2 },
                             { easing: 'sineOut' }
                         )
-                        .to(0.4, { position: pos2 }, { easing: 'sineInOut' }) // thêm angle ở đây
+                        .to(0.2, { position: pos2 }, { easing: 'sineInOut' }) // thêm angle ở đây
                         .call(() => {
                             selected[1].onDead(board, false, selected[0])
                             selected[1].kill()

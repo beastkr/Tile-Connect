@@ -119,4 +119,5 @@ export enum Item {
     HINT = 'HintItem',
     BOOM = 'BoomDefuseItem',
     SHUFFLE = 'ShuffleItem',
+    ROCKET = 'RocketItem',
 }
