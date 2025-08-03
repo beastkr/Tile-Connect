@@ -10,7 +10,7 @@ export class FailTurn extends BaseTurn {
         this.game.turnOffInput()
         this.game.unChoose()
         console.log('Fail')
-        UImanager.showPopup(Popup.FAILPOPUP, true, this.game.currentNumber())
+        UImanager.showPopup(Popup.WINPOPUP, true, this.game.currentNumber())
     }
 
     onExit(): void {}

@@ -54,7 +54,7 @@ class RocketItem extends BaseItem {
         const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
         for (let i = 0; i < tileList.length; i++) {
             this.rockets[i].active = true
-            // this.rockets[i].angle = 20
+            this.rockets[i].angle = 0
             this.rockets[i].getComponent(Sprite)!.spriteFrame = fireWork
 
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))

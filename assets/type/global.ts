@@ -55,6 +55,9 @@ export function getTilePath(id: number, theme: Theme): string {
     if (id == TileType.ROCKET) return 'sprite/AllTiles/rocket/spriteFrame'
     return `sprite/AllTiles/${theme + String(id)}/spriteFrame`
 }
+export function getComboCount(id: number): string {
+    return `resources/animation/${id}`
+}
 export const FIREWORK_PATH = 'sprite/AllTiles/firework/spriteFrame'
 export function getTilePosition(
     row: number,

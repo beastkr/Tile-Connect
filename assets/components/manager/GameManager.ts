@@ -1,7 +1,6 @@
 import { _decorator, Color, Component, find, tween } from 'cc'
 
 import { Item, SubType, TileType, Turn } from '../../type/global'
-
 import { SUBTILE_PATH } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
@@ -38,6 +37,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     time: number = 0
     ispause: boolean = false
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
+    private eventTarget = new EventTarget()
+
     currentTurn: TileConnect.ITurn = new BaseTurn(this)
     board: TileConnect.IBoard | null = new Board()
     matchPair: { tile1: TileConnect.ITile; tile2: TileConnect.ITile }[] = []
@@ -59,6 +60,18 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     hintPath: Path[] = []
     hintPoint: Star[] = []
     hintTile: Tile[] = []
+
+    public onMatchPair(callback: () => void) {
+        this.eventTarget.addEventListener('matchPair', callback)
+    }
+
+    public offMatchPair(callback: () => void) {
+        this.eventTarget.removeEventListener('matchPair', callback)
+    }
+
+    private emitMatchPair() {
+        this.eventTarget.dispatchEvent(new Event('matchPair'))
+    }
 
     stopHint() {
         if (this.hintPath.length == 0) return
@@ -164,6 +177,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.secondChosen?.getCoordinate()
         )
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
+
         this.switchTurn(Turn.MATCH)
         // this.unChoose()
     }
@@ -174,6 +188,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public match(): void {
         if (this.matchPair.length > 0) {
+            this.emitMatchPair()
+
             this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
             this.matchPair.shift()
         }
