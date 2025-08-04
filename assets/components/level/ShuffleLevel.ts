@@ -5,6 +5,11 @@ interface Position {
     y: number
 }
 
+interface TilePair {
+    tileId: number
+    positions: Position[]
+}
+
 export class ShuffleLevel {
     private gridHeight: number
     private gridWidth: number
@@ -14,6 +19,7 @@ export class ShuffleLevel {
     private Timer: number
     private grid: number[][] = []
     private layerList: Map<SubType, number[][]> = new Map()
+
     constructor(data: any) {
         this.gridHeight = data.GridHeight
         this.gridWidth = data.GridWidth
@@ -22,41 +28,154 @@ export class ShuffleLevel {
         this.Timer = data.Time
         this.data = data
     }
+
     public changeLevel(data: any) {
         this.gridHeight = data.GridHeight
         this.gridWidth = data.GridWidth
         this.RocketTile = data.Tiles.RocketTiles
         this.difficulty = data.Difficulty
         this.Timer = data.Time
-
         this.data = data
     }
+
     public shuffle(): number[][] {
         this.grid = Array(this.gridHeight)
             .fill(null)
             .map(() => Array(this.gridWidth).fill(-1))
 
-        const tilesToPlace: number[] = []
+        const tilePairs: TilePair[] = []
 
         Object.entries(this.data.Tiles.NormalTiles).forEach(([tileId, count]) => {
-            for (let i = 0; i < Number(count); i++) {
-                tilesToPlace.push(parseInt(tileId))
+            const pairs = Math.floor(Number(count) / 2)
+            for (let i = 0; i < pairs; i++) {
+                tilePairs.push({
+                    tileId: parseInt(tileId),
+                    positions: [],
+                })
             }
         })
 
-        for (let i = 0; i < this.RocketTile; i++) {
-            tilesToPlace.push(8)
+        const rocketPairs = Math.floor(this.RocketTile / 2)
+        for (let i = 0; i < rocketPairs; i++) {
+            tilePairs.push({
+                tileId: 8,
+                positions: [],
+            })
         }
 
-        const shuffledTiles = this.shuffleArray([...tilesToPlace])
+        const shuffledPairs = this.shuffleArray([...tilePairs])
+
+        const totalPairs = shuffledPairs.length
+        const strategicPairs = Math.floor((totalPairs * 2) / 3)
+        const randomPairs = totalPairs - strategicPairs
+
         const allPositions = this.getAllPositions()
-        const shuffledPositions = this.shuffleArray(allPositions)
+        const availablePositions = [...allPositions]
 
-        for (let i = 0; i < shuffledTiles.length && i < shuffledPositions.length; i++) {
-            const pos = shuffledPositions[i]
-            this.grid[pos.y][pos.x] = shuffledTiles[i]
+        for (let i = 0; i < strategicPairs; i++) {
+            const pair = shuffledPairs[i]
+            const positions = this.getStrategicPositions(availablePositions, this.difficulty)
+
+            pair.positions = positions
+            positions.forEach((pos) => {
+                this.grid[pos.y][pos.x] = pair.tileId
+                const index = availablePositions.findIndex((p) => p.x === pos.x && p.y === pos.y)
+                if (index > -1) availablePositions.splice(index, 1)
+            })
         }
+
+        for (let i = strategicPairs; i < totalPairs; i++) {
+            const pair = shuffledPairs[i]
+            const positions: Position[] = []
+
+            for (let j = 0; j < 2 && availablePositions.length > 0; j++) {
+                const randomIndex = Math.floor(Math.random() * availablePositions.length)
+                const pos = availablePositions.splice(randomIndex, 1)[0]
+                positions.push(pos)
+                this.grid[pos.y][pos.x] = pair.tileId
+            }
+
+            pair.positions = positions
+        }
+
         return this.grid
+    }
+
+    private getStrategicPositions(availablePositions: Position[], difficulty: number): Position[] {
+        if (availablePositions.length < 2) {
+            return availablePositions.splice(0, 2)
+        }
+
+        const isEasyMode = difficulty <= 2
+
+        if (isEasyMode) {
+            return this.getNearbyPositions(availablePositions)
+        } else {
+            return this.getDistantPositions(availablePositions)
+        }
+    }
+
+    private getNearbyPositions(availablePositions: Position[]): Position[] {
+        let bestPair: Position[] = []
+        let minDistance = Infinity
+
+        for (let i = 0; i < availablePositions.length; i++) {
+            for (let j = i + 1; j < availablePositions.length; j++) {
+                const pos1 = availablePositions[i]
+                const pos2 = availablePositions[j]
+                const distance = this.calculateDistance(pos1, pos2)
+
+                if (distance < minDistance) {
+                    minDistance = distance
+                    bestPair = [pos1, pos2]
+                }
+            }
+        }
+
+        bestPair.forEach((pos) => {
+            const index = availablePositions.findIndex((p) => p.x === pos.x && p.y === pos.y)
+            if (index > -1) availablePositions.splice(index, 1)
+        })
+
+        return bestPair.length === 2 ? bestPair : this.getRandomPositions(availablePositions, 2)
+    }
+
+    private getDistantPositions(availablePositions: Position[]): Position[] {
+        let bestPair: Position[] = []
+        let maxDistance = 0
+
+        for (let i = 0; i < availablePositions.length; i++) {
+            for (let j = i + 1; j < availablePositions.length; j++) {
+                const pos1 = availablePositions[i]
+                const pos2 = availablePositions[j]
+                const distance = this.calculateDistance(pos1, pos2)
+
+                if (distance > maxDistance) {
+                    maxDistance = distance
+                    bestPair = [pos1, pos2]
+                }
+            }
+        }
+
+        bestPair.forEach((pos) => {
+            const index = availablePositions.findIndex((p) => p.x === pos.x && p.y === pos.y)
+            if (index > -1) availablePositions.splice(index, 1)
+        })
+
+        return bestPair.length === 2 ? bestPair : this.getRandomPositions(availablePositions, 2)
+    }
+
+    private calculateDistance(pos1: Position, pos2: Position): number {
+        return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y)
+    }
+
+    private getRandomPositions(availablePositions: Position[], count: number): Position[] {
+        const result: Position[] = []
+        for (let i = 0; i < count && availablePositions.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * availablePositions.length)
+            result.push(availablePositions.splice(randomIndex, 1)[0])
+        }
+        return result
     }
 
     public isEasyEnough(): boolean {
@@ -85,22 +204,8 @@ export class ShuffleLevel {
         }
     }
 
-    public shuffleUntilGood(maxAttempts: number = 50): {
-        grid: number[][]
-        attempts: number
-        success: boolean
-    } {
-        let attempts = 0
-
-        do {
-            attempts++
-            this.shuffle()
-        } while (!this.isEasyEnough() && attempts < maxAttempts)
-        return {
-            grid: this.grid,
-            attempts,
-            success: this.isEasyEnough(),
-        }
+    public generateMap(): number[][] {
+        return this.shuffle()
     }
 
     private shuffleArray<T>(array: T[]): T[] {
@@ -121,6 +226,7 @@ export class ShuffleLevel {
         }
         return positions
     }
+
     public getMapLayer(grid: number[][]): Map<SubType, number[][]> {
         const RocketLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
             Array(this.gridWidth).fill(0)
@@ -148,6 +254,7 @@ export class ShuffleLevel {
             const { x, y } = bombCandidates.splice(index, 1)[0]
             BoomLayer[y][x] = 1
         }
+
         console.log(BoomLayer)
         this.layerList.set(SubType.ROCKET, RocketLayer)
         this.layerList.set(SubType.BOOM, BoomLayer)

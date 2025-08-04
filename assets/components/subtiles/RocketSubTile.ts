@@ -1,4 +1,4 @@
-import { _decorator, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
+import { _decorator, Animation, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
 import { getScale, getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
@@ -15,6 +15,10 @@ export class RocketSubTile extends BaseSubTile {
     rocket1: Sprite | null = null
     @property(Sprite)
     rocket2: Sprite | null = null
+    @property(Animation)
+    exploAnim: Animation | null = null
+    @property(Animation)
+    exploAnim2: Animation | null = null
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         this.particle!.active = true
@@ -119,7 +123,12 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
-
+                            this.exploAnim!.node.setPosition(this.rocket1?.node.position!)
+                            this.exploAnim!.node.active = true
+                            this.exploAnim?.play()
+                            this.exploAnim?.once(Animation.EventType.FINISHED, () => {
+                                this.exploAnim!.node.active = false
+                            })
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
 
                             resolve()
@@ -145,7 +154,12 @@ export class RocketSubTile extends BaseSubTile {
                             this.rocket2!.node.active = false
                             this.rocket2!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket2!.node.angle = 0
-
+                            this.exploAnim2!.node.setPosition(this.rocket2?.node.position!)
+                            this.exploAnim2!.node.active = true
+                            this.exploAnim2?.play()
+                            this.exploAnim2?.once(Animation.EventType.FINISHED, () => {
+                                this.exploAnim2!.node.active = false
+                            })
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             resolve()
                         })

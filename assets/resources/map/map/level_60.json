@@ -17,5 +17,7 @@
             "5": 2
         }
     },
-    "Time": 60
+    "Time": 60,
+    "Gravity": 0,
+    "Circle": false
 }

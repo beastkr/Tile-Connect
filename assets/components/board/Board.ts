@@ -1,4 +1,4 @@
-import { _decorator, Component, ProgressBar, Size, Vec2, Tween, tween } from 'cc'
+import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
 
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'

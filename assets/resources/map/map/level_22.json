@@ -3,17 +3,19 @@
     "Difficulty": 1.0,
     "GridHeight": 3,
     "GridWidth": 6,
-    "Theme": "DRINK",
+    "Theme": "FRUIT",
     "Tiles": {
         "TotalTiles": 18,
         "RocketTiles": 0,
         "BombEffects": 1,
         "NormalTiles": {
             "0": 4,
-            "1": 4,
+            "1": 6,
             "2": 4,
-            "3": 6
+            "3": 4
         }
     },
-    "Time": 60
+    "Time": 60,
+    "Gravity": 0,
+    "Circle": false
 }

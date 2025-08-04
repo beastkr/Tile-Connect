@@ -1,6 +1,5 @@
-import { _decorator, Component, Node, ParticleSystem2D, Sprite, SpriteFrame, tween, Vec3 } from 'cc'
+import { _decorator, Component, Node, Sprite, SpriteFrame, tween, Vec3 } from 'cc'
 import GameManager from '../manager/GameManager'
-import { getComboCount } from '../../type/global'
 const { ccclass, property } = _decorator
 
 @ccclass('Good')
@@ -36,7 +35,7 @@ export class Good extends Component {
 
     update(deltaTime: number) {
         this.currentTime += deltaTime
-        console.log(this.currentTime)
+        // console.log(this.currentTime)
 
         if (this.currentTime > this.timer) {
             this.node.active = false
