@@ -50,6 +50,8 @@ export namespace TileConnect {
             RocketTiles: number
             BombEffects: number
         }
+        Gravity: number
+        Circle: boolean
     }
     export interface IBoard {
         board: ITile[][]

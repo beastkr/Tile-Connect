@@ -3,7 +3,7 @@
     "Difficulty": 4.0,
     "GridHeight": 7,
     "GridWidth": 10,
-    "Theme": "FRUIT",
+    "Theme": "BUTTERFLY",
     "Tiles": {
         "TotalTiles": 70,
         "RocketTiles": 2,
@@ -12,12 +12,14 @@
             "0": 8,
             "1": 8,
             "2": 8,
-            "3": 8,
+            "3": 10,
             "4": 8,
             "5": 10,
             "6": 8,
-            "7": 10
+            "7": 8
         }
     },
-    "Time": 120
+    "Time": 120,
+    "Gravity": 4,
+    "Circle": false
 }
