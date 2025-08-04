@@ -1,4 +1,6 @@
-import { _decorator, Component, Sprite, tween, UITransform, Vec3, Node, ParticleSystem2D } from 'cc'
+
+import { _decorator, Component, Sprite, Tween, tween, Vec3 } from 'cc'
+
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
@@ -78,6 +80,7 @@ export class Star extends Component implements TileConnect.IPoolObject {
         this.death!.active = false
         this.trail!.active = false
         this.node.scale = new Vec3(1, 1, 1)
+
         this.star!.node.active = false
         this.match!.active = false
         this.circle!.node.active = false

@@ -28,6 +28,8 @@ export class BackGround extends Component {
         const newWidth = this.scaleOnX ? visibleSize.width : currentSize.width
         const newHeight = this.scaleOnY ? visibleSize.height : currentSize.height
 
-        uiTransform.setContentSize(new Size(newWidth, newHeight))
+        uiTransform.setContentSize(
+            new Size(newWidth / this.node.scale.x, newHeight / this.node.scale.y)
+        )
     }
 }

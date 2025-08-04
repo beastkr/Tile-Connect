@@ -17,7 +17,7 @@ export class GravitySubTile extends BaseSubTile {
     }
 
     public onDead(board: Board, isMain: boolean, other: GravitySubTile): void {
-        if (!this.tile || !other.tile) return
+        if (!this.tile || !other || !other.tile) return
 
         const thisCoord = this.tile.getCoordinate()
         const otherCoord = other.tile.getCoordinate()

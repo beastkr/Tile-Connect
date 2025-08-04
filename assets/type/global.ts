@@ -87,7 +87,7 @@ export function getTilePositionByLevel(
     level: Level,
     padding: number = 0
 ): Vec2 {
-    const tileSize = level.tileSize + 5
+    const tileSize = level.tileSize
     const fullWidth = (level.gridWidth + padding * 2) * tileSize
     const fullHeight = (level.gridHeight + padding * 2) * tileSize
 

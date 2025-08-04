@@ -17,19 +17,19 @@ export class BoomSubTile extends BaseSubTile {
 
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
-        tile.node.addChild(this.node)
+        tile.wholeSprite?.addChild(this.node)
         this.coundown!.node.active = true
         this.boom!.node.active = true
     }
     public onDead(board: Board, isMain: boolean, other: BaseSubTile): void {
         this.cd?.resetCountdown()
-        this.tile?.node.removeChild(this.node)
+        this.tile?.wholeSprite?.removeChild(this.node)
         this.coundown!.node.active = false
         this.boom!.node.active = false
     }
     public onDetach(): void {
         this.cd?.resetCountdown()
-        this.tile?.node.removeChild(this.node)
+        this.tile?.wholeSprite?.removeChild(this.node)
         this.coundown!.node.active = false
         this.boom!.node.active = false
         super.onDetach()
