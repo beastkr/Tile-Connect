@@ -1,4 +1,14 @@
-import { _decorator, Node, resources, Sprite, SpriteFrame, tween, Vec3, view } from 'cc'
+import {
+    _decorator,
+    Node,
+    ParticleSystem2D,
+    resources,
+    Sprite,
+    SpriteFrame,
+    tween,
+    Vec3,
+    view,
+} from 'cc'
 import { FIREWORK_PATH, ROCKET_PATH, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
@@ -48,22 +58,27 @@ class RocketItem extends BaseItem {
     }
 
     showRocket(tileList: Tile[]) {
+        this.lock()
         const segment = view.getVisibleSize().width / 5
         const screenSize = view.getVisibleSize()
         const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
         const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
         for (let i = 0; i < tileList.length; i++) {
-            this.rockets[i].active = true
-            // this.rockets[i].angle = 20
+            this.rockets[i].angle = 0
             this.rockets[i].getComponent(Sprite)!.spriteFrame = fireWork
+            const dust = this.rockets[i]
+                .getChildByName('RocketDust')
+                ?.getComponent(ParticleSystem2D)
 
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
+            dust?.resetSystem()
+            this.rockets[i].active = true
             const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
             this.rockets[i].setScale(0.8, 0.8)
             tween(this.rockets[i])
-                .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 100) })
+                .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 50) })
                 .delay(0.2)
                 .to(0.1 + 0.1 * i, { angle: angle - 25 })
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
@@ -92,9 +107,10 @@ class RocketItem extends BaseItem {
                             tileList[i].node.setSiblingIndex(1)
                             this.rockets[i].active = false
                             this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                            this.overlay!.active = false
                             if (i == 3) {
-                                this.overlay!.active = false
                                 this.game?.turnOnInput()
+                                this.unlock()
                             }
                             this.game?.switchTurn(Turn.MATCH)
                         })

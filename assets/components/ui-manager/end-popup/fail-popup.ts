@@ -1,7 +1,5 @@
-import { _decorator, Button, Node, Label, Sprite, tween, Vec3, Prefab, instantiate } from 'cc'
+import { _decorator, Label } from 'cc'
 import { BasePopup } from '../basePopup'
-import { UImanager } from '../UImanager'
-import { Popup } from '../../../type/global'
 
 const { ccclass, property } = _decorator
 

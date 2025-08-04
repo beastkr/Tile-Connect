@@ -4,6 +4,8 @@ import { BaseTurn } from './BaseTurn'
 
 export class LoadTurn extends BaseTurn {
     public onEnter(): void {
+        this.game.pathPool?.returnAll()
+        this.game.starPool?.returnAll()
         this.game.subtilePool.forEach((element) => {
             element.returnAll()
         })
@@ -16,6 +18,7 @@ export class LoadTurn extends BaseTurn {
         // this.game.node.setScale(getScale())
         this.game.createBoard(this.game.currentLevel)
         this.turnOnInput()
+        // console.log(this.game.currentLevel.layer)
         this.game.switchTurn(Turn.START)
     }
 

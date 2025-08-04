@@ -1,4 +1,4 @@
-import { _decorator, Component, Sprite, tween, Vec3 } from 'cc'
+import { _decorator, Component, Sprite, Tween, tween, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
@@ -45,6 +45,7 @@ export class Star extends Component implements TileConnect.IPoolObject {
     }
 
     kill(): void {
+        Tween.stopAllByTarget(this.node)
         this.star!.node.active = false
         this.circle!.node.active = false
         this.used = false

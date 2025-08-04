@@ -1,7 +1,5 @@
-import { _decorator, Button, Node, Label, Sprite, tween, Vec3, Prefab, instantiate } from 'cc'
+import { _decorator, Button, Label, Node, Sprite, Tween, tween, Vec3 } from 'cc'
 import { BasePopup } from '../basePopup'
-import { UImanager } from '../UImanager'
-import { Popup } from '../../../type/global'
 
 const { ccclass, property } = _decorator
 
@@ -72,6 +70,7 @@ export class Victory extends BasePopup {
         this.stars.forEach((starNode) => {
             const starChildNode = starNode.getChildByName('Star')
             if (starChildNode) {
+                Tween.stopAllByTarget(starChildNode)
                 starChildNode.setScale(0, 0, 1)
                 starChildNode.active = true
             }

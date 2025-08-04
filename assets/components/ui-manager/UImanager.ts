@@ -1,14 +1,18 @@
-import { Popup } from './../../type/global'
 import { _decorator, Component, Node, tween, Vec3 } from 'cc'
+import { Popup } from './../../type/global'
 import { BasePopup } from './basePopup'
 
 const { ccclass, property } = _decorator
 
 @ccclass('UImanager')
 export class UImanager extends Component {
+    @property(Node)
+    overlay: Node | null = null
     private popupNodes: Map<Popup, Node> = new Map()
     private popupComponents: Map<Popup, BasePopup> = new Map()
     private static instance: UImanager | null = null
+    @property(Node)
+    pauseButton: Node | null = null
 
     start() {
         UImanager.instance = this
@@ -16,7 +20,15 @@ export class UImanager extends Component {
         this.hideAllPopups()
     }
 
+    public static togglePauseButton(active?: boolean) {
+        if (!active)
+            UImanager.instance!.pauseButton!.active = !UImanager.instance!.pauseButton!.active
+        else UImanager.instance!.pauseButton!.active = active
+    }
+
     private hideAllPopups() {
+        UImanager.instance!.overlay!.active = false
+        // UImanager.instance!.pauseButton!.active = true
         this.popupNodes.forEach((node, type) => {
             const popupComponent = this.popupComponents.get(type)
             if (popupComponent && node.active) {
@@ -31,7 +43,6 @@ export class UImanager extends Component {
             console.warn('UIManager instance not found!')
             return
         }
-
         if (hideOthers) {
             UImanager.instance.hideAllPopups()
         }
@@ -40,6 +51,7 @@ export class UImanager extends Component {
         const popupComponent = UImanager.instance.popupComponents.get(popupType)
 
         if (popup) {
+            UImanager.instance.overlay!.active = true
             popup.active = true
             popup.scale = new Vec3(0, 0, 1)
             tween(popup)
@@ -63,6 +75,7 @@ export class UImanager extends Component {
         const popupComponent = UImanager.instance.popupComponents.get(popupType)
 
         if (popup && popup.active) {
+            UImanager.instance!.overlay!.active = false
             if (popupComponent) {
                 popupComponent.onPopupHide()
             }

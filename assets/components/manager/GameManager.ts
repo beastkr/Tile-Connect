@@ -24,9 +24,9 @@ import { FailTurn } from '../turns/FailTurn'
 
 import { ItemManager } from './ItemManager'
 
+import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
-import { PauseTurn } from '../turns/PauseTurn'
 
 const { ccclass, property } = _decorator
 
@@ -59,6 +59,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     hintPath: Path[] = []
     hintPoint: Star[] = []
     hintTile: Tile[] = []
+    isgameOver: boolean = false
 
     stopHint() {
         if (this.hintPath.length == 0) return
@@ -67,7 +68,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         }
         for (const star of this.hintPoint) {
             tween(star.circle!)
-                .to(0.5, { color: new Color(255, 255, 255, 0) })
+                .to(0.2, { color: new Color(255, 255, 255, 0) })
                 .call(() => {
                     star.kill()
                     star.circle!.color = new Color(255, 255, 255, 255)
@@ -184,6 +185,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
+        this.subtilePool.forEach((p) => {
+            p.returnAll()
+        })
+        this.tilePool?.returnAll()
         this.itemManager?.intialize(this)
         this.board?.create(this.tilePool!, level)
         for (const pool of this.subtilePool) {
@@ -191,6 +196,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         }
     }
     public switchTurn(newTurn: Turn): void {
+        if (this.isgameOver) return
         if (this.currentTurn) this.currentTurn.onExit()
         this.currentTurn = this.turnList.get(newTurn)!
         this.currentTurn.onEnter()
@@ -199,27 +205,36 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.board?.setUpManager(this)
     }
     public restart() {
+        this.ispause = false
+        this.isgameOver = false
+        UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
         LevelLoader.checkNeedToChange('failed')
-        LevelLoader.changeLevel()
-        this.switchTurn(Turn.LOAD)
+        LevelLoader.changeLevel().then(() => {
+            this.switchTurn(Turn.LOAD)
+        })
     }
     public pause() {
         this.ispause = true
         UImanager.hideAllPopups()
+        UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
     }
     public unPause() {
         this.ispause = false
         UImanager.hideAllPopups()
+        UImanager.togglePauseButton(true)
         this.turnOnInput()
         this.switchTurn(Turn.START)
     }
     public moveOn() {
+        this.isgameOver = false
+        this.ispause = false
         UImanager.hideAllPopups()
         LevelLoader.checkNeedToChange('completed')
-        LevelLoader.changeLevel()
-        this.switchTurn(Turn.LOAD)
+        LevelLoader.changeLevel().then(() => {
+            this.switchTurn(Turn.LOAD)
+        })
     }
     public turnOffInput() {
         this.board?.resetInput()
