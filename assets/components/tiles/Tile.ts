@@ -24,7 +24,7 @@ const { ccclass, property } = _decorator
 @ccclass('Tile')
 class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObject {
     @property(Sprite)
-    private itemTypeSprite: Sprite | null = null
+    public itemTypeSprite: Sprite | null = null
     @property(Sprite)
     private backGroundSpite: Sprite | null = null
     @property(Node)
@@ -277,6 +277,18 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         //         })
         //     )
         // })
+    }
+    shrink() {
+        this.itemTypeSprite?.node.setScale(new Vec3())
+        tween(this.itemTypeSprite!.node)
+            .to(
+                0.3,
+                {
+                    scale: new Vec3(1, 1),
+                },
+                { easing: 'backOut' }
+            )
+            .start()
     }
 }
 

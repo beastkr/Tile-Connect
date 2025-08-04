@@ -1,7 +1,6 @@
 import { _decorator, Color, Component, find, tween } from 'cc'
 
-import { Item, SubType, TileType, Turn } from '../../type/global'
-import { SUBTILE_PATH } from '../../type/global'
+import { Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -189,8 +188,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public match(): void {
         if (this.matchPair.length > 0) {
-            this.emitMatchPair()
-
+            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2)) {
+                this.emitMatchPair()
+            }
             this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
             this.matchPair.shift()
         }
