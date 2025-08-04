@@ -1,5 +1,4 @@
-
-import { _decorator, Component, Sprite, Tween, tween, Vec3 } from 'cc'
+import { _decorator, Component, Node, ParticleSystem2D, Sprite, tween, UITransform, Vec3 } from 'cc'
 
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
@@ -71,7 +70,7 @@ export class Star extends Component implements TileConnect.IPoolObject {
     }
 
     reSpawn(): void {
-        this.node.setScale(1, 1)
+        this.node.setScale(1.5, 1.5)
         this.used = true
         this.node.active = true
     }
