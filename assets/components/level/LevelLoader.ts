@@ -71,6 +71,7 @@ export class LevelLoader {
                 theme,
                 levelData.Time,
                 levelData.Gravity,
+                levelData.Circle,
                 layers
             )
             console.log(LevelLoader.currentLevel)
@@ -82,6 +83,7 @@ export class LevelLoader {
                 theme,
                 levelData.Time,
                 levelData.Gravity,
+                levelData.Circle,
 
                 layers
             )

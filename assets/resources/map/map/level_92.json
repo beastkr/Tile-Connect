@@ -1,24 +1,25 @@
 {
     "Level": 92,
     "Difficulty": 4.0,
-    "GridHeight": 7,
-    "GridWidth": 8,
-    "Theme": "DRINK",
+    "GridHeight": 8,
+    "GridWidth": 9,
+    "Theme": "CAKE",
     "Tiles": {
-        "TotalTiles": 56,
+        "TotalTiles": 72,
         "RocketTiles": 2,
         "BombEffects": 4,
         "NormalTiles": {
-            "0": 6,
-            "1": 8,
+            "0": 8,
+            "1": 10,
             "2": 8,
-            "3": 6,
+            "3": 8,
             "4": 8,
-            "5": 6,
-            "6": 6,
-            "7": 6
+            "5": 8,
+            "6": 10,
+            "7": 10
         }
     },
     "Time": 120,
-    "Gravity": 2
+    "Gravity": 3,
+    "Circle": false
 }

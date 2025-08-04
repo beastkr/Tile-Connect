@@ -10,10 +10,11 @@
         "BombEffects": 0,
         "NormalTiles": {
             "0": 6,
-            "1": 8,
-            "2": 6
+            "1": 6,
+            "2": 8
         }
     },
     "Time": 90,
-    "Gravity": 0
+    "Gravity": 0,
+    "Circle": false
 }

@@ -10,6 +10,7 @@ export class Level {
     public tileSize: number = 0
     public scale: number = 0
     public gravity: number = 0
+    public circle: boolean = false
     public layer: Map<SubType, number[][]> = new Map<SubType, number[][]>()
     constructor(
         h: number,
@@ -18,6 +19,7 @@ export class Level {
         theme: Theme,
         time: number,
         gravity: number,
+        circle: boolean,
         layer?: Map<SubType, number[][]>
     ) {
         this.theme = theme
@@ -25,6 +27,7 @@ export class Level {
         this.gridWidth = w
         this.grid = grid
         this.gravity = gravity
+        this.circle = circle
         // this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 2
         // this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
         this.scale = view.getVisibleSize().width / (this.gridWidth + 2) / 80
@@ -39,6 +42,7 @@ export class Level {
         theme: Theme,
         time: number,
         gravity: number,
+        circle: boolean,
 
         layer?: Map<SubType, number[][]>
     ) {
@@ -47,6 +51,7 @@ export class Level {
         this.gridWidth = w
         this.grid = grid
         this.gravity = gravity
+        this.circle = circle
 
         // this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 2
         // this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)

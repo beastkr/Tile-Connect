@@ -9,16 +9,17 @@
         "RocketTiles": 2,
         "BombEffects": 2,
         "NormalTiles": {
-            "0": 4,
+            "0": 2,
             "1": 4,
-            "2": 2,
+            "2": 4,
             "3": 4,
-            "4": 4,
-            "5": 2,
+            "4": 2,
+            "5": 4,
             "6": 4,
             "7": 4
         }
     },
     "Time": 90,
-    "Gravity": 1
+    "Gravity": 1,
+    "Circle": false
 }

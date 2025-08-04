@@ -13,7 +13,10 @@ class LevelGenerator:
         self.tile_data = self._generate_tiles_and_specials()
         self._time = self._time_estimate()
         self.gravity = self._generate_gravity()
-    
+    def _circle(self):
+        if self.difficulty <5:
+            return False
+        return True
     def _generate_gravity(self):
         if self.level <= 5:
             return 0
@@ -21,10 +24,8 @@ class LevelGenerator:
         if self.difficulty < 2:
             return 0
         
-        if self.difficulty >= 5:
-            return 4
         
-        return random.randint(1, 3)
+        return random.randint(1, 4)
     
     def _time_estimate(self):
         if self._grid_width*self._grid_height<20:
@@ -225,7 +226,8 @@ class LevelGenerator:
                 'NormalTiles': self.tile_data['TileDistribution']
             },
             'Time': self._time,
-            'Gravity': self.gravity
+            'Gravity': self.gravity,
+            'Circle': self._circle()
         }
     
     def save_to_file(self, path: str):
@@ -251,11 +253,12 @@ if __name__ == "__main__":
             'NormalTilesSum': normal_sum,
             'Difficulty': generator.difficulty,
             'Time': data['Time'],
-            'Gravity': data['Gravity']
+            'Gravity': data['Gravity'],
+            'Circle':data['Circle']
         })
 
     with open('levels_summary.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum', 'Difficulty', 'Time', 'Gravity']
+        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum', 'Difficulty', 'Time', 'Gravity','Circle']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for row in levels:
