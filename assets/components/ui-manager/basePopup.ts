@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc'
+import { _decorator, Component } from 'cc'
 const { ccclass } = _decorator
 
 @ccclass('BasePopup')

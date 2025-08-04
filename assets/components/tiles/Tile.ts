@@ -1,5 +1,6 @@
 import {
     _decorator,
+    Color,
     Component,
     Node,
     resources,
@@ -8,6 +9,7 @@ import {
     SpriteFrame,
     Tween,
     tween,
+    TweenEasing,
     UITransform,
     Vec2,
     Vec3,
@@ -109,14 +111,13 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.wholeSprite!.active = false
     }
     public kill(): void {
+        Tween.stopAllByTarget(this.wholeSprite!)
         this.underKill = false
         this.setTypeID(TileType.NONE)
         this.used = false
         this.wholeSprite!.active = false
-        for (const sub of this.subTileList) {
-            this.detachSubType(sub[0])
-        }
     }
+
     public setTypeID(id: TileType): void {
         if (id == this.typeID) return
         this.typeID = id
@@ -138,9 +139,13 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
 
     public onDead(board: Board, isMain: boolean, other: Tile): void {
+        const otherGrav = other.subTileList.get(SubType.GRAVITY)
+        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!)
+        this.detachSubType(SubType.GRAVITY)
         for (const sub of this.subTileList) {
             const otherSub = other.subTileList.get(sub[0])
             sub[1].onDead(board, isMain, otherSub!)
+            this.detachSubType(sub[0])
         }
     }
     public moveToRealPosition(level: Level): void {
@@ -154,7 +159,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
                 .repeatForever(
                     tween()
                         .to(0.2, {
-                            scale: new Vec3(this.originScale * 0.8, this.originScale * 0.8),
+                            scale: new Vec3(this.originScale * 0.7, this.originScale * 0.7),
                         })
                         .to(0.1, { angle: 20 }, { easing: 'quadOut' })
                         .to(0.1, { angle: -20 }, { easing: 'quadOut' })
@@ -179,8 +184,31 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             )
             .start()
     }
+    public fadeIn(delay: number) {
+        const sprite = this.wholeSprite?.getComponent(Sprite)
+        sprite!.color = new Color(255, 255, 255, 0)
+        this.wholeSprite?.setScale(new Vec3())
+        tween(sprite!)
+            .delay(delay)
+            .to(0.5, { color: new Color(255, 255, 255, 255) })
+            .start()
+        tween(this.wholeSprite!)
+            .delay(delay)
+            .to(
+                0.5,
+                { scale: new Vec3(this.originScale, this.originScale, 1) }
+                // { easing: 'bounceOut' }
+            )
+            .start()
+    }
 
-    public moveToRealPositionWithPadding(level: Level, tweening: boolean = true): void {
+    public moveToRealPositionWithPadding(
+        level: Level,
+        tweening: boolean = true,
+        delay: number = 0,
+        easing: TweenEasing = 'quadOut',
+        duration: number = 0.5
+    ): void {
         const PADDING = 1
         const pos = getTilePositionByLevel(
             this.coordinate.x - PADDING,
@@ -194,7 +222,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             AnimationHandler.animTile.push(
                 new Promise<void>((resolve) => {
                     tween(this.node)
-                        .to(0.5, { position: targetPos }, { easing: 'quadOut' })
+                        .delay(delay)
+                        .to(duration, { position: targetPos }, { easing: easing })
                         .call(() => {
                             resolve()
                         })
@@ -205,7 +234,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             this.node.setPosition(targetPos)
         }
     }
-    public reScale(scale: number) {
+    public reScale(scale: number, size: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))

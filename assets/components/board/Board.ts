@@ -1,4 +1,5 @@
-import { _decorator, Component, Size, Vec2 } from 'cc'
+import { _decorator, Component, ProgressBar, Size, Vec2, Tween, tween } from 'cc'
+
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -16,7 +17,6 @@ const { ccclass, property } = _decorator
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
     game: GameManager | null = null
-
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
         if (this.canMatch(tile1, tile2)) {
@@ -27,6 +27,9 @@ class Board extends Component implements TileConnect.IBoard {
             tile2.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
+        } else {
+            ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            this.game?.unChoose()
         }
     }
 
@@ -151,6 +154,10 @@ class Board extends Component implements TileConnect.IBoard {
         }
     }
 
+    public shake() {
+        tween(this.node).to
+    }
+
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
         const extra = 1
@@ -174,13 +181,23 @@ class Board extends Component implements TileConnect.IBoard {
                     realY < level.gridHeight
                 ) {
                     tile?.setTypeID(level.grid[realY][realX])
-                    tile?.reScale(level.scale)
+                    if (tile?.node) {
+                        Tween.stopAllByTarget(tile.wholeSprite!)
+                    }
+                    tile?.reScale(level.scale, level.tileSize)
                 } else {
                     tile?.hide()
                 }
 
                 tile?.setCoordinate(new Vec2(x, y))
-                tile?.moveToRealPositionWithPadding(level, false)
+                tile?.node.setPosition(/*getTilePositionByLevel(x, y, level, 1).x*/ 0, 0)
+                tile?.fadeIn(Math.abs(y - level.gridHeight - 1) * 0.05)
+                tile?.moveToRealPositionWithPadding(
+                    level,
+                    true,
+                    Math.abs(y - level.gridHeight - 1) * 0.05,
+                    'sineOut'
+                )
             }
         }
     }
@@ -219,7 +236,13 @@ class Board extends Component implements TileConnect.IBoard {
         }
         for (const row of this.board) {
             for (const tile of row) {
-                ;(tile as Tile).moveToRealPositionWithPadding(this.game?.currentLevel!)
+                ;(tile as Tile).moveToRealPositionWithPadding(
+                    this.game?.currentLevel!,
+                    true,
+                    0,
+                    'expoInOut',
+                    1
+                )
             }
         }
     }
@@ -259,6 +282,9 @@ class Board extends Component implements TileConnect.IBoard {
             const from = path[i]
             const pos = (this.board[from.y][from.x] as Tile).node.getPosition().clone()
             const star = pool.getFirstItem()
+            if (i == 0 || i == path.length - 1) {
+                star?.firstAndLastMatch()
+            }
             star?.putAt(pos)
         }
     }

@@ -50,12 +50,38 @@ class HintItem extends BaseItem {
         this.game?.unChoose()
         const board = this.game?.board as Board
         const path = this.game?.board?.getPath(tile1, tile2)
+        const reducePath = this.getTurnPoints(path!.path)
         this.game?.hintTile.push(tile1, tile2)
         tile1.onHint()
         tile2.onHint()
-        this.drawPath(path!.path, this.game!.pathPool!)
-        this.putStar(path!.path, this.game!.starPool!)
+        this.drawPath(reducePath, this.game!.pathPool!)
+        this.putStar(reducePath, this.game!.starPool!)
     }
+    private getTurnPoints(path: Vec2[]): Vec2[] {
+        if (path.length < 2) return path
+
+        const turns = [path[0]]
+
+        for (let i = 1; i < path.length - 1; i++) {
+            const prev = path[i - 1]
+            const curr = path[i]
+            const next = path[i + 1]
+
+            const dx1 = curr.x - prev.x
+            const dy1 = curr.y - prev.y
+            const dx2 = next.x - curr.x
+            const dy2 = next.y - curr.y
+
+            // If direction changes, it's a turn
+            if (dx1 !== dx2 || dy1 !== dy2) {
+                turns.push(curr)
+            }
+        }
+
+        turns.push(path[path.length - 1]) // Always include the end
+        return turns
+    }
+
     public drawPath(path: Vec2[], pool: PathPool) {
         for (let i = 0; i < path.length - 1; i++) {
             const from = path[i]

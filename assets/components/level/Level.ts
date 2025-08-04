@@ -1,3 +1,4 @@
+import { view } from 'cc'
 import { SubType, Theme } from '../../type/global'
 
 export class Level {
@@ -21,8 +22,11 @@ export class Level {
         this.gridHeight = h
         this.gridWidth = w
         this.grid = grid
-        this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 5
-        this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
+
+        // this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 2
+        // this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
+        this.scale = view.getVisibleSize().width / (this.gridWidth + 2) / 80
+        this.tileSize = this.scale * 80 + 5
         if (layer) this.layer = layer
         this.time = time
     }
@@ -39,12 +43,18 @@ export class Level {
         this.gridHeight = h
         this.gridWidth = w
         this.grid = grid
-        this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight)
-        this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
+
+        // this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 2
+        // this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
+        this.scale = view.getVisibleSize().width / (this.gridWidth + 3) / 80
+        this.tileSize = this.scale * 80 + 5
         if (layer) this.layer = layer
         this.time = time
     }
     public getTime() {
         return this.time
+    }
+    public getTileNum() {
+        return this.gridHeight * this.gridWidth
     }
 }
