@@ -11,13 +11,28 @@ class LevelGenerator:
         self._grid_height, self._grid_width = self._generate_grid_size()
         self.theme = self._generate_theme()
         self.tile_data = self._generate_tiles_and_specials()
-        self._time=self._time_estimate()
+        self._time = self._time_estimate()
+        self.gravity = self._generate_gravity()
+    
+    def _generate_gravity(self):
+        if self.level <= 5:
+            return 0
+        
+        if self.difficulty < 2:
+            return 0
+        
+        if self.difficulty >= 5:
+            return 4
+        
+        return random.randint(1, 3)
+    
     def _time_estimate(self):
         if self._grid_width*self._grid_height<20:
             return 60
         elif self._grid_width*self._grid_height<40:
             return 90
         else: return 120
+    
     def _calculate_difficulty(self, level: int):
         cycle = 20
         pos_in_cycle = level % cycle
@@ -25,6 +40,7 @@ class LevelGenerator:
             return pos_in_cycle / 2.0
         else:
             return (cycle - pos_in_cycle) / 2.0
+    
     def _generate_grid_size(self):
         base_height = 3 + int(self.difficulty * 0.8)
         base_width = 4 + int(self.difficulty * 0.8)
@@ -208,7 +224,8 @@ class LevelGenerator:
                 'BombEffects': self.tile_data['BombEffects'],
                 'NormalTiles': self.tile_data['TileDistribution']
             },
-            'Time':self._time
+            'Time': self._time,
+            'Gravity': self.gravity
         }
     
     def save_to_file(self, path: str):
@@ -233,11 +250,12 @@ if __name__ == "__main__":
             'BombEffects': tiles['BombEffects'],
             'NormalTilesSum': normal_sum,
             'Difficulty': generator.difficulty,
-            'Time': data['Time']
+            'Time': data['Time'],
+            'Gravity': data['Gravity']
         })
 
     with open('levels_summary.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum','Difficulty','Time']
+        fieldnames = ['Level', 'GridHeight', 'GridWidth', 'TotalTiles', 'RocketTiles', 'BombEffects', 'NormalTilesSum', 'Difficulty', 'Time', 'Gravity']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for row in levels:

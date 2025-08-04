@@ -3,7 +3,7 @@
     "Difficulty": 1.0,
     "GridHeight": 4,
     "GridWidth": 5,
-    "Theme": "DRINK",
+    "Theme": "BUTTERFLY",
     "Tiles": {
         "TotalTiles": 20,
         "RocketTiles": 2,
@@ -11,12 +11,13 @@
         "NormalTiles": {
             "0": 2,
             "1": 4,
-            "2": 2,
+            "2": 4,
             "3": 2,
             "4": 2,
             "5": 2,
-            "6": 4
+            "6": 2
         }
     },
-    "Time": 90
+    "Time": 90,
+    "Gravity": 0
 }

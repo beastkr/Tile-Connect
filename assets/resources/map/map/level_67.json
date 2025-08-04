@@ -3,7 +3,7 @@
     "Difficulty": 3.5,
     "GridHeight": 6,
     "GridWidth": 8,
-    "Theme": "BUTTERFLY",
+    "Theme": "CAKE",
     "Tiles": {
         "TotalTiles": 48,
         "RocketTiles": 2,
@@ -19,5 +19,6 @@
             "7": 6
         }
     },
-    "Time": 120
+    "Time": 120,
+    "Gravity": 1
 }

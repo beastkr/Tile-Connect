@@ -7,7 +7,7 @@ import { ShuffleLevel } from './ShuffleLevel'
 export class LevelLoader {
     private static currentLevel: Level
 
-    private static current: number = 7
+    private static current: number = 5
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
     private static shuffleLevel: ShuffleLevel | null = null
@@ -59,64 +59,34 @@ export class LevelLoader {
 
         this.data = levelData
         this.shuffleLevel = new ShuffleLevel(levelData)
+        const grid = this.shuffleLevel.generateMap()
+        const layers = this.shuffleLevel.getMapLayer(grid)
+        const theme = this.getThemeFromString(levelData.Theme)
 
-        const shuffleResult = this.shuffleLevel.shuffleUntilGood(50)
-
-        if (!shuffleResult.success) {
-            this.shuffleLevel.shuffle()
-            const layerMap = this.shuffleLevel.getMapLayer(this.shuffleLevel.getGrid())
-            const theme = LevelLoader.getThemeFromString(levelData.Theme)
-
-            if (!LevelLoader.currentLevel) {
-                LevelLoader.currentLevel = new Level(
-                    levelData.GridHeight,
-                    levelData.GridWidth,
-                    shuffleResult.grid,
-                    theme,
-                    levelData.Time,
-                    layerMap
-                )
-                console.log(LevelLoader.currentLevel)
-            } else {
-                LevelLoader.currentLevel.change(
-                    levelData.GridHeight,
-                    levelData.GridWidth,
-                    shuffleResult.grid,
-                    theme,
-                    levelData.Time,
-                    layerMap
-                )
-            }
+        if (!LevelLoader.currentLevel) {
+            LevelLoader.currentLevel = new Level(
+                levelData.GridHeight,
+                levelData.GridWidth,
+                grid,
+                theme,
+                levelData.Time,
+                levelData.Gravity,
+                layers
+            )
+            console.log(LevelLoader.currentLevel)
         } else {
-            const layerMap = this.shuffleLevel.getMapLayer(shuffleResult.grid)
+            LevelLoader.currentLevel.change(
+                levelData.GridHeight,
+                levelData.GridWidth,
+                grid,
+                theme,
+                levelData.Time,
+                levelData.Gravity,
 
-            const theme = this.getThemeFromString(levelData.Theme)
-
-            if (!LevelLoader.currentLevel) {
-                LevelLoader.currentLevel = new Level(
-                    levelData.GridHeight,
-                    levelData.GridWidth,
-                    shuffleResult.grid,
-                    theme,
-                    levelData.Time,
-                    layerMap
-                )
-                console.log(LevelLoader.currentLevel)
-            } else {
-                LevelLoader.currentLevel.change(
-                    levelData.GridHeight,
-                    levelData.GridWidth,
-                    shuffleResult.grid,
-                    theme,
-                    levelData.Time,
-                    layerMap
-                )
-            }
+                layers
+            )
         }
 
-        console.log(
-            `Level ${levelNumber} đã được load thành công (${shuffleResult.attempts} attempts)`
-        )
         return true
     }
 
