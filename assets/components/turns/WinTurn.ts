@@ -20,7 +20,7 @@ export class WinTurn extends BaseTurn {
         const originalTime = this.game.time
         tween({ time: originalTime })
             .to(
-                3,
+                2,
                 { time: 0 },
                 {
                     onUpdate: (target) => {
@@ -30,6 +30,7 @@ export class WinTurn extends BaseTurn {
                     },
                 }
             )
+            .delay(0.2)
             .call(() => {
                 UImanager.showPopup(Popup.WINPOPUP, true, this.game.currentNumber())
             })
@@ -38,7 +39,7 @@ export class WinTurn extends BaseTurn {
 
     private startStarAnimation(clockPos: Vec3, pool: StarPool) {
         const totalStars = 10
-        const totalDuration = 3
+        const totalDuration = 2
         const starInterval = totalDuration / totalStars
 
         for (let i = 0; i < totalStars; i++) {
@@ -52,7 +53,6 @@ export class WinTurn extends BaseTurn {
                 })
                 .start()
         }
-
     }
 
     onExit(): void {}

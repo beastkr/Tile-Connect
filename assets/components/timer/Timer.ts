@@ -45,7 +45,7 @@ export class Timer extends Component {
         if (this.gm.time <= 0 && !this.hasTriggeredTimeUp) {
             console.log('Time up!')
             this.hasTriggeredTimeUp = true
-            this.gm.switchTurn(Turn.FAIL)
+            if (!this.gm.isWin()) this.gm.switchTurn(Turn.FAIL)
             if (s) {
                 s.string = this.convertTime(0)
             }

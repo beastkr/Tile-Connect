@@ -7,7 +7,7 @@ const { ccclass, property } = _decorator
 
 @ccclass('BoomSubTile')
 export class BoomSubTile extends BaseSubTile {
-    private timer: number = 30
+    private timer: number = 40
     @property(Sprite)
     coundown: Sprite | null = null
     @property(Sprite)

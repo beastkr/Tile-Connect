@@ -39,6 +39,7 @@ export class FillProgressBar extends Component {
         this.currentStar = this.star?.node ?? null
         if (this.gm) {
             this.total = this.gm?.currentLevel?.getTileNum() ?? 0
+            console.log(this.total)
             this.level!.string = `Lvl ${this.gm.currentNumber()}`
         }
     }
@@ -71,7 +72,7 @@ export class FillProgressBar extends Component {
             this.star9!.node.active = true
             this.currentStar = this.star1?.node ?? null
         }
-        if (this.mid!.node.scale.x >= 7.5) {
+        if (this.mid!.node.scale.x >= 7.4) {
             this.star1!.node.active = true
         }
     }

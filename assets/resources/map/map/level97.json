@@ -1,0 +1,25 @@
+{
+    "Level": 97,
+    "Difficulty": 1.5,
+    "GridHeight": 7,
+    "GridWidth": 8,
+    "Theme": "BUTTERFLY",
+    "Tiles": {
+        "TotalTiles": 56,
+        "RocketTiles": 2,
+        "BombEffects": 2,
+        "NormalTiles": {
+            "0": 6,
+            "1": 8,
+            "2": 6,
+            "3": 6,
+            "4": 8,
+            "5": 8,
+            "6": 6,
+            "7": 6
+        }
+    },
+    "Time": 120,
+    "Gravity": 0,
+    "Circle": false
+}

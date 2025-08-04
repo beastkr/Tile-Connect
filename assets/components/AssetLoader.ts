@@ -10,7 +10,7 @@ export class AssetLoader extends Component {
         director.preloadScene('Prototype')
         resources.preloadDir('sprite')
         resources.preloadDir('sprite/AllTiles')
-        // resources.preloadDir('font')
+        resources.preloadDir('map')
         resources.preloadDir('texture-2d')
         resources.preloadDir('ui-assets')
     }

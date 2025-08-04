@@ -17,6 +17,7 @@ export class Victory extends BasePopup {
     private continue: Button | null = null
 
     public onPopupShow(curr: number): void {
+        this.resetAura()
         this.popStar(() => {
             this.dropAllStars(() => {
                 this.playAura()
@@ -51,6 +52,22 @@ export class Victory extends BasePopup {
             const Aura = starNode.getChildByName('MainAura')
             if (Aura) {
                 Aura.active = true
+                console.log(Aura)
+            }
+        })
+    }
+    private resetAura() {
+        this.stars.forEach((starNode) => {
+            const Aura = starNode.getChildByName('MainAura')
+            if (Aura) {
+                Aura.active = false
+            }
+            this.glow!.node.active = false
+
+            const starChildNode = starNode.getChildByName('Star')
+            const trail = starChildNode?.getChildByName('Trail')
+            if (trail) {
+                trail.active = false
             }
         })
     }

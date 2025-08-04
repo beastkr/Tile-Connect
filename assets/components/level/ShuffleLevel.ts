@@ -234,11 +234,16 @@ export class ShuffleLevel {
         const BoomLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
             Array(this.gridWidth).fill(0)
         )
-
+        const GravityLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
+            Array(this.gridWidth).fill(0)
+        )
         const bombCandidates: { x: number; y: number }[] = []
 
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
+                if (this.data.Gravity) {
+                    GravityLayer[y][x] = 1
+                }
                 if (grid[y][x] == 8) {
                     RocketLayer[y][x] = 1
                 } else {
@@ -255,9 +260,9 @@ export class ShuffleLevel {
             BoomLayer[y][x] = 1
         }
 
-        console.log(BoomLayer)
         this.layerList.set(SubType.ROCKET, RocketLayer)
         this.layerList.set(SubType.BOOM, BoomLayer)
+        this.layerList.set(SubType.GRAVITY, GravityLayer)
         return this.layerList
     }
 

@@ -7,8 +7,7 @@ import { ShuffleLevel } from './ShuffleLevel'
 export class LevelLoader {
     private static currentLevel: Level
 
-
-    private static current: number = 5
+    private static current: number = 1
 
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
@@ -37,12 +36,16 @@ export class LevelLoader {
         levelNumber: number
     ): Promise<TileConnect.ILevelData | null> {
         return new Promise((resolve, reject) => {
-            const path = `map/map/level_${levelNumber}`
+            const path = `map/map/level${levelNumber}`
             resources.load(path, JsonAsset, (err, asset) => {
                 if (err) {
                     console.error(`Không load được level ${levelNumber}:`, err)
+                    console.log('Test load:', err, asset)
+
                     resolve(null)
                 } else {
+                    //   console.log('Test load:', err, asset)
+
                     const data = asset!.json as TileConnect.ILevelData
                     console.log(data.Theme)
                     resolve(data)
@@ -86,7 +89,6 @@ export class LevelLoader {
                 levelData.Time,
                 levelData.Gravity,
                 levelData.Circle,
-
                 layers
             )
         }

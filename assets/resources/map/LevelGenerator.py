@@ -239,7 +239,7 @@ if __name__ == "__main__":
     levels = []
     for i in range(1, 101):
         generator = LevelGenerator(i)
-        generator.save_to_file(f"map/level_{i}.json")
+        generator.save_to_file(f"map/level{i}.json")
         data = generator.export_level_data()
         tiles = data['Tiles']
         normal_sum = sum(tiles['NormalTiles'].values()) if isinstance(tiles['NormalTiles'], dict) else 0

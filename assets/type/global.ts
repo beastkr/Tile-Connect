@@ -16,6 +16,7 @@ export enum Turn {
     PAUSE,
     FAIL,
     WIN,
+    BOOM,
 }
 
 export enum TileType {
