@@ -7,7 +7,7 @@ import { ShuffleLevel } from './ShuffleLevel'
 export class LevelLoader {
     private static currentLevel: Level
 
-    private static current: number = 3
+    private static current: number = 7
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
     private static shuffleLevel: ShuffleLevel | null = null

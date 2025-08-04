@@ -1953,8 +1953,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1348,
-      "height": 100
+      "width": 214.2857142857143,
+      "height": 60
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2023,8 +2023,8 @@
     },
     "_alignFlags": 40,
     "_target": null,
-    "_left": -583.5999999999999,
-    "_right": -583.5999999999999,
+    "_left": 210,
+    "_right": 210,
     "_top": 0,
     "_bottom": 0,
     "_horizontalCenter": 0,
@@ -2079,6 +2079,7 @@
       "__id__": 0
     },
     "fileId": "c46/YsCPVOJYA4mWEpNYRx",
-    "instance": null
+    "instance": null,
+    "targetOverrides": null
   }
 ]
