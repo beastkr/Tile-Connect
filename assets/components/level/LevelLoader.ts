@@ -7,7 +7,7 @@ import { ShuffleLevel } from './ShuffleLevel'
 export class LevelLoader {
     private static currentLevel: Level
 
-    private static current: number = 1
+    private static current: number = 3
     private static needToChange: boolean = false
     private static data: TileConnect.ILevelData | null = null
     private static shuffleLevel: ShuffleLevel | null = null
@@ -65,7 +65,6 @@ export class LevelLoader {
         if (!shuffleResult.success) {
             this.shuffleLevel.shuffle()
             const layerMap = this.shuffleLevel.getMapLayer(this.shuffleLevel.getGrid())
-
             const theme = LevelLoader.getThemeFromString(levelData.Theme)
 
             if (!LevelLoader.currentLevel) {

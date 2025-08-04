@@ -1,4 +1,5 @@
-import { _decorator, Component, Size, tween, Tween, Vec2 } from 'cc'
+import { _decorator, Component, ProgressBar, Size, Vec2, Tween, tween } from 'cc'
+
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -16,7 +17,6 @@ const { ccclass, property } = _decorator
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
     game: GameManager | null = null
-
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
         if (this.canMatch(tile1, tile2)) {
@@ -282,6 +282,9 @@ class Board extends Component implements TileConnect.IBoard {
             const from = path[i]
             const pos = (this.board[from.y][from.x] as Tile).node.getPosition().clone()
             const star = pool.getFirstItem()
+            if (i == 0 || i == path.length - 1) {
+                star?.firstAndLastMatch()
+            }
             star?.putAt(pos)
         }
     }

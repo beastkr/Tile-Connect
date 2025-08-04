@@ -51,4 +51,8 @@ export class Timer extends Component {
             }
         }
     }
+    public isWin() {
+        if (this.gm?.isWin() && this.gm.time > 0) {
+        }
+    }
 }

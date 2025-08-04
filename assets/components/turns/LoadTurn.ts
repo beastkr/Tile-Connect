@@ -1,4 +1,6 @@
+import { find } from 'cc'
 import { Turn } from '../../type/global'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { GravityManager } from '../manager/GravityManager'
 import { BaseTurn } from './BaseTurn'
 
@@ -15,8 +17,11 @@ export class LoadTurn extends BaseTurn {
         GravityManager.setUpManager(this.game.currentLevel)
         this.game.time = this.game.currentLevel.getTime()
         this.game.matchPair = []
-        // this.game.node.setScale(getScale())
         this.game.createBoard(this.game.currentLevel)
+        AnimationHandler.fillProgressBar?.resetProgressBar()
+        AnimationHandler.fillProgressBar?.setTotal(this.game.currentLevel.getTileNum())
+        AnimationHandler.fillProgressBar?.setLv(this.game.currentNumber())
+
         this.turnOnInput()
         // console.log(this.game.currentLevel.layer)
         this.game.switchTurn(Turn.START)

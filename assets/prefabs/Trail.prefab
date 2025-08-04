@@ -115,7 +115,7 @@
     "lifeVar": 0,
     "angle": 90,
     "angleVar": 20,
-    "startSize": 140,
+    "startSize": 50,
     "startSizeVar": 0,
     "endSize": 0,
     "endSizeVar": 0,
@@ -159,15 +159,15 @@
     "_custom": true,
     "_file": null,
     "_spriteFrame": {
-      "__uuid__": "c0efc499-3cb0-44f6-a1ad-d4bf4971725d@f9941",
+      "__uuid__": "0d282205-3b92-4f9f-8576-fa65af3e01a3@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_totalParticles": 30,
     "_startColor": {
       "__type__": "cc.Color",
       "r": 255,
-      "g": 194,
-      "b": 0,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_startColorVar": {

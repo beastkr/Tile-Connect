@@ -64,6 +64,9 @@ class RocketItem extends BaseItem {
         const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
         const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
         for (let i = 0; i < tileList.length; i++) {
+
+            this.rockets[i].active = true
+
             this.rockets[i].angle = 0
             this.rockets[i].getComponent(Sprite)!.spriteFrame = fireWork
             const dust = this.rockets[i]

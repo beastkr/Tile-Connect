@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "b45e19c8-c4eb-41df-8919-5c08b79be56a",
+  "uuid": "6c379c76-277d-42a4-acd2-7d8bc7a38b7b",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "cloud1"
+    "syncNodeName": "good"
   }
 }

@@ -54,4 +54,7 @@ export class Level {
     public getTime() {
         return this.time
     }
+    public getTileNum() {
+        return this.gridHeight * this.gridWidth
+    }
 }
