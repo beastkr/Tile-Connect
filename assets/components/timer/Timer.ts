@@ -1,6 +1,6 @@
-import { _decorator, Component, Label, Node } from 'cc'
-import GameManager from '../manager/GameManager'
+import { _decorator, Component, Label } from 'cc'
 import { Turn } from '../../type/global'
+import GameManager from '../manager/GameManager'
 const { ccclass, property } = _decorator
 
 @ccclass('Timer')
