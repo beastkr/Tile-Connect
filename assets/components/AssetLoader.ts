@@ -9,7 +9,7 @@ export class AssetLoader extends Component {
         if (!this.progressBar) throw new Error('ProgressBar is required')
         director.preloadScene('Prototype')
         // resources.preloadDir('sprite')
-        resources.preloadDir('sprite/AllTiles')
+        //  resources.preloadDir('sprite/AllTiles')
         // resources.preloadDir('map')
         // resources.preloadDir('texture-2d')
         // resources.preloadDir('ui-assets')

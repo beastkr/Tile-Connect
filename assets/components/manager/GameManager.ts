@@ -25,6 +25,7 @@ import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
 import { ItemManager } from './ItemManager'
+import { AdsTurn } from '../turns/AdsTurn'
 
 const { ccclass, property } = _decorator
 
@@ -145,6 +146,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.WIN, new WinTurn(this))
         this.turnList.set(Turn.PAUSE, new PauseTurn(this))
         this.turnList.set(Turn.BOOM, new BombFail(this))
+        this.turnList.set(Turn.ADS, new AdsTurn(this))
+
         this.switchTurn(Turn.LOAD)
     }
 
@@ -158,7 +161,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()
     }
-
+    public adsPop() {
+        this.switchTurn(Turn.ADS)
+    }
     public choose(tile: TileConnect.ITile): void {
         if (tile.getTypeID() == TileType.NONE) return
         console.log(tile.getCoordinate())
@@ -255,6 +260,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('failed')
         this.levelLoader.restartLevel().then(() => {
+            director.emit(GAME_EVENTS.COUNTDOWN_RESET)
             this.switchTurn(Turn.LOAD)
         })
     }
