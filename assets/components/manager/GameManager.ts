@@ -18,13 +18,13 @@ import { StartTurn } from '../turns/StartTurn'
 
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
+import { GAME_EVENTS } from '../subtiles/Countdown'
+import { BombFail } from '../turns/BombFail'
 import { FailTurn } from '../turns/FailTurn'
-import { ItemManager } from './ItemManager'
 import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
-import { GAME_EVENTS } from '../subtiles/Countdown'
-import { BombFail } from '../turns/BombFail'
+import { ItemManager } from './ItemManager'
 
 const { ccclass, property } = _decorator
 

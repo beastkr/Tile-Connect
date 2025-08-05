@@ -1,7 +1,7 @@
-import { _decorator, Component, Node, Sprite, UITransform, tween, Size, Vec3, Label } from 'cc'
+import { _decorator, Component, Label, Node, Sprite, tween, UITransform, Vec3 } from 'cc'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import GameManager from '../manager/GameManager'
 const { ccclass, property } = _decorator
-import { AnimationHandler } from '../animation-handler/AnimationHandler'
 
 @ccclass('FillProgressBar')
 export class FillProgressBar extends Component {
@@ -26,6 +26,7 @@ export class FillProgressBar extends Component {
     private isFirstFill: boolean = true
     private tailNode: Node | null = null
     private currentActive: number = 0
+    private score: number = 0
     @property(Label)
     public level!: Label
 
@@ -53,6 +54,7 @@ export class FillProgressBar extends Component {
         if (this.total <= 0 || this.size <= 0) return
 
         const progress = (2 * 9) / this.total
+        this.score += progress
 
         if (this.isFirstFill && progress > 0) {
             this.showLeft()
@@ -66,14 +68,18 @@ export class FillProgressBar extends Component {
     public checkActive() {
         if (this.mid!.node.scale.x >= 4.5) {
             this.star!.node.active = true
-            this.currentStar = this.star9?.node ?? null
         }
         if (this.mid!.node.scale.x >= 6) {
             this.star9!.node.active = true
-            this.currentStar = this.star1?.node ?? null
         }
         if (this.mid!.node.scale.x >= 7.4) {
             this.star1!.node.active = true
+        }
+        if (this.score >= 4.5) {
+            this.currentStar = this.star9?.node ?? null
+        }
+        if (this.score >= 6) {
+            this.currentStar = this.star1?.node ?? null
         }
     }
     private showLeft() {
@@ -83,7 +89,7 @@ export class FillProgressBar extends Component {
     private updateMidWidth(progress: number) {
         tween(this.mid!.node)
             .to(
-                0.3,
+                0.1,
                 {
                     scale: new Vec3(
                         progress + this.mid!.node.scale.x,
