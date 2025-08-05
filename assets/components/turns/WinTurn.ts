@@ -1,12 +1,16 @@
-import { tween, find, Vec3 } from 'cc'
+import { find, tween, Vec3 } from 'cc'
 import { Popup } from '../../type/global'
+import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
+
 import StarPool from '../pool/StarPool'
 import { LevelLoader } from '../level/LevelLoader'
 
+
 export class WinTurn extends BaseTurn {
     onEnter(): void {
+        this.game.isgameOver = true
         const timerNode = find('Canvas/Top/Timer')
         if (timerNode) {
             const clockNode = timerNode.getChildByName('clock')

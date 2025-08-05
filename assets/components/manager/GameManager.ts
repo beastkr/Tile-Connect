@@ -215,6 +215,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public poolInit(): void {}
 
     public createBoard(level: Level): void {
+        this.hintPath = []
+        this.hintPoint = []
+        this.hintTile = []
         this.subtilePool.forEach((p) => {
             p.returnAll()
         })
@@ -232,6 +235,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         if (this.currentTurn) this.currentTurn.onExit()
         this.currentTurn = this.turnList.get(newTurn)!
         this.currentTurn.onEnter()
+    }
+
+    hideItem() {
+        this.itemManager!.node.active = false
+    }
+    showItem() {
+        this.itemManager!.node.active = true
     }
 
     public turnOnInput() {
@@ -254,6 +264,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
+        this.hideItem()
     }
 
     public unPause() {
@@ -261,6 +272,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.turnOnInput()
+        this.showItem()
         this.switchTurn(Turn.START)
     }
 
