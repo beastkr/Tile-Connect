@@ -92,7 +92,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.hintPath = []
         this.hintPoint = []
         this.hintTile = []
-        this.itemManager?.unlockItem(Item.HINT)
+        this.itemManager?.itemList.get(Item.HINT)?.enableFunction()
     }
 
     protected start(): void {
@@ -279,6 +279,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public moveOn() {
         this.isgameOver = false
         this.ispause = false
+        UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('completed')
         this.levelLoader.changeLevel().then(() => {

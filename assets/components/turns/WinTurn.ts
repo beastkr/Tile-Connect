@@ -9,6 +9,7 @@ import { LevelLoader } from '../level/LevelLoader'
 export class WinTurn extends BaseTurn {
     onEnter(): void {
         this.game.isgameOver = true
+        UImanager.togglePauseButton(false)
         const timerNode = find('Canvas/Top/Timer')
         if (timerNode) {
             const clockNode = timerNode.getChildByName('clock')

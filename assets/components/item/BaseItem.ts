@@ -1,6 +1,7 @@
 import { _decorator, Color, Component, Node, RichText, Sprite, tween, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import GameManager from '../manager/GameManager'
+import { ItemManager } from '../manager/ItemManager'
 const { ccclass, property } = _decorator
 
 @ccclass('BaseItem')
@@ -15,7 +16,7 @@ class BaseItem extends Component implements TileConnect.IItem {
     @property(RichText)
     protected quantityText: RichText | null = null
     protected clicked: boolean = false
-
+    itemManager: ItemManager | null = null
     public game: GameManager | null = null
     @property(Sprite)
     lockedIcon: Sprite | null = null
@@ -76,6 +77,14 @@ class BaseItem extends Component implements TileConnect.IItem {
     }
     textChange() {
         this.quantityText!.string = String(this.quantity)
+    }
+    stopFunction() {
+        this.locked = true
+        this.currentNote!.active = false
+    }
+    enableFunction() {
+        this.locked = false
+        this.currentNote!.active = true
     }
 
     lock() {

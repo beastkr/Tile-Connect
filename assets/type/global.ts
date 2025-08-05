@@ -53,13 +53,13 @@ export enum Theme {
 }
 
 export function getTilePath(id: number, theme: Theme): string {
-    if (id == TileType.ROCKET) return 'sprite/AllTiles/rocket/spriteFrame'
-    return `sprite/AllTiles/${theme + String(id)}/spriteFrame`
+    if (id == TileType.ROCKET) return 'AllTiles/rocket/spriteFrame'
+    return `AllTiles/${theme + String(id)}/spriteFrame`
 }
 export function getComboCount(id: number): string {
     return `resources/animation/${id}`
 }
-export const FIREWORK_PATH = 'sprite/AllTiles/firework/spriteFrame'
+export const FIREWORK_PATH = 'AllTiles/firework/spriteFrame'
 export function getTilePosition(
     row: number,
     col: number,
@@ -124,5 +124,6 @@ export enum Item {
     BOOM = 'BoomDefuseItem',
     SHUFFLE = 'ShuffleItem',
     ROCKET = 'RocketItem',
+    SUPERROCKET = 'SuperRocketItem',
 }
 export const ROCKET_PATH = 'sprite/prop_rocket/spriteFrame'

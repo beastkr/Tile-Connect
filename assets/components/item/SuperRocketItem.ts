@@ -17,29 +17,35 @@ import BaseItem from './BaseItem'
 
 const { ccclass, property } = _decorator
 
-@ccclass('RocketItem')
-class RocketItem extends BaseItem {
+@ccclass('SuperRocketItem')
+class SuperRocketItem extends BaseItem {
     @property(Node)
     overlay: Node | null = null
     @property(Node)
     rockets: Node[] = []
-
     onUse(): void {
         if (this.clicked || this.quantity == 0 || this.locked) return
         super.onUse()
 
-        const pair = this.getRandomMatchingPair()
-        if (!pair) return
+        const exclude = new Set<Tile>()
 
-        const exclude = new Set<Tile>(pair)
+        const pair1 = this.getRandomMatchingPair(exclude)
+        if (!pair1) return
+        pair1.forEach((tile) => exclude.add(tile))
+
         const pair2 = this.getRandomMatchingPair(exclude)
         if (!pair2) return
+        pair2.forEach((tile) => exclude.add(tile))
 
-        const tileList: Tile[] = [...pair, ...pair2]
+        const pair3 = this.getRandomMatchingPair(exclude)
+        if (!pair3) return
+
+        const tileList: Tile[] = [...pair1, ...pair2, ...pair3]
 
         this.game?.node.addChild(this.overlay!)
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
+        console.log(this.itemManager!.botOverlay)
         this.itemManager!.botOverlay!.active = true
         this.itemManager!.botOverlay!.setSiblingIndex(this.node.getSiblingIndex() - 1)
         this.game?.unChoose()
@@ -54,7 +60,7 @@ class RocketItem extends BaseItem {
         for (const tile of tileList) {
             tile.node.setSiblingIndex(this.overlay!.getSiblingIndex() + 1)
         }
-        this.itemManager?.hideExcept(Item.ROCKET)
+        this.itemManager?.hideExcept(Item.SUPERROCKET)
         this.showRocket(tileList)
         console.log('rocket')
         this.quantity--
@@ -63,7 +69,7 @@ class RocketItem extends BaseItem {
 
     showRocket(tileList: Tile[]) {
         this.stopFunction()
-        const segment = view.getVisibleSize().width / 5
+        const segment = view.getVisibleSize().width / 7
         const screenSize = view.getVisibleSize()
         const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
         const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
@@ -83,7 +89,7 @@ class RocketItem extends BaseItem {
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
             dust?.resetSystem()
             rocketSprite!.active = true
-            const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
+            const side = i >= 3 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
             this.rockets[i].setScale(0.8, 0.8)
@@ -124,7 +130,7 @@ class RocketItem extends BaseItem {
                                 this.rockets[i].setWorldPosition(new Vec3(0, -100))
                             })
 
-                            if (i == 3) {
+                            if (i == 5) {
                                 this.game?.turnOnInput()
                                 this.itemManager?.showAll()
                                 this.enableFunction()
@@ -180,4 +186,4 @@ class RocketItem extends BaseItem {
         return [shuffled[0], shuffled[1]]
     }
 }
-export default RocketItem
+export default SuperRocketItem

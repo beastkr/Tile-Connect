@@ -1,4 +1,4 @@
-import { _decorator, Component } from 'cc'
+import { _decorator, Component, Node } from 'cc'
 import { Item } from '../../type/global'
 import BaseItem from '../item/BaseItem'
 import GameManager from './GameManager'
@@ -8,9 +8,25 @@ const { ccclass, property } = _decorator
 export class ItemManager extends Component {
     game: GameManager | null = null
     itemList: Map<Item, BaseItem> = new Map<Item, BaseItem>()
+    @property(Node)
+    bg: Node | null = null
+    @property(Node)
+    botOverlay: Node | null = null
     protected onLoad(): void {
         this.cacheAllItem()
         // this.intialize()
+    }
+    hideExcept(item: Item) {
+        // this.bg!.active = false
+        for (const i of this.itemList) {
+            if (i[0] != item) i[1].node.active = false
+        }
+    }
+    showAll() {
+        this.bg!.active = true
+        for (const i of this.itemList) {
+            i[1].node.active = true
+        }
     }
     intialize(game?: GameManager) {
         console.log(this.itemList)
@@ -31,20 +47,23 @@ export class ItemManager extends Component {
     cacheAllItem() {
         Object.values(Item).forEach((itemType) => {
             const node = this.node.getChildByName(itemType)
+            node!.getComponent(BaseItem)!.itemManager = this
             if (node) this.itemList.set(itemType, node.getComponent(BaseItem)!)
             console.log('cached: ', itemType)
         })
     }
     useItem(itemType: Item) {
+        if (this.game?.isgameOver) return
         const item = this.itemList.get(itemType)
         item?.onUse()
+        // item?.stopFunction()
         if (item?.quantity == 0) item.lock()
         localStorage.setItem(itemType, String(item?.quantity))
     }
 
     useHint() {
         this.useItem(Item.HINT)
-        this.itemList.get(Item.HINT)?.lock()
+        this.itemList.get(Item.HINT)?.stopFunction()
     }
 
     useBoom() {
@@ -55,6 +74,9 @@ export class ItemManager extends Component {
     }
     useRocket() {
         this.useItem(Item.ROCKET)
+    }
+    useSuperRocket() {
+        this.useItem(Item.SUPERROCKET)
     }
 
     unlockItem(itemType: Item) {
