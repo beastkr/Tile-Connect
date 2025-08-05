@@ -1,4 +1,5 @@
-import { SubType } from '../../type/global'
+import { Direction, SubType } from '../../type/global'
+import { GravityManager } from '../manager/GravityManager'
 
 interface Position {
     x: number
@@ -226,7 +227,22 @@ export class ShuffleLevel {
         }
         return positions
     }
-
+    private checkDirection(): Direction {
+        switch (this.data.Gravity) {
+            case 0:
+                return Direction.NONE
+            case 1:
+                return Direction.LEFT
+            case 2:
+                return Direction.RIGHT
+            case 3:
+                return Direction.UP
+            case 4:
+                return Direction.DOWN
+            default:
+                return Direction.NONE
+        }
+    }
     public getMapLayer(grid: number[][]): Map<SubType, number[][]> {
         const RocketLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
             Array(this.gridWidth).fill(0)
@@ -241,6 +257,7 @@ export class ShuffleLevel {
 
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
+                GravityManager.setCircle(this.data.Circle)
                 if (this.data.Gravity) {
                     GravityLayer[y][x] = 1
                 }
@@ -252,7 +269,8 @@ export class ShuffleLevel {
                 }
             }
         }
-
+        console.log(this.checkDirection())
+        GravityManager.changeGravity(this.checkDirection())
         const bombCount = this.data.Tiles.BombEffects
         for (let i = 0; i < bombCount; i++) {
             const index = Math.floor(Math.random() * bombCandidates.length)

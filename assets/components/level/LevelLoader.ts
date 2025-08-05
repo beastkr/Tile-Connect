@@ -5,20 +5,26 @@ import { Level } from './Level'
 import { ShuffleLevel } from './ShuffleLevel'
 
 export class LevelLoader {
-    private static currentLevel: Level
+    private static instance: LevelLoader | null = null
+    private currentLevel: Level | null = null
+    private current: number = 1
+    private needToChange: boolean = false
+    private data: TileConnect.ILevelData | null = null
+    private shuffleLevel: ShuffleLevel | null = null
+    private maxLevel: number = 100
 
-    private static current: number = 1
-
-    private static needToChange: boolean = false
-    private static data: TileConnect.ILevelData | null = null
-    private static shuffleLevel: ShuffleLevel | null = null
-    private static maxLevel: number = 100
-
-    constructor() {
-        LevelLoader.loadLevel(LevelLoader.current)
+    private constructor() {
+        this.loadLevel(this.current)
     }
 
-    public static checkNeedToChange(condition: 'completed' | 'failed' | 'skip'): void {
+    public static getInstance(): LevelLoader {
+        if (!LevelLoader.instance) {
+            LevelLoader.instance = new LevelLoader()
+        }
+        return LevelLoader.instance
+    }
+
+    public checkNeedToChange(condition: 'completed' | 'failed' | 'skip'): void {
         switch (condition) {
             case 'completed':
                 this.needToChange = true
@@ -32,29 +38,23 @@ export class LevelLoader {
         }
     }
 
-    private static async loadLevelData(
-        levelNumber: number
-    ): Promise<TileConnect.ILevelData | null> {
+    private async loadLevelData(levelNumber: number): Promise<TileConnect.ILevelData | null> {
         return new Promise((resolve, reject) => {
             const path = `map/map/level${levelNumber}`
             resources.load(path, JsonAsset, (err, asset) => {
                 if (err) {
                     console.error(`Không load được level ${levelNumber}:`, err)
                     console.log('Test load:', err, asset)
-
                     resolve(null)
                 } else {
-                    //   console.log('Test load:', err, asset)
-
                     const data = asset!.json as TileConnect.ILevelData
-                    console.log(data.Theme)
                     resolve(data)
                 }
             })
         })
     }
 
-    private static async loadLevel(levelNumber: number): Promise<boolean> {
+    private async loadLevel(levelNumber: number): Promise<boolean> {
         const levelData = await this.loadLevelData(levelNumber)
 
         if (!levelData) {
@@ -68,8 +68,8 @@ export class LevelLoader {
         const layers = this.shuffleLevel.getMapLayer(grid)
         const theme = this.getThemeFromString(levelData.Theme)
 
-        if (!LevelLoader.currentLevel) {
-            LevelLoader.currentLevel = new Level(
+        if (!this.currentLevel) {
+            this.currentLevel = new Level(
                 levelData.GridHeight,
                 levelData.GridWidth,
                 grid,
@@ -79,9 +79,9 @@ export class LevelLoader {
                 levelData.Circle,
                 layers
             )
-            console.log(LevelLoader.currentLevel)
+            console.log(this.currentLevel)
         } else {
-            LevelLoader.currentLevel.change(
+            this.currentLevel.change(
                 levelData.GridHeight,
                 levelData.GridWidth,
                 grid,
@@ -96,7 +96,7 @@ export class LevelLoader {
         return true
     }
 
-    private static getThemeFromString(themeString: string): Theme {
+    private getThemeFromString(themeString: string): Theme {
         switch (themeString.toUpperCase()) {
             case 'CAKE':
                 return Theme.CAKE
@@ -111,13 +111,13 @@ export class LevelLoader {
         }
     }
 
-    public static async changeLevel(): Promise<boolean> {
-        if (!LevelLoader.needToChange) {
+    public async changeLevel(): Promise<boolean> {
+        if (!this.needToChange) {
             console.log('Không cần change level')
             return false
         }
 
-        const nextLevel = LevelLoader.current + 1
+        const nextLevel = this.current + 1
         if (nextLevel > this.maxLevel) {
             console.log('Đã hoàn thành tất cả level!')
             return false
@@ -126,8 +126,8 @@ export class LevelLoader {
         const success = await this.loadLevel(nextLevel)
 
         if (success) {
-            LevelLoader.current = nextLevel
-            LevelLoader.needToChange = false
+            this.current = nextLevel
+            this.needToChange = false
             return true
         }
 
@@ -135,17 +135,17 @@ export class LevelLoader {
     }
 
     public async jumpToLevel(levelNumber: number): Promise<boolean> {
-        if (levelNumber < 1 || levelNumber > LevelLoader.maxLevel) {
-            console.error(`Level ${levelNumber} không hợp lệ (1-${LevelLoader.maxLevel})`)
+        if (levelNumber < 1 || levelNumber > this.maxLevel) {
+            console.error(`Level ${levelNumber} không hợp lệ (1-${this.maxLevel})`)
             return false
         }
 
-        const success = await LevelLoader.loadLevel(levelNumber)
+        const success = await this.loadLevel(levelNumber)
 
         if (success) {
-            LevelLoader.current = levelNumber
-            LevelLoader.needToChange = false
-            console.log(`Jump đến level ${LevelLoader.current}`)
+            this.current = levelNumber
+            this.needToChange = false
+            console.log(`Jump đến level ${this.current}`)
             return true
         }
 
@@ -153,22 +153,22 @@ export class LevelLoader {
     }
 
     public async restartLevel(): Promise<boolean> {
-        return await LevelLoader.loadLevel(LevelLoader.current)
+        return await this.loadLevel(this.current)
     }
 
     public async previousLevel(): Promise<boolean> {
-        if (LevelLoader.current <= 1) {
+        if (this.current <= 1) {
             console.log('Đã ở level đầu tiên')
             return false
         }
 
-        const prevLevel = LevelLoader.current - 1
-        const success = await LevelLoader.loadLevel(prevLevel)
+        const prevLevel = this.current - 1
+        const success = await this.loadLevel(prevLevel)
 
         if (success) {
-            LevelLoader.current = prevLevel
-            LevelLoader.needToChange = false
-            console.log(`Quay lại level ${LevelLoader.current}`)
+            this.current = prevLevel
+            this.needToChange = false
+            console.log(`Quay lại level ${this.current}`)
             return true
         }
 
@@ -177,31 +177,31 @@ export class LevelLoader {
 
     // Getters
     public getCurrentLevel(): Level {
-        return LevelLoader.currentLevel
+        return this.currentLevel!
     }
 
     public getCurrentLevelNumber(): number {
-        return LevelLoader.current
+        return this.current
     }
 
     public getNeedToChange(): boolean {
-        return LevelLoader.needToChange
+        return this.needToChange
     }
 
     public getLevelData(): TileConnect.ILevelData | null {
-        return LevelLoader.data
+        return this.data
     }
 
     public getShuffleLevel(): ShuffleLevel | null {
-        return LevelLoader.shuffleLevel
+        return this.shuffleLevel
     }
 
     // Setters
     public setNeedToChange(value: boolean): void {
-        LevelLoader.needToChange = value
+        this.needToChange = value
     }
 
     public setMaxLevel(max: number): void {
-        LevelLoader.maxLevel = max
+        this.maxLevel = max
     }
 }

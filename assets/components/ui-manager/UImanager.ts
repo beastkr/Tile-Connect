@@ -28,7 +28,6 @@ export class UImanager extends Component {
 
     private hideAllPopups() {
         UImanager.instance!.overlay!.active = false
-        // UImanager.instance!.pauseButton!.active = true
         this.popupNodes.forEach((node, type) => {
             const popupComponent = this.popupComponents.get(type)
             if (popupComponent && node.active) {

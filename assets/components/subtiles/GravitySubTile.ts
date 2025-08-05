@@ -46,7 +46,7 @@ export class GravitySubTile extends BaseSubTile {
     public resolveGravity(board: Board): boolean {
         const direction = GravityManager.getCurrentDirection()
         if (direction === Direction.NONE) return false
-        console.log('gravity match')
+        console.log(direction)
 
         const level = this.node.parent?.getComponent(GameManager)?.currentLevel
         if (!level) return false
