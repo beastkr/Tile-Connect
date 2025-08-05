@@ -331,11 +331,6 @@
     "__prefab": {
       "__id__": 15
     },
-    "tailNode": null,
-    "tailPoint": {
-      "__id__": 3
-    },
-    "headNode": null,
     "_id": ""
   },
   {
@@ -351,6 +346,7 @@
       "__id__": 0
     },
     "fileId": "c0qYSZ3+BNaLltu4cIonYT",
-    "instance": null
+    "instance": null,
+    "targetOverrides": null
   }
 ]

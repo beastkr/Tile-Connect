@@ -1,11 +1,12 @@
-import { tween, find, Vec3 } from 'cc'
+import { find, tween, Vec3 } from 'cc'
 import { Popup } from '../../type/global'
+import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
-import StarPool from '../pool/StarPool'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
+        this.game.isgameOver = true
         const timerNode = find('Canvas/Top/Timer')
         if (timerNode) {
             const clockNode = timerNode.getChildByName('clock')
@@ -20,7 +21,7 @@ export class WinTurn extends BaseTurn {
         const originalTime = this.game.time
         tween({ time: originalTime })
             .to(
-                3,
+                2,
                 { time: 0 },
                 {
                     onUpdate: (target) => {
@@ -30,6 +31,7 @@ export class WinTurn extends BaseTurn {
                     },
                 }
             )
+            .delay(0.2)
             .call(() => {
                 UImanager.showPopup(Popup.WINPOPUP, true, this.game.currentNumber())
             })
@@ -38,7 +40,7 @@ export class WinTurn extends BaseTurn {
 
     private startStarAnimation(clockPos: Vec3, pool: StarPool) {
         const totalStars = 10
-        const totalDuration = 3
+        const totalDuration = 2
         const starInterval = totalDuration / totalStars
 
         for (let i = 0; i < totalStars; i++) {
@@ -52,7 +54,6 @@ export class WinTurn extends BaseTurn {
                 })
                 .start()
         }
-
     }
 
     onExit(): void {}

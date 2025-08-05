@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Node, Sprite, tween, Vec2, Vec3 } from 'cc'
+import { _decorator, Color, Component, Node, Sprite, Tween, tween, Vec2, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
@@ -8,6 +8,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
     private used: boolean = false
     private headCoord: Vec2 = new Vec2()
     private tailCoord: Vec2 = new Vec2()
+
     // @property(Node)
     // tailNode: Node | null = null
     // @property(Node)
@@ -58,6 +59,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
         //     const currentSize = uiTransform.contentSize
         //     uiTransform.setContentSize(new Size(newWidth, 500))
         // }
+        sprite!.color = new Color(255, 255, 255, 255)
         if (tweening) {
             AnimationHandler.animList.push(
                 new Promise<void>((resolve) => {
@@ -85,8 +87,15 @@ export class Path extends Component implements TileConnect.IPoolObject {
     }
 
     kill(): void {
-        // this.hideHeadTail()
         this.used = false
+        const target = this.node.getChildByName('Path')
+        if (!target?.isValid) return
+
+        const sprite = target.getComponent(Sprite)
+        if (!sprite?.isValid) return
+
+        Tween.stopAllByTarget(sprite)
+        sprite.color = new Color(255, 255, 255, 0)
 
         this.node.active = false
     }

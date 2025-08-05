@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, find, tween } from 'cc'
+import { _decorator, Color, Component, director, find, tween } from 'cc'
 
 import { Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -25,6 +25,8 @@ import { ItemManager } from './ItemManager'
 import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
+import { GAME_EVENTS } from '../subtiles/Countdown'
+import { BombFail } from '../turns/BombFail'
 
 const { ccclass, property } = _decorator
 
@@ -102,6 +104,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.starPool?.initialize(this)
         this.subTilePoolInit()
         this.turnInit()
+        director.on(
+            GAME_EVENTS.COUNTDOWN_COMPLETE,
+            () => {
+                this.switchTurn(Turn.BOOM)
+            },
+            this
+        )
         // this.itemManager?.intialize(this)
     }
 
@@ -136,6 +145,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.FAIL, new FailTurn(this))
         this.turnList.set(Turn.WIN, new WinTurn(this))
         this.turnList.set(Turn.PAUSE, new PauseTurn(this))
+        this.turnList.set(Turn.BOOM, new BombFail(this))
         this.switchTurn(Turn.LOAD)
     }
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
@@ -201,6 +211,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public poolInit(): void {}
     public createBoard(level: Level): void {
+        this.hintPath = []
+        this.hintPoint = []
+        this.hintTile = []
         this.subtilePool.forEach((p) => {
             p.returnAll()
         })
@@ -216,6 +229,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         if (this.currentTurn) this.currentTurn.onExit()
         this.currentTurn = this.turnList.get(newTurn)!
         this.currentTurn.onEnter()
+    }
+    hideItem() {
+        this.itemManager!.node.active = false
+    }
+    showItem() {
+        this.itemManager!.node.active = true
     }
     public turnOnInput() {
         this.board?.setUpManager(this)
@@ -235,12 +254,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
+        this.hideItem()
     }
     public unPause() {
         this.ispause = false
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.turnOnInput()
+        this.showItem()
         this.switchTurn(Turn.START)
     }
     public moveOn() {
@@ -254,6 +275,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public turnOffInput() {
         this.board?.resetInput()
+    }
+    protected onDestroy(): void {
+        director.off(GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
     }
 }
 
