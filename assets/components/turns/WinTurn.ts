@@ -4,6 +4,10 @@ import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
 
+import StarPool from '../pool/StarPool'
+import { LevelLoader } from '../level/LevelLoader'
+
+
 export class WinTurn extends BaseTurn {
     onEnter(): void {
         this.game.isgameOver = true
@@ -33,7 +37,11 @@ export class WinTurn extends BaseTurn {
             )
             .delay(0.2)
             .call(() => {
-                UImanager.showPopup(Popup.WINPOPUP, true, this.game.currentNumber())
+                UImanager.showPopup(
+                    Popup.WINPOPUP,
+                    true,
+                    LevelLoader.getInstance().getCurrentLevelNumber()
+                )
             })
             .start()
     }

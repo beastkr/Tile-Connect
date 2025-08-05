@@ -32,6 +32,7 @@ export class Victory extends BasePopup {
     private playLevel(onComplete: () => void, curr: number) {
         this.level!.string = `LEVEL ${curr}`
         this.level!.node.active = true
+
         this.level!.node.scale = new Vec3(0, 0, 1)
         tween(this.level!.node)
             .to(0.2, { scale: new Vec3(1, 1, 1) }, {})
@@ -57,6 +58,8 @@ export class Victory extends BasePopup {
         })
     }
     private resetAura() {
+        this.level!.string = ``
+
         this.stars.forEach((starNode) => {
             const Aura = starNode.getChildByName('MainAura')
             if (Aura) {

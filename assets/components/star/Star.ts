@@ -38,7 +38,7 @@ export class Star extends Component implements TileConnect.IPoolObject {
                         this.follow()
                     })
                     .to(
-                        0.6,
+                        0.4,
                         { position: localPos, scale: new Vec3(2, 2, 1) },
                         { easing: 'quadOut' }
                     )

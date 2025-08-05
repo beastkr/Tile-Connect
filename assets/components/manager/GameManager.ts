@@ -19,9 +19,7 @@ import { StartTurn } from '../turns/StartTurn'
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
 import { FailTurn } from '../turns/FailTurn'
-
 import { ItemManager } from './ItemManager'
-
 import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
@@ -30,11 +28,10 @@ import { BombFail } from '../turns/BombFail'
 
 const { ccclass, property } = _decorator
 
-const hi = new LevelLoader()
-
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
-    currentLevel: Level = hi.getCurrentLevel()
+    private levelLoader: LevelLoader = LevelLoader.getInstance()
+    currentLevel!: Level
     time: number = 0
     ispause: boolean = false
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
@@ -99,19 +96,21 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected start(): void {
-        this.tilePool?.initialize(this)
-        this.pathPool?.initialize(this)
-        this.starPool?.initialize(this)
-        this.subTilePoolInit()
-        this.turnInit()
-        director.on(
-            GAME_EVENTS.COUNTDOWN_COMPLETE,
-            () => {
-                this.switchTurn(Turn.BOOM)
-            },
-            this
-        )
-        // this.itemManager?.intialize(this)
+        this.levelLoader.restartLevel().then(() => {
+            this.currentLevel = this.levelLoader.getCurrentLevel()
+            this.tilePool?.initialize(this)
+            this.pathPool?.initialize(this)
+            this.starPool?.initialize(this)
+            this.subTilePoolInit()
+            this.turnInit()
+            director.on(
+                GAME_EVENTS.COUNTDOWN_COMPLETE,
+                () => {
+                    this.switchTurn(Turn.BOOM)
+                },
+                this
+            )
+        })
     }
 
     private subTilePoolInit() {
@@ -148,12 +147,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.BOOM, new BombFail(this))
         this.switchTurn(Turn.LOAD)
     }
+
     private isSame(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return (
             t1.getCoordinate().x === t2.getCoordinate().x &&
             t1.getCoordinate().y === t2.getCoordinate().y
         )
     }
+
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()
     }
@@ -189,13 +190,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
 
         this.switchTurn(Turn.MATCH)
-        // this.unChoose()
     }
+
     public unChoose(): void {
         this.firstChosen?.onUnchoose()
         this.firstChosen = null
         this.secondChosen = null
     }
+
     public match(): void {
         if (this.matchPair.length > 0) {
             if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2)) {
@@ -205,11 +207,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.matchPair.shift()
         }
     }
+
     public currentNumber(): number {
-        return hi.getCurrentLevelNumber()
+        return this.levelLoader.getCurrentLevelNumber()
     }
 
     public poolInit(): void {}
+
     public createBoard(level: Level): void {
         this.hintPath = []
         this.hintPoint = []
@@ -221,34 +225,40 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.itemManager?.intialize(this)
         this.board?.create(this.tilePool!, level)
         for (const pool of this.subtilePool) {
-            this.board?.addSubTile(pool[1] as SubTilePool, this.currentLevel, pool[0])
+            this.board?.addSubTile(pool[1] as SubTilePool, this.currentLevel!, pool[0])
         }
+        this.currentLevel = this.levelLoader.getCurrentLevel()
     }
+
     public switchTurn(newTurn: Turn): void {
         if (this.isgameOver) return
         if (this.currentTurn) this.currentTurn.onExit()
         this.currentTurn = this.turnList.get(newTurn)!
         this.currentTurn.onEnter()
     }
+
     hideItem() {
         this.itemManager!.node.active = false
     }
     showItem() {
         this.itemManager!.node.active = true
     }
+
     public turnOnInput() {
         this.board?.setUpManager(this)
     }
+
     public restart() {
         this.ispause = false
         this.isgameOver = false
         UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
-        LevelLoader.checkNeedToChange('failed')
-        LevelLoader.changeLevel().then(() => {
+        this.levelLoader.checkNeedToChange('failed')
+        this.levelLoader.restartLevel().then(() => {
             this.switchTurn(Turn.LOAD)
         })
     }
+
     public pause() {
         this.ispause = true
         UImanager.hideAllPopups()
@@ -256,6 +266,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.switchTurn(Turn.PAUSE)
         this.hideItem()
     }
+
     public unPause() {
         this.ispause = false
         UImanager.hideAllPopups()
@@ -264,18 +275,21 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.showItem()
         this.switchTurn(Turn.START)
     }
+
     public moveOn() {
         this.isgameOver = false
         this.ispause = false
         UImanager.hideAllPopups()
-        LevelLoader.checkNeedToChange('completed')
-        LevelLoader.changeLevel().then(() => {
+        this.levelLoader.checkNeedToChange('completed')
+        this.levelLoader.changeLevel().then(() => {
             this.switchTurn(Turn.LOAD)
         })
     }
+
     public turnOffInput() {
         this.board?.resetInput()
     }
+
     protected onDestroy(): void {
         director.off(GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
     }

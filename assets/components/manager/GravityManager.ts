@@ -7,6 +7,9 @@ const { ccclass, property } = _decorator
 export class GravityManager extends Component {
     static direction: Vec2 = new Vec2()
     static gravityChangable: boolean = true
+    static setCircle(isCircle: boolean) {
+        GravityManager.gravityChangable = !!isCircle
+    }
     static changeGravity(dir: Direction) {
         switch (dir) {
             case Direction.DOWN:
