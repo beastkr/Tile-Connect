@@ -1,5 +1,6 @@
 import {
     _decorator,
+    Animation,
     Node,
     ParticleSystem2D,
     resources,
@@ -63,19 +64,22 @@ class RocketItem extends BaseItem {
         const screenSize = view.getVisibleSize()
         const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
         const rocketFrame = resources.get(ROCKET_PATH, SpriteFrame)
-        for (let i = 0; i < tileList.length; i++) {
 
+        for (let i = 0; i < tileList.length; i++) {
             this.rockets[i].active = true
+            const rocketSprite = this.rockets[i].getChildByName('Rocket1')
+            const explo = this.rockets[i]!.getChildByName('Explosion')?.getComponent(Animation)
+            console.log(explo)
 
             this.rockets[i].angle = 0
-            this.rockets[i].getComponent(Sprite)!.spriteFrame = fireWork
+            rocketSprite!.getComponent(Sprite)!.spriteFrame = fireWork
             const dust = this.rockets[i]
                 .getChildByName('RocketDust')
                 ?.getComponent(ParticleSystem2D)
 
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
             dust?.resetSystem()
-            this.rockets[i].active = true
+            rocketSprite!.active = true
             const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
@@ -88,7 +92,7 @@ class RocketItem extends BaseItem {
                 .delay(0.5)
                 .call(() => {
                     this.rockets[i].setScale(1.2, 1.2)
-                    this.rockets[i].getComponent(Sprite)!.spriteFrame = rocketFrame
+                    rocketSprite!.getComponent(Sprite)!.spriteFrame = rocketFrame
                     this.rockets[i].angle = this.getAngleBetween(
                         this.rockets[i].worldPosition,
                         tileList[i].node.worldPosition
@@ -108,8 +112,15 @@ class RocketItem extends BaseItem {
                             )
                             tileList[i].kill()
                             tileList[i].node.setSiblingIndex(1)
-                            this.rockets[i].active = false
-                            this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                            rocketSprite!.active = false
+                            explo!.node.active = true
+                            explo!.node.angle = -this.rockets[i].angle
+                            explo?.play()
+                            explo?.once(Animation.EventType.FINISHED, () => {
+                                explo!.node.active = false
+                                this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                            })
+
                             this.overlay!.active = false
                             if (i == 3) {
                                 this.game?.turnOnInput()

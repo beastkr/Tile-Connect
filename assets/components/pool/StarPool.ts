@@ -17,7 +17,7 @@ class StarPool extends Component implements TileConnect.IObjectPool<Star> {
             const node = instantiate(this.pathPrefab) as Node | null
             if (node) {
                 console.log('added child')
-                game.node.parent!.addChild(node)
+                game.node.addChild(node)
             }
             this.itemList.push(node?.getComponent(Star) as Star)
         }

@@ -112,6 +112,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public kill(): void {
         Tween.stopAllByTarget(this.wholeSprite!)
+        this.wholeSprite!.scale = new Vec3(this.originScale, this.originScale)
+        this.wholeSprite!.angle = 0
         this.underKill = false
         this.setTypeID(TileType.NONE)
         this.used = false
