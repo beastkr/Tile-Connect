@@ -11,6 +11,7 @@ export class StartTurn extends BaseTurn {
             this.game.switchTurn(Turn.MATCH)
             return
         }
+        this.game.showItem()
         // this.game.unChoose()
         // this.turnOnInput()
     }
