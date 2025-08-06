@@ -1,5 +1,5 @@
 import { _decorator, Animation, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
-import { getScale, getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
+import { getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
@@ -19,6 +19,10 @@ export class RocketSubTile extends BaseSubTile {
     exploAnim: Animation | null = null
     @property(Animation)
     exploAnim2: Animation | null = null
+    @property(Animation)
+    tileBreak: Animation | null = null
+    @property(Animation)
+    tileBreak1: Animation | null = null
     public onAttach(tile: Tile): void {
         super.onAttach(tile)
         this.particle!.active = true
@@ -36,6 +40,7 @@ export class RocketSubTile extends BaseSubTile {
         // this.tile!.node.active = false
         if (!this.tile) return
         if (!isMain) return
+        if (!other || !other.tile) return
         const tileMap = new Map<TileType, Tile[]>()
 
         // Gom tất cả tile có type hợp lệ
@@ -108,7 +113,11 @@ export class RocketSubTile extends BaseSubTile {
                         .to(
                             0.2,
                             {
-                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                scale: new Vec3(
+                                    this.tile!.node.getScale().x * 1.2,
+                                    this.tile!.node.getScale().y * 1.2,
+                                    1
+                                ),
                                 angle: angle1,
                             },
                             { easing: 'sineOut' }
@@ -126,6 +135,12 @@ export class RocketSubTile extends BaseSubTile {
                             this.exploAnim!.node.setPosition(this.rocket1?.node.position!)
                             this.exploAnim!.node.active = true
                             this.exploAnim?.play()
+                            this.tileBreak!.node.setPosition(this.rocket1?.node.position!)
+                            this.tileBreak!.node.active = true
+                            this.tileBreak?.play()
+                            this.tileBreak?.once(Animation.EventType.FINISHED, () => {
+                                this.tileBreak!.node.active = false
+                            })
                             this.exploAnim?.once(Animation.EventType.FINISHED, () => {
                                 this.exploAnim!.node.active = false
                             })
@@ -142,7 +157,13 @@ export class RocketSubTile extends BaseSubTile {
                         .to(
                             0.2,
                             {
-                                scale: new Vec3(getScale().x * 1.2, getScale().y * 1.2, 1),
+                                scale: new Vec3(
+
+                                    this.tile!.node.getScale().x * 1.2,
+                                    this.tile!.node.getScale().y,
+
+                                    1
+                                ),
                                 angle: angle2,
                             },
                             { easing: 'sineOut' }
@@ -157,7 +178,14 @@ export class RocketSubTile extends BaseSubTile {
                             this.exploAnim2!.node.setPosition(this.rocket2?.node.position!)
                             this.exploAnim2!.node.active = true
                             this.exploAnim2?.play()
+                            this.tileBreak1!.node.setPosition(this.rocket2?.node.position!)
+                            this.tileBreak1!.node.active = true
+                            this.tileBreak1?.play()
+                            this.tileBreak1?.once(Animation.EventType.FINISHED, () => {
+                                this.tileBreak1!.node.active = false
+                            })
                             this.exploAnim2?.once(Animation.EventType.FINISHED, () => {
+                                console.log('2')
                                 this.exploAnim2!.node.active = false
                             })
                             this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)

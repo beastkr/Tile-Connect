@@ -52,10 +52,7 @@ export class FillProgressBar extends Component {
 
     public updateProgressBar() {
         if (this.total <= 0 || this.size <= 0) return
-
         const progress = (2 * 9) / this.total
-        this.score += progress
-
         if (this.isFirstFill && progress > 0) {
             this.showLeft()
             this.showRight()
@@ -65,21 +62,31 @@ export class FillProgressBar extends Component {
         this.updateMidWidth(progress)
         this.checkActive()
     }
+    public isLastStar(): boolean {
+        if (this.currentStar == this.star1?.node) {
+            return true
+        }
+
+        return false
+    }
+    public updateTillWin() {
+        this.updateMidWidth(9 - this.mid!.node.scale.x)
+        this.star!.node.active = true
+        this.star9!.node.active = true
+        this.star1!.node.active = true
+        this.currentStar = this.star1?.node ?? null
+    }
     public checkActive() {
         if (this.mid!.node.scale.x >= 4.5) {
             this.star!.node.active = true
+            this.currentStar = this.star9?.node ?? null
         }
         if (this.mid!.node.scale.x >= 6) {
             this.star9!.node.active = true
+            this.currentStar = this.star1?.node ?? null
         }
         if (this.mid!.node.scale.x >= 7.4) {
             this.star1!.node.active = true
-        }
-        if (this.score >= 4.5) {
-            this.currentStar = this.star9?.node ?? null
-        }
-        if (this.score >= 6) {
-            this.currentStar = this.star1?.node ?? null
         }
     }
     private showLeft() {
@@ -89,7 +96,7 @@ export class FillProgressBar extends Component {
     private updateMidWidth(progress: number) {
         tween(this.mid!.node)
             .to(
-                0.1,
+                0.3,
                 {
                     scale: new Vec3(
                         progress + this.mid!.node.scale.x,
@@ -131,6 +138,7 @@ export class FillProgressBar extends Component {
     }
 
     public resetProgressBar() {
+        this.score = 0
         this.currentTile = 0
         this.isFirstFill = true
         this.left!.node.setScale(0, this.left!.node.scale.y, this.left!.node.z)

@@ -4,44 +4,51 @@ import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
 
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { LevelLoader } from '../level/LevelLoader'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
         this.game.isgameOver = true
-        const timerNode = find('Canvas/Top/Timer')
-        if (timerNode) {
-            const clockNode = timerNode.getChildByName('clock')
-            if (clockNode) {
-                const worldPos = clockNode.getWorldPosition()
-                if (this.game.starPool) {
-                    this.startStarAnimation(worldPos, this.game.starPool)
+        Promise.all(AnimationHandler.animList).then(() => {
+            UImanager.togglePauseButton(false)
+            if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
+                AnimationHandler.fillProgressBar?.updateTillWin()
+            }
+            const timerNode = find('Canvas/Top/Timer')
+            if (timerNode) {
+                const clockNode = timerNode.getChildByName('clock')
+                if (clockNode) {
+                    const worldPos = clockNode.getWorldPosition()
+                    if (this.game.starPool) {
+                        this.startStarAnimation(worldPos, this.game.starPool)
+                    }
                 }
             }
-        }
 
-        const originalTime = this.game.time
-        tween({ time: originalTime })
-            .to(
-                2,
-                { time: 0 },
-                {
-                    onUpdate: (target) => {
-                        if (target) {
-                            this.game.time = Math.max(0, target.time)
-                        }
-                    },
-                }
-            )
-            .delay(0.2)
-            .call(() => {
-                UImanager.showPopup(
-                    Popup.WINPOPUP,
-                    true,
-                    LevelLoader.getInstance().getCurrentLevelNumber()
+            const originalTime = this.game.time
+            tween({ time: originalTime })
+                .to(
+                    2,
+                    { time: 0 },
+                    {
+                        onUpdate: (target) => {
+                            if (target) {
+                                this.game.time = Math.max(0, target.time)
+                            }
+                        },
+                    }
                 )
-            })
-            .start()
+                .delay(0.2)
+                .call(() => {
+                    UImanager.showPopup(
+                        Popup.WINPOPUP,
+                        true,
+                        LevelLoader.getInstance().getCurrentLevelNumber()
+                    )
+                })
+                .start()
+        })
     }
 
     private startStarAnimation(clockPos: Vec3, pool: StarPool) {

@@ -23,6 +23,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
                 game.node.addChild(node)
             }
             this.itemList.push(node?.getComponent(Tile) as Tile)
+            node?.setPosition(new Vec3(-1000, -1000))
         }
         this.returnAll()
     }
@@ -64,6 +65,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     public returnMultiple(objects: Tile[]): void {
         for (const tile of objects) {
             tile.kill()
+            tile.detachAll()
         }
     }
     public returnAll(): void {

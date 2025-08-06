@@ -10,7 +10,7 @@ import {
     Vec3,
     view,
 } from 'cc'
-import { FIREWORK_PATH, ROCKET_PATH, TileType, Turn } from '../../type/global'
+import { FIREWORK_PATH, Item, ROCKET_PATH, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
@@ -23,6 +23,7 @@ class RocketItem extends BaseItem {
     overlay: Node | null = null
     @property(Node)
     rockets: Node[] = []
+
     onUse(): void {
         if (this.clicked || this.quantity == 0 || this.locked) return
         super.onUse()
@@ -39,6 +40,9 @@ class RocketItem extends BaseItem {
         this.game?.node.addChild(this.overlay!)
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
+        if (view.getVisibleSize().width < view.getVisibleSize().height)
+            this.itemManager!.botOverlay!.active = true
+        this.itemManager!.botOverlay!.setSiblingIndex(this.node.getSiblingIndex() - 1)
         this.game?.unChoose()
         this.game?.turnOffInput()
 
@@ -51,7 +55,7 @@ class RocketItem extends BaseItem {
         for (const tile of tileList) {
             tile.node.setSiblingIndex(this.overlay!.getSiblingIndex() + 1)
         }
-
+        this.itemManager?.hideExcept(Item.ROCKET)
         this.showRocket(tileList)
         console.log('rocket')
         this.quantity--
@@ -59,7 +63,7 @@ class RocketItem extends BaseItem {
     }
 
     showRocket(tileList: Tile[]) {
-        this.lock()
+        this.stopFunction()
         const segment = view.getVisibleSize().width / 5
         const screenSize = view.getVisibleSize()
         const fireWork = resources.get(FIREWORK_PATH, SpriteFrame)
@@ -69,16 +73,20 @@ class RocketItem extends BaseItem {
             this.rockets[i].active = true
             const rocketSprite = this.rockets[i].getChildByName('Rocket1')
             const explo = this.rockets[i]!.getChildByName('Explosion')?.getComponent(Animation)
-            console.log(explo)
-
+            const bro = this.rockets[i]!.getChildByName('break')?.getComponent(Animation)
+            console.log(bro)
             this.rockets[i].angle = 0
             rocketSprite!.getComponent(Sprite)!.spriteFrame = fireWork
-            const dust = this.rockets[i]
-                .getChildByName('RocketDust')
-                ?.getComponent(ParticleSystem2D)
-
+            const rocket1 = this.rockets[i].getChildByName('Rocket1')
+            const rocketDust = rocket1 ? rocket1.getChildByName('RocketDust') : null
+            const white = rocketDust ? rocketDust.getChildByName('whiteSmoke') : null
+            white!.active = true
+            white?.getComponent(ParticleSystem2D)?.resetSystem()
+            const yellow = rocketDust ? rocketDust.getChildByName('yellow') : null
+            yellow!.active = true
+            yellow?.getComponent(ParticleSystem2D)?.resetSystem()
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
-            dust?.resetSystem()
+
             rocketSprite!.active = true
             const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
@@ -93,38 +101,52 @@ class RocketItem extends BaseItem {
                 .call(() => {
                     this.rockets[i].setScale(1.2, 1.2)
                     rocketSprite!.getComponent(Sprite)!.spriteFrame = rocketFrame
+                    white!.active = false
+                    yellow!.active = false
                     this.rockets[i].angle = this.getAngleBetween(
                         this.rockets[i].worldPosition,
                         tileList[i].node.worldPosition
                     )
                     tween(this.rockets[i])
                         .to(
-                            0.3 + i * 0.1,
+                            0.1 + i * 0.09,
                             { worldPosition: tileList[i].node.worldPosition },
                             { easing: 'sineOut' }
                         )
 
                         .call(() => {
-                            tileList[i].onDead(
-                                this.game!.board as Board,
-                                i % 2 == 0,
-                                i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
-                            )
-                            tileList[i].kill()
+                            tileList[i].wholeSprite!.active = false
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
+                            bro!.node.active = true
+                            bro!.node.angle = -this.rockets[i].angle
                             explo!.node.active = true
                             explo!.node.angle = -this.rockets[i].angle
+                            bro?.play()
                             explo?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 explo!.node.active = false
+                            })
+                            bro?.once(Animation.EventType.FINISHED, () => {
+                                bro!.node.active = false
                                 this.rockets[i].setWorldPosition(new Vec3(0, -100))
                             })
 
-                            this.overlay!.active = false
                             if (i == 3) {
                                 this.game?.turnOnInput()
-                                this.unlock()
+                                this.itemManager?.showAll()
+                                this.enableFunction()
+                                this.overlay!.active = false
+
+                                this.itemManager!.botOverlay!.active = false
+                                for (let i = 0; i < 4; i++) {
+                                    tileList[i].onDead(
+                                        this.game!.board as Board,
+                                        i % 2 == 0,
+                                        i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
+                                    )
+                                    tileList[i].kill()
+                                }
                             }
                             this.game?.switchTurn(Turn.MATCH)
                         })

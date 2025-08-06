@@ -1,26 +1,16 @@
-import {
-    _decorator,
-    Animation,
-    AnimationClip,
-    Component,
-    director,
-    find,
-    Layers,
-    Node,
-    Sprite,
-    UITransform,
-} from 'cc'
-import { LevelLoader } from '../level/LevelLoader'
+import { _decorator, Animation, Component, director, find, Node, Sprite } from 'cc'
 const { ccclass, property } = _decorator
 export const GAME_EVENTS = {
     COUNTDOWN_COMPLETE: 'countdown-complete',
     GAME_OVER: 'game-over',
     LEVEL_WIN: 'level-win',
+    COUNTDOWN_RESET: 'countdown-reset',
 }
 
 @ccclass('Countdown')
 export class Countdown extends Component {
-    private timer: number = 40
+    private timer: number = 3
+
     private currentTime: number = 0
     @property(Node)
     private bom: Node | null = null
@@ -30,6 +20,7 @@ export class Countdown extends Component {
         if (sprite) {
             sprite.fillRange = -1
         }
+        director.on(GAME_EVENTS.COUNTDOWN_RESET, this.setActive, this)
     }
 
     update(deltaTime: number) {
@@ -53,7 +44,9 @@ export class Countdown extends Component {
         this.resetCountdown()
         this.node.parent!.active = false
     }
-
+    public setActive() {
+        this.node.parent!.active = true
+    }
     private playAnimation() {
         this.bom!.active = true
         const originalParent = this.bom!.parent

@@ -1,4 +1,4 @@
-import { _decorator, Button, Label, Node, Sprite, Tween, tween, Vec3 } from 'cc'
+import { _decorator, Button, Label, Node, ParticleSystem2D, Sprite, Tween, tween, Vec3 } from 'cc'
 import { BasePopup } from '../basePopup'
 
 const { ccclass, property } = _decorator
@@ -20,6 +20,7 @@ export class Victory extends BasePopup {
         this.resetAura()
         this.popStar(() => {
             this.dropAllStars(() => {
+                this.trailStar()
                 this.playAura()
                 this.glow!.node.active = true
                 this.repeatStar()
@@ -53,6 +54,9 @@ export class Victory extends BasePopup {
             const Aura = starNode.getChildByName('MainAura')
             if (Aura) {
                 Aura.active = true
+                Aura.getChildByName('Aura')?.getComponent(ParticleSystem2D)?.resetSystem()
+                Aura.getChildByName('Aura2')?.getComponent(ParticleSystem2D)?.resetSystem()
+                Aura.getChildByName('Aura1')?.getComponent(ParticleSystem2D)?.resetSystem()
                 console.log(Aura)
             }
         })
@@ -80,7 +84,6 @@ export class Victory extends BasePopup {
             .to(0.08, { scale: new Vec3(0.98, 1.09, 1) })
             .to(0.08, { scale: new Vec3(1, 1, 1) })
             .call(() => {
-                console.log('fhyu')
                 if (onComplete) onComplete()
             })
             .start()
@@ -96,8 +99,9 @@ export class Victory extends BasePopup {
             }
         })
 
-        const delayBetweenStars = 0.3
-        const scaleDuration = 0.6
+        const delayBetweenStars = 0.225
+        const scaleDuration = 0.45
+        let completedCount = 0
 
         this.stars
             .slice()
@@ -108,15 +112,10 @@ export class Victory extends BasePopup {
                 if (starChildNode) {
                     tween(starChildNode)
                         .delay(currentDelay)
-                        .parallel(
-                            tween()
-                                .to(0.15, { angle: 4 })
-                                .to(0.15, { angle: -4 })
-                                .to(0.15, { angle: 0 }),
-                            tween().to(scaleDuration, { scale: new Vec3(2, 2, 1) })
-                        )
+                        .to(scaleDuration, { scale: new Vec3(2.5, 2.5, 1) })
                         .call(() => {
-                            if (index === this.stars.length - 1 && onComplete) {
+                            completedCount++
+                            if (completedCount === this.stars.length && onComplete) {
                                 onComplete()
                             }
                         })
@@ -124,17 +123,22 @@ export class Victory extends BasePopup {
                 }
             })
     }
-
-    private dropAllStars(onComplete?: () => void): void {
-        this.stars.forEach((starNode, index) => {
+    private trailStar() {
+        this.stars.forEach((starNode) => {
             const starChildNode = starNode.getChildByName('Star')
             const trail = starChildNode?.getChildByName('Trail')
             if (trail) {
                 trail.active = true
             }
+        })
+    }
+    private dropAllStars(onComplete?: () => void): void {
+        this.stars.forEach((starNode, index) => {
+            const starChildNode = starNode.getChildByName('Star')
+
             if (starChildNode) {
                 tween(starChildNode)
-                    .to(0.2, { scale: new Vec3(1.1, 1.1, 1) })
+                    .to(0.1, { scale: new Vec3(1.2, 1.2, 1) })
                     .call(() => {
                         if (index === this.stars.length - 1 && onComplete) {
                             onComplete()
@@ -154,7 +158,7 @@ export class Victory extends BasePopup {
                         tween()
                             .to(1.4, { scale: new Vec3(1.2, 1.2, 1) }, { easing: 'sineInOut' })
                             .to(1.4, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'sineInOut' }),
-                        tween().to(1.7, { angle: 25 }).to(1.5, { angle: 22 })
+                        tween().to(1.7, { angle: 2 }).to(1.5, { angle: 5 })
                     )
                     .repeatForever()
                     .start()
@@ -174,7 +178,7 @@ export class Victory extends BasePopup {
                         tween()
                             .to(1.4, { scale: new Vec3(1.2, 1.2, 1) }, { easing: 'sineInOut' })
                             .to(1.4, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'sineInOut' }),
-                        tween().to(1.7, { angle: -25 }).to(1.5, { angle: -22 })
+                        tween().to(1.7, { angle: -2 }).to(1.5, { angle: -5 })
                     )
                     .repeatForever()
                     .start()

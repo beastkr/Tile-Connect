@@ -18,6 +18,7 @@ export class Good extends Component {
     private light: Node | null = null
     @property(Node)
     private gud: Node | null = null
+    private origin: Vec3 = new Vec3()
 
     start() {
         if (this.gm) {
@@ -25,6 +26,7 @@ export class Good extends Component {
             this.gm.onMatchPair(this.boundOnMatchPair)
         }
         this.node.active = false
+        this.origin = this.node.position.clone()
     }
 
     onDestroy() {
@@ -98,6 +100,7 @@ export class Good extends Component {
             .start()
     }
     private moveNodeUp() {
+        this.node.setPosition(this.origin.clone())
         const currentPosition = this.node.position.clone()
         const targetPosition = new Vec3(
             currentPosition.x,

@@ -1,24 +1,24 @@
 {
     "Level": 38,
     "Difficulty": 1.0,
-    "GridHeight": 3,
-    "GridWidth": 6,
-    "Theme": "CAKE",
+    "GridHeight": 4,
+    "GridWidth": 5,
+    "Theme": "BUTTERFLY",
     "Tiles": {
-        "TotalTiles": 18,
+        "TotalTiles": 20,
         "RocketTiles": 0,
         "BombEffects": 1,
         "NormalTiles": {
             "0": 2,
             "1": 2,
             "2": 4,
-            "3": 2,
+            "3": 4,
             "4": 2,
             "5": 2,
             "6": 4
         }
     },
-    "Time": 60,
+    "Time": 90,
     "Gravity": 0,
     "Circle": false
 }

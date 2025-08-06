@@ -23,12 +23,13 @@ export class Star extends Component implements TileConnect.IPoolObject {
         this.star!.node.active = true
         this.circle!.node.active = false
         //
-
+        //   AnimationHandler.fillProgressBar?.checkActive()
         const targetStar = AnimationHandler.fillProgressBar?.currentStar
         if (!targetStar) return
         const worldPos = targetStar.getWorldPosition()
         const localPos =
             this.node.parent?.getComponent(UITransform)?.convertToNodeSpaceAR(worldPos) || worldPos
+        //
 
         AnimationHandler.animList.push(
             new Promise<void>((resolve) => {

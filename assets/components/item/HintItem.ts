@@ -11,8 +11,9 @@ const { ccclass, property } = _decorator
 @ccclass('HintItem')
 class HintItem extends BaseItem {
     onUse(): void {
-        if (this.clicked) return
+        if (this.clicked || this.locked || this.game?.isgameOver) return
         super.onUse()
+        if (this.game!.hintPath.length > 0) return
         if (this.quantity == 0) return
         const board = this.game?.board?.board
         if (!board) return

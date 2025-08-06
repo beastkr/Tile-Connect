@@ -1,4 +1,3 @@
-import { find } from 'cc'
 import { Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { GravityManager } from '../manager/GravityManager'
@@ -11,7 +10,9 @@ export class LoadTurn extends BaseTurn {
         this.game.subtilePool.forEach((element) => {
             element.returnAll()
         })
+        this.game.tilePool?.returnAll()
         this.game.unChoose()
+        this.game.itemManager?.showAll()
         this.turnOffInput()
 
         GravityManager.setUpManager(this.game.currentLevel)

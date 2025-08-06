@@ -19,6 +19,7 @@ import { StartTurn } from '../turns/StartTurn'
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
 import { GAME_EVENTS } from '../subtiles/Countdown'
+import { AdsTurn } from '../turns/AdsTurn'
 import { BombFail } from '../turns/BombFail'
 import { FailTurn } from '../turns/FailTurn'
 import { PauseTurn } from '../turns/PauseTurn'
@@ -92,7 +93,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.hintPath = []
         this.hintPoint = []
         this.hintTile = []
-        this.itemManager?.unlockItem(Item.HINT)
+        this.itemManager?.itemList.get(Item.HINT)?.enableFunction()
     }
 
     protected start(): void {
@@ -145,6 +146,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.turnList.set(Turn.WIN, new WinTurn(this))
         this.turnList.set(Turn.PAUSE, new PauseTurn(this))
         this.turnList.set(Turn.BOOM, new BombFail(this))
+        this.turnList.set(Turn.ADS, new AdsTurn(this))
+
         this.switchTurn(Turn.LOAD)
     }
 
@@ -158,7 +161,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()
     }
-
+    public adsPop() {
+        this.switchTurn(Turn.ADS)
+        console.log(this.currentTurn)
+    }
     public choose(tile: TileConnect.ITile): void {
         if (tile.getTypeID() == TileType.NONE) return
         console.log(tile.getCoordinate())
@@ -255,6 +261,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('failed')
         this.levelLoader.restartLevel().then(() => {
+            director.emit(GAME_EVENTS.COUNTDOWN_RESET)
             this.switchTurn(Turn.LOAD)
         })
     }
@@ -266,7 +273,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.switchTurn(Turn.PAUSE)
         this.hideItem()
     }
-
+    public rescue() {
+        this.isgameOver = false
+        UImanager.hideAllPopups()
+        UImanager.togglePauseButton(true)
+        this.time += 65
+        this.turnOnInput()
+        this.switchTurn(Turn.START)
+    }
     public unPause() {
         this.ispause = false
         UImanager.hideAllPopups()
@@ -279,6 +293,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public moveOn() {
         this.isgameOver = false
         this.ispause = false
+        UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('completed')
         this.levelLoader.changeLevel().then(() => {
