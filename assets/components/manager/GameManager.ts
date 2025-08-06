@@ -163,6 +163,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public adsPop() {
         this.switchTurn(Turn.ADS)
+        console.log(this.currentTurn)
     }
     public choose(tile: TileConnect.ITile): void {
         if (tile.getTypeID() == TileType.NONE) return
@@ -272,7 +273,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.switchTurn(Turn.PAUSE)
         this.hideItem()
     }
-
+    public rescue() {
+        UImanager.hideAllPopups()
+        UImanager.togglePauseButton(true)
+        this.time += 65
+        this.turnOnInput()
+        this.switchTurn(Turn.START)
+    }
     public unPause() {
         this.ispause = false
         UImanager.hideAllPopups()

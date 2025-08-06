@@ -8,7 +8,7 @@ export class AdsTurn extends BaseTurn {
         this.game.turnOffInput()
         UImanager.togglePauseButton(false)
         this.game.unChoose()
-        console.log('ads')
+        console.log('adsfrf')
         UImanager.showPopup(Popup.ADSPOPUP, true, this.game.currentNumber())
     }
 

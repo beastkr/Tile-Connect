@@ -45,7 +45,7 @@ export class UImanager extends Component {
         if (hideOthers) {
             UImanager.instance.hideAllPopups()
         }
-
+        console.log(popupType)
         const popup = UImanager.instance.popupNodes.get(popupType)
         const popupComponent = UImanager.instance.popupComponents.get(popupType)
 
