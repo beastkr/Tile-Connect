@@ -274,6 +274,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.hideItem()
     }
     public rescue() {
+        this.isgameOver = false
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.time += 65
