@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, tween, Vec3 } from 'cc'
+import { _decorator, Component, Node, tween, Vec3, view, Widget } from 'cc'
 import { Popup } from './../../type/global'
 import { BasePopup } from './basePopup'
 
@@ -7,7 +7,13 @@ const { ccclass, property } = _decorator
 @ccclass('UImanager')
 export class UImanager extends Component {
     @property(Node)
+    top: Node | null = null
+    @property(Node)
+    bot: Node | null = null
+    @property(Node)
     overlay: Node | null = null
+    @property(Node)
+    itembar: Node | null = null
     private popupNodes: Map<Popup, Node> = new Map()
     private popupComponents: Map<Popup, BasePopup> = new Map()
     private static instance: UImanager | null = null
@@ -18,6 +24,31 @@ export class UImanager extends Component {
         UImanager.instance = this
         this.cachePopupNodes()
         this.hideAllPopups()
+        this.resize()
+        view.on('canvas-resize', this.resize, this)
+    }
+
+    resize() {
+        const v = view.getVisibleSize()
+        const barWidget = this.itembar?.getComponent(Widget)
+        if (!barWidget) return
+        if (v.width >= v.height) {
+            this.bot!.active = false
+            this.top?.addChild(this.itembar!)
+            barWidget!.target = this.top
+            barWidget.isAlignRight = true
+            barWidget.right = 100
+            barWidget.isAlignVerticalCenter = true
+            barWidget.verticalCenter = 10
+        } else {
+            this.bot!.active = true
+            this.bot?.addChild(this.itembar!)
+            barWidget!.target = this.bot
+            barWidget.isAlignHorizontalCenter = true
+            barWidget.horizontalCenter = 0
+            barWidget.isAlignVerticalCenter = true
+            barWidget.verticalCenter = 40
+        }
     }
 
     public static togglePauseButton(active?: boolean) {

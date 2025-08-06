@@ -7,9 +7,9 @@ const { ccclass, property } = _decorator
 export class ShuffleItem extends BaseItem {
     onUse(): void {
         if (this.clicked || this.locked) return
+        if (this.clicked || this.locked) return
 
         super.onUse()
-        if ((this.game?.board as Board).shuffling) return
         ;(this.game?.board as Board).shuffle()
 
         if (this.quantity > 0) {
