@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, director, find, tween } from 'cc'
+import { _decorator, Color, Component, director, find, tween, Vec3, view } from 'cc'
 
 import { Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
@@ -102,8 +102,20 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.tilePool?.initialize(this)
             this.pathPool?.initialize(this)
             this.starPool?.initialize(this)
+            const s = view.getVisibleSize()
+
+            if (s.height >= s.width) {
+                this.node.setPosition(new Vec3(0, 0))
+                this.currentLevel.scale = s.width / (this.currentLevel.gridWidth + 3) / 80
+            } else {
+                this.node.setPosition(new Vec3(0, -50))
+                this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
+            }
+            this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
             this.subTilePoolInit()
             this.turnInit()
+
+            view.on('canvas-resize', this.resize, this)
             director.on(
                 GAME_EVENTS.COUNTDOWN_COMPLETE,
                 () => {
@@ -111,6 +123,24 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
                 },
                 this
             )
+        })
+    }
+    resize() {
+        const s = view.getVisibleSize()
+
+        if (s.height >= s.width) {
+            this.node.setPosition(new Vec3(0, 0))
+            this.currentLevel.scale = s.width / (this.currentLevel.gridWidth + 3) / 80
+        } else {
+            this.node.setPosition(new Vec3(0, -50))
+            this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
+        }
+        this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
+        this.board?.board.forEach((tile) => {
+            tile.forEach((t) => {
+                ;(t as Tile).reScale(this.currentLevel.scale)
+                ;(t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
+            })
         })
     }
 
@@ -271,7 +301,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
-        this.hideItem()
+        // this.hideItem()
     }
     public rescue() {
         this.isgameOver = false

@@ -55,10 +55,10 @@ export class Level {
 
         // this.tileSize = Math.min(560 / this.gridWidth, 800 / this.gridHeight) - 2
         // this.scale = Math.min(7 / this.gridWidth, 10 / this.gridHeight)
-        this.scale = Math.min(
-            view.getVisibleSize().width / (this.gridWidth + 3) / 80,
-            view.getVisibleSize().height / (this.gridHeight + 10) / 80
-        )
+        const s = view.getVisibleSize()
+        if (s.height >= s.width)
+            this.scale = view.getVisibleSize().width / (this.gridWidth + 3) / 80
+        else this.scale = view.getVisibleSize().height / (this.gridHeight + 3) / 80
         this.tileSize = this.scale * 80 + 5
         if (layer) this.layer = layer
         this.time = time

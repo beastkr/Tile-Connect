@@ -25,6 +25,7 @@ export class LoadTurn extends BaseTurn {
 
         this.turnOnInput()
         // console.log(this.game.currentLevel.layer)
+
         this.game.switchTurn(Turn.START)
     }
 

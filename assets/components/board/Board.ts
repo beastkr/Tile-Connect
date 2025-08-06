@@ -60,56 +60,67 @@ class Board extends Component implements TileConnect.IBoard {
 
         type State = {
             pos: Vec2
-            dir: Vec2
+            dirIndex: number
             turn: number
             path: Vec2[]
+            g: number // cost so far
+            f: number // estimated total cost
         }
 
-        // 3D visited array: [y][x][direction] to track minimum turns to reach
+        // visited[y][x][dir] = min turn
         const visited = Array.from({ length: height }, () =>
             Array.from({ length: width }, () => Array(4).fill(Infinity))
         )
 
-        const queue: State[] = []
+        const heuristic = (p: Vec2) => Math.abs(p.x - end.x) + Math.abs(p.y - end.y)
 
+        const open: State[] = []
+
+        // Khởi tạo từ start
         for (let d = 0; d < 4; d++) {
-            const dir = directions[d]
-            const next = start.clone().add(dir)
+            const next = start.clone().add(directions[d])
             if (!this.validate(next, end)) continue
 
             visited[next.y][next.x][d] = 0
-
-            queue.push({
+            open.push({
                 pos: next,
-                dir,
+                dirIndex: d,
                 turn: 0,
                 path: [start.clone(), next.clone()],
+                g: 1,
+                f: 1 + heuristic(next),
             })
         }
 
-        while (queue.length > 0) {
-            const { pos, dir, turn, path } = queue.shift()!
+        while (open.length > 0) {
+            // Lấy node có f nhỏ nhất
+            open.sort((a, b) => a.f - b.f)
+            const current = open.shift()!
 
-            if (pos.equals(end)) {
-                return { path, turnNum: turn }
+            if (current.pos.equals(end)) {
+                return { path: current.path, turnNum: current.turn }
             }
 
             for (let d = 0; d < 4; d++) {
-                const newDir = directions[d]
-                const newTurn = dir.equals(newDir) ? turn : turn + 1
+                const newTurn = d === current.dirIndex ? current.turn : current.turn + 1
                 if (newTurn > 2) continue
 
-                const next = pos.clone().add(newDir)
+                const next = current.pos.clone().add(directions[d])
                 if (!this.validate(next, end)) continue
                 if (visited[next.y][next.x][d] <= newTurn) continue
 
                 visited[next.y][next.x][d] = newTurn
 
-                queue.push({
+                const g = current.g + 1
+                const f = g + heuristic(next)
+
+                open.push({
                     pos: next,
-                    dir: newDir,
+                    dirIndex: d,
                     turn: newTurn,
-                    path: [...path, next.clone()],
+                    path: [...current.path, next.clone()],
+                    g,
+                    f,
                 })
             }
         }
@@ -186,7 +197,7 @@ class Board extends Component implements TileConnect.IBoard {
                     if (tile?.node) {
                         Tween.stopAllByTarget(tile.wholeSprite!)
                     }
-                    tile?.reScale(level.scale, level.tileSize)
+                    tile?.reScale(level.scale)
                 } else {
                     tile?.hide()
                 }
