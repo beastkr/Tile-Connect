@@ -1,10 +1,12 @@
-import { Theme } from './../../type/global'
 import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
+import { Theme } from './../../type/global'
 
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
+import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { Level } from '../level/Level'
+import { LevelLoader } from '../level/LevelLoader'
 import GameManager from '../manager/GameManager'
 import PathPool from '../pool/PathPool'
 import StarPool from '../pool/StarPool'
@@ -12,8 +14,6 @@ import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
-import { TileConnect } from '../../type/type'
-import { LevelLoader } from '../level/LevelLoader'
 const { ccclass, property } = _decorator
 
 export interface TilePair {
@@ -176,54 +176,6 @@ class Board extends Component implements TileConnect.IBoard {
         pairInfo.tile.setCoordinate(pairInfo.position)
     }
 
-    public create(pool: TilePool, level: Level): void {
-        this.matchedPairsCount = 0
-        this.respawnCount = 0
-        this.listPair = []
-
-        pool.returnAll()
-        const extra = 1
-        const height = level.gridHeight + extra * 2
-        const width = level.gridWidth + extra * 2
-        this.board = []
-        for (let y = 0; y < height; y++) {
-            this.board[y] = []
-            for (let x = 0; x < width; x++) {
-                const tile = pool.getFirstItem()
-                this.board[y].push(tile!)
-                tile?.setTheme(level.theme)
-
-                const realX = x - extra
-                const realY = y - extra
-
-                if (
-                    realX >= 0 &&
-                    realX < level.gridWidth &&
-                    realY >= 0 &&
-                    realY < level.gridHeight
-                ) {
-                    tile?.setTypeID(level.grid[realY][realX])
-                    if (tile?.node) {
-                        Tween.stopAllByTarget(tile.wholeSprite!)
-                    }
-                    tile?.reScale(level.scale, level.tileSize)
-                } else {
-                    tile?.hide()
-                }
-
-                tile?.setCoordinate(new Vec2(x, y))
-                tile?.node.setPosition(0, 0)
-                tile?.fadeIn(Math.abs(y - level.gridHeight - 1) * 0.05)
-                tile?.moveToRealPositionWithPadding(
-                    level,
-                    true,
-                    Math.abs(y - level.gridHeight - 1) * 0.05,
-                    'sineOut'
-                )
-            }
-        }
-    }
-
     public getMatchedPairsCount(): number {
         return this.matchedPairsCount
     }
@@ -368,7 +320,6 @@ class Board extends Component implements TileConnect.IBoard {
         tween(this.node).to
     }
 
-
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
         const extra = 1
@@ -412,7 +363,6 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
-
 
     public shuffle() {
         console.log('shuffle')
