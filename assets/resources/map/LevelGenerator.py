@@ -43,7 +43,7 @@ class LevelGenerator:
             return (cycle - pos_in_cycle) / 2.0
     
     def _generate_grid_size(self):
-        base_height = 4 + int(self.difficulty * 0.8)
+        base_height = 3 + int(self.difficulty * 0.8)
         base_width = 4 + int(self.difficulty * 0.8)
         
         level_cycle = self.level % 20  
@@ -84,7 +84,7 @@ class LevelGenerator:
         max_height = min(8, 6 + (self.level // 25)) 
         max_width = min(12, 8 + (self.level // 20))  
         
-        height = max(4, min(height, max_height))
+        height = max(3, min(height, max_height))
         width = max(4, min(width, max_width))
         
         return self._ensure_even_tiles(height, width, max_height, max_width)

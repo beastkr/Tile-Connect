@@ -62,7 +62,12 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public getSubtileList() {
         return this.subTileList
     }
-
+    public show() {
+        this.node.scale = new Vec3(0, 0, 1)
+        tween(this.node)
+            .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+            .start()
+    }
     public setTheme(theme: Theme) {
         if (theme == this.theme) return
         this.theme = theme

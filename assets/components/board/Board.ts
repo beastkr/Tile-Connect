@@ -1,8 +1,8 @@
+import { Theme } from './../../type/global'
 import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
 
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
-import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { Level } from '../level/Level'
 import GameManager from '../manager/GameManager'
@@ -12,27 +12,228 @@ import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
+import { TileConnect } from '../../type/type'
+import { LevelLoader } from '../level/LevelLoader'
 const { ccclass, property } = _decorator
+
+export interface TilePair {
+    tile: Tile
+    position: Vec2
+    type: TileType
+    theme: Theme
+}
 
 @ccclass('Board')
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
     shuffling: boolean = false
+    listPair: TilePair[] = []
     game: GameManager | null = null
+
+    private matchedPairsCount: number = 0
+    private respawnCount: number = 0
+    private readonly MAX_RESPAWNS_PER_LEVEL: number = 3
+    private readonly FIRST_RESPAWN_THRESHOLD: number = 5
+    private readonly SUBSEQUENT_RESPAWN_INTERVAL: number = 3
+
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
         if (this.canMatch(tile1, tile2)) {
             const path = this.getPath(tile1, tile2)
             this.drawPath(path.path, this.game?.pathPool!)
             this.putStar(path.path, this.game?.starPool!)
+
+            this.listPair.push({
+                tile: tile1,
+                position: tile1.getCoordinate(),
+                type: tile1.getTypeID(),
+                theme: tile1.getTheme(),
+            })
+            this.listPair.push({
+                tile: tile2,
+                position: tile2.getCoordinate(),
+                type: tile2.getTypeID(),
+                theme: tile2.getTheme(),
+            })
+
             tile1.onDead(this, true, tile2)
             tile2.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
+
+            this.matchedPairsCount++
+
+            this.checkAndRespawnTiles()
         } else {
             ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
             this.game?.unChoose()
         }
+    }
+
+    private checkAndRespawnTiles(): void {
+        const levelData = LevelLoader.getInstance().getLevelData()
+        if (!levelData || levelData.Difficulty < 3) {
+            return
+        }
+        const shouldRespawn = this.shouldRespawnTiles()
+
+        if (shouldRespawn && this.listPair.length >= 2) {
+            Promise.all(AnimationHandler.animList).then(() => {
+                this.respawnRandomTilePair()
+                this.respawnCount++
+            })
+        }
+    }
+
+    private shouldRespawnTiles(): boolean {
+        if (this.respawnCount >= this.MAX_RESPAWNS_PER_LEVEL) {
+            return false
+        }
+
+        if (this.respawnCount === 0 && this.matchedPairsCount === this.FIRST_RESPAWN_THRESHOLD) {
+            return true
+        }
+
+        if (this.respawnCount > 0) {
+            const pairsAfterFirstRespawn = this.matchedPairsCount - this.FIRST_RESPAWN_THRESHOLD
+            const expectedRespawns = Math.floor(
+                pairsAfterFirstRespawn / this.SUBSEQUENT_RESPAWN_INTERVAL
+            )
+            return expectedRespawns > this.respawnCount - 1
+        }
+
+        return false
+    }
+
+    private respawnRandomTilePair(): void {
+        if (this.listPair.length < 2) return
+
+        const availablePairs: number[] = []
+        for (let i = 0; i < this.listPair.length - 1; i += 2) {
+            availablePairs.push(i)
+        }
+
+        if (availablePairs.length === 0) {
+            this.respawnRandomMatchingTiles()
+            return
+        }
+
+        const randomPairIndex = availablePairs[Math.floor(Math.random() * availablePairs.length)]
+        const idx1 = randomPairIndex
+        const idx2 = randomPairIndex + 1
+
+        this.respawnTileAt(idx1)
+        this.respawnTileAt(idx2)
+
+        this.listPair.splice(idx2, 1)
+        this.listPair.splice(idx1, 1)
+    }
+
+    private respawnRandomMatchingTiles(): void {
+        const tilesByType: { [key: string]: number[] } = {}
+
+        this.listPair.forEach((pair, index) => {
+            const typeKey = `${pair.type}_${pair.theme}`
+            if (!tilesByType[typeKey]) {
+                tilesByType[typeKey] = []
+            }
+            tilesByType[typeKey].push(index)
+        })
+
+        const availableTypes = Object.keys(tilesByType).filter(
+            (type) => tilesByType[type].length >= 2
+        )
+
+        if (availableTypes.length === 0) return
+
+        const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)]
+        const tilesOfType = tilesByType[selectedType]
+
+        const idx1 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
+        let idx2 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
+
+        while (idx2 === idx1 && tilesOfType.length > 1) {
+            idx2 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
+        }
+
+        this.respawnTileAt(idx1)
+        this.respawnTileAt(idx2)
+
+        const indicesToRemove = [idx1, idx2].sort((a, b) => b - a)
+        indicesToRemove.forEach((index) => {
+            this.listPair.splice(index, 1)
+        })
+    }
+
+    private respawnTileAt(index: number): void {
+        const pairInfo = this.listPair[index]
+        if (!pairInfo) return
+
+        pairInfo.tile.show()
+        pairInfo.tile.reSpawn()
+        pairInfo.tile.setTypeID(pairInfo.type)
+        pairInfo.tile.setTheme(pairInfo.theme)
+        pairInfo.tile.setCoordinate(pairInfo.position)
+    }
+
+    public create(pool: TilePool, level: Level): void {
+        this.matchedPairsCount = 0
+        this.respawnCount = 0
+        this.listPair = []
+
+        pool.returnAll()
+        const extra = 1
+        const height = level.gridHeight + extra * 2
+        const width = level.gridWidth + extra * 2
+        this.board = []
+        for (let y = 0; y < height; y++) {
+            this.board[y] = []
+            for (let x = 0; x < width; x++) {
+                const tile = pool.getFirstItem()
+                this.board[y].push(tile!)
+                tile?.setTheme(level.theme)
+
+                const realX = x - extra
+                const realY = y - extra
+
+                if (
+                    realX >= 0 &&
+                    realX < level.gridWidth &&
+                    realY >= 0 &&
+                    realY < level.gridHeight
+                ) {
+                    tile?.setTypeID(level.grid[realY][realX])
+                    if (tile?.node) {
+                        Tween.stopAllByTarget(tile.wholeSprite!)
+                    }
+                    tile?.reScale(level.scale, level.tileSize)
+                } else {
+                    tile?.hide()
+                }
+
+                tile?.setCoordinate(new Vec2(x, y))
+                tile?.node.setPosition(0, 0)
+                tile?.fadeIn(Math.abs(y - level.gridHeight - 1) * 0.05)
+                tile?.moveToRealPositionWithPadding(
+                    level,
+                    true,
+                    Math.abs(y - level.gridHeight - 1) * 0.05,
+                    'sineOut'
+                )
+            }
+        }
+    }
+
+    public getMatchedPairsCount(): number {
+        return this.matchedPairsCount
+    }
+
+    public getRespawnCount(): number {
+        return this.respawnCount
+    }
+
+    public getRemainingRespawns(): number {
+        return this.MAX_RESPAWNS_PER_LEVEL - this.respawnCount
     }
 
     public canMatch(tile1: Tile, tile2: Tile): boolean {
@@ -150,10 +351,6 @@ class Board extends Component implements TileConnect.IBoard {
 
         const tile = this.board[y][x] as Tile
 
-        // Cho đi nếu:
-        // - không có tile (null)
-        // - hoặc tile không active
-        // - hoặc tile chính là tile đích (tile2)
         return (
             tile == null || tile.getTypeID() === TileType.NONE || tile === this.board[end.y][end.x]
         )
@@ -170,6 +367,7 @@ class Board extends Component implements TileConnect.IBoard {
     public shake() {
         tween(this.node).to
     }
+
 
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
@@ -214,6 +412,7 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+
 
     public shuffle() {
         console.log('shuffle')
@@ -282,6 +481,7 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+
     public drawPath(path: Vec2[], pool: PathPool) {
         for (let i = 0; i < path.length - 1; i++) {
             const from = path[i]
@@ -295,6 +495,7 @@ class Board extends Component implements TileConnect.IBoard {
             console.log('draw path from', from, 'to', to)
         }
     }
+
     public putStar(path: Vec2[], pool: StarPool) {
         for (let i = 0; i < path.length; i++) {
             const from = path[i]
