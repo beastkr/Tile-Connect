@@ -4,11 +4,13 @@ import {
     Component,
     Node,
     resources,
+    Size,
     Sprite,
     SpriteFrame,
     Tween,
     tween,
     TweenEasing,
+    UITransform,
     Vec2,
     Vec3,
 } from 'cc'
@@ -243,6 +245,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public reScale(scale: number, size: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
+        this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))
     }
     public onChoose() {
         this.choosingEffect!.active = true
