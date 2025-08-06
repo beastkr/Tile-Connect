@@ -39,6 +39,7 @@ export namespace TileConnect {
         onAttach(tile: ITile): void
         onDetach(): void
     }
+
     export interface ILevelData {
         GridHeight: number
         GridWidth: number

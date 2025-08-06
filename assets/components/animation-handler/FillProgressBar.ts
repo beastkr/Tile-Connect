@@ -51,6 +51,7 @@ export class FillProgressBar extends Component {
     }
 
     public updateProgressBar() {
+        if (this.mid!.node.scale.x > 9) return
         if (this.total <= 0 || this.size <= 0) return
         const progress = (2 * 9) / this.total
         if (this.isFirstFill && progress > 0) {

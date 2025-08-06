@@ -1,22 +1,22 @@
 {
     "Level": 14,
     "Difficulty": 3.0,
-    "GridHeight": 6,
-    "GridWidth": 7,
+    "GridHeight": 5,
+    "GridWidth": 8,
     "Theme": "FRUIT",
     "Tiles": {
-        "TotalTiles": 42,
+        "TotalTiles": 40,
         "RocketTiles": 2,
         "BombEffects": 3,
         "NormalTiles": {
             "0": 8,
-            "1": 8,
+            "1": 6,
             "2": 8,
             "3": 8,
             "4": 8
         }
     },
     "Time": 120,
-    "Gravity": 1,
+    "Gravity": 3,
     "Circle": false
 }

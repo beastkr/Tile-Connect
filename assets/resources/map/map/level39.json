@@ -1,24 +1,24 @@
 {
     "Level": 39,
     "Difficulty": 0.5,
-    "GridHeight": 4,
-    "GridWidth": 5,
-    "Theme": "DRINK",
+    "GridHeight": 3,
+    "GridWidth": 6,
+    "Theme": "BUTTERFLY",
     "Tiles": {
-        "TotalTiles": 20,
+        "TotalTiles": 18,
         "RocketTiles": 0,
         "BombEffects": 1,
         "NormalTiles": {
             "0": 4,
             "1": 2,
-            "2": 4,
-            "3": 2,
+            "2": 2,
+            "3": 4,
             "4": 2,
-            "5": 4,
+            "5": 2,
             "6": 2
         }
     },
-    "Time": 90,
+    "Time": 60,
     "Gravity": 0,
     "Circle": false
 }
