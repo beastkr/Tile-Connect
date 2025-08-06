@@ -113,11 +113,7 @@ export class RocketSubTile extends BaseSubTile {
                         .to(
                             0.2,
                             {
-                                scale: new Vec3(
-                                    this.tile!.node.getScale().x * 1.2,
-                                    this.tile!.node.getScale().y * 1.2,
-                                    1
-                                ),
+                                scale: new Vec3(this.tile?.originScale, this.tile?.originScale, 1),
                                 angle: angle1,
                             },
                             { easing: 'sineOut' }
@@ -158,9 +154,8 @@ export class RocketSubTile extends BaseSubTile {
                             0.2,
                             {
                                 scale: new Vec3(
-
-                                    this.tile!.node.getScale().x * 1.2,
-                                    this.tile!.node.getScale().y,
+                                    this.tile?.originScale,
+                                    this.tile?.originScale,
 
                                     1
                                 ),

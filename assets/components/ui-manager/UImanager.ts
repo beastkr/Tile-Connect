@@ -52,9 +52,9 @@ export class UImanager extends Component {
     }
 
     public static togglePauseButton(active?: boolean) {
-        if (!active)
-            UImanager.instance!.pauseButton!.active = !UImanager.instance!.pauseButton!.active
-        else UImanager.instance!.pauseButton!.active = active
+        // if (!active)
+        //     UImanager.instance!.pauseButton!.active = !UImanager.instance!.pauseButton!.active
+        // else UImanager.instance!.pauseButton!.active = active
     }
 
     private hideAllPopups() {

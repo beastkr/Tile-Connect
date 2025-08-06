@@ -14,7 +14,9 @@
             "2": 4
         }
     },
+
     "Time": 60,
+
     "Gravity": 0,
     "Circle": false
 }

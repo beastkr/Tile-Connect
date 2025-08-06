@@ -99,7 +99,7 @@ class RocketItem extends BaseItem {
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
                 .delay(0.5)
                 .call(() => {
-                    this.rockets[i].setScale(1.2, 1.2)
+                    this.rockets[i].setScale(tileList[i].originScale, tileList[i].originScale)
                     rocketSprite!.getComponent(Sprite)!.spriteFrame = rocketFrame
                     white!.active = false
                     yellow!.active = false
@@ -129,7 +129,9 @@ class RocketItem extends BaseItem {
                             })
                             bro?.once(Animation.EventType.FINISHED, () => {
                                 bro!.node.active = false
-                                this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                                // this.rockets[i].setWorldPosition(
+                                //     new Vec3(segment * (i + 1), -view.getVisibleSize().height)
+                                // )
                             })
 
                             if (i == 3) {

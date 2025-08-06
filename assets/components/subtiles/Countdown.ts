@@ -9,6 +9,7 @@ export const GAME_EVENTS = {
 
 @ccclass('Countdown')
 export class Countdown extends Component {
+
     private timer: number = 40
 
     private currentTime: number = 0

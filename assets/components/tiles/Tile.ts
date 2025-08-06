@@ -37,7 +37,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
 
     public underKill: boolean = false
     private selfPromise: Promise<void>[] = []
-    private originScale: number = 1
+    originScale: number = 1
 
     private used: boolean = false
     private theme: Theme = Theme.NONE
@@ -250,7 +250,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             this.node.setPosition(targetPos)
         }
     }
-    public reScale(scale: number, size: number) {
+    public reScale(scale: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 100, scale * 100))

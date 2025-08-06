@@ -23,7 +23,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
                 game.node.addChild(node)
             }
             this.itemList.push(node?.getComponent(Tile) as Tile)
-            node?.setPosition(new Vec3(-1000, -1000))
+            node?.setPosition(new Vec3(-10000, -10000))
         }
         this.returnAll()
     }
