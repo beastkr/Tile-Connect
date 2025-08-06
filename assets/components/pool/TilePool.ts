@@ -64,6 +64,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     public returnMultiple(objects: Tile[]): void {
         for (const tile of objects) {
             tile.kill()
+            tile.detachAll()
         }
     }
     public returnAll(): void {

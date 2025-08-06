@@ -3,6 +3,7 @@ import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { Level } from '../level/Level'
 import GameManager from '../manager/GameManager'
 import PathPool from '../pool/PathPool'
@@ -16,6 +17,7 @@ const { ccclass, property } = _decorator
 @ccclass('Board')
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
+    shuffling: boolean = false
     game: GameManager | null = null
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
@@ -204,6 +206,8 @@ class Board extends Component implements TileConnect.IBoard {
 
     public shuffle() {
         console.log('shuffle')
+        if (this.shuffling) return
+        this.shuffling = true
         const flatten: Tile[] = []
         this.game?.stopHint()
 
@@ -245,6 +249,9 @@ class Board extends Component implements TileConnect.IBoard {
                 )
             }
         }
+        Promise.all(AnimationHandler.animTile).then(() => {
+            this.shuffling = false
+        })
     }
 
     public addSubTile(pool: SubTilePool, level: Level, key: SubType) {

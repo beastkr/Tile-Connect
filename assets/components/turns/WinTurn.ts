@@ -10,9 +10,10 @@ import { AnimationHandler } from '../animation-handler/AnimationHandler'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
+
         Promise.all(AnimationHandler.animList).then(() => {
             this.game.isgameOver = true
-
+ UImanager.togglePauseButton(false)
             if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
                 AnimationHandler.fillProgressBar?.updateTillWin()
             }
@@ -24,6 +25,7 @@ export class WinTurn extends BaseTurn {
                     if (this.game.starPool) {
                         this.startStarAnimation(worldPos, this.game.starPool)
                     }
+
                 }
             }
 

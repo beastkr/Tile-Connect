@@ -1,5 +1,5 @@
 import { _decorator, Animation, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
-import { getScale, getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
+import { getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
@@ -158,8 +158,10 @@ export class RocketSubTile extends BaseSubTile {
                             0.2,
                             {
                                 scale: new Vec3(
+
                                     this.tile!.node.getScale().x * 1.2,
                                     this.tile!.node.getScale().y,
+
                                     1
                                 ),
                                 angle: angle2,

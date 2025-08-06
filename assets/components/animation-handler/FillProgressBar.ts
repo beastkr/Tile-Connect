@@ -138,6 +138,7 @@ export class FillProgressBar extends Component {
     }
 
     public resetProgressBar() {
+        this.score = 0
         this.currentTile = 0
         this.isFirstFill = true
         this.left!.node.setScale(0, this.left!.node.scale.y, this.left!.node.z)

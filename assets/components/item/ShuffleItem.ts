@@ -9,6 +9,7 @@ export class ShuffleItem extends BaseItem {
         if (this.clicked || this.locked) return
 
         super.onUse()
+        if ((this.game?.board as Board).shuffling) return
         ;(this.game?.board as Board).shuffle()
 
         if (this.quantity > 0) {

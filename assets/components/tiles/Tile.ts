@@ -53,6 +53,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     protected start(): void {
         // this.setTheme(Theme.FRUIT)
         // this.setTypeID(0)
+        this.itemTypeSprite!.node.on(Node.EventType.TOUCH_START, () => {}, this, false)
     }
 
     public onClickCallbacks: ((tile: TileConnect.ITile) => void)[] = []
@@ -111,7 +112,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.wholeSprite!.active = false
     }
     public kill(): void {
-        Tween.stopAllByTarget(this.wholeSprite!)
+        // Tween.stopAllByTarget(this.wholeSprite!)
         this.wholeSprite!.scale = new Vec3(this.originScale, this.originScale)
         this.wholeSprite!.angle = 0
         this.underKill = false
@@ -133,6 +134,11 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public attachSubType(subTile: TileConnect.ISubTile, key: SubType): void {
         this.subTileList.set(key, subTile)
         subTile.onAttach(this)
+    }
+    detachAll() {
+        for (const sub of this.subTileList) {
+            this.detachSubType(sub[0])
+        }
     }
 
     public detachSubType(key: SubType): void {

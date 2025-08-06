@@ -5,6 +5,8 @@ import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
 export class BombFail extends BaseTurn {
     onEnter(): void {
+        this.game.isgameOver = true
+        this.game.ispause = true
         this.game.turnOffInput()
         UImanager.togglePauseButton(false)
         this.game.unChoose()
