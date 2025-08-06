@@ -40,7 +40,8 @@ class RocketItem extends BaseItem {
         this.game?.node.addChild(this.overlay!)
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
-        this.itemManager!.botOverlay!.active = true
+        if (view.getVisibleSize().width < view.getVisibleSize().height)
+            this.itemManager!.botOverlay!.active = true
         this.itemManager!.botOverlay!.setSiblingIndex(this.node.getSiblingIndex() - 1)
         this.game?.unChoose()
         this.game?.turnOffInput()
@@ -114,12 +115,7 @@ class RocketItem extends BaseItem {
                         )
 
                         .call(() => {
-                            tileList[i].onDead(
-                                this.game!.board as Board,
-                                i % 2 == 0,
-                                i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
-                            )
-                            tileList[i].kill()
+                            tileList[i].wholeSprite!.active = false
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
                             bro!.node.active = true
@@ -141,7 +137,16 @@ class RocketItem extends BaseItem {
                                 this.itemManager?.showAll()
                                 this.enableFunction()
                                 this.overlay!.active = false
+
                                 this.itemManager!.botOverlay!.active = false
+                                for (let i = 0; i < 4; i++) {
+                                    tileList[i].onDead(
+                                        this.game!.board as Board,
+                                        i % 2 == 0,
+                                        i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
+                                    )
+                                    tileList[i].kill()
+                                }
                             }
                             this.game?.switchTurn(Turn.MATCH)
                         })

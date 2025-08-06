@@ -46,7 +46,8 @@ class SuperRocketItem extends BaseItem {
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
         console.log(this.itemManager!.botOverlay)
-        this.itemManager!.botOverlay!.active = true
+        if (view.getVisibleSize().width < view.getVisibleSize().height)
+            this.itemManager!.botOverlay!.active = true
         this.itemManager!.botOverlay!.setSiblingIndex(this.node.getSiblingIndex() - 1)
         this.game?.unChoose()
         this.game?.turnOffInput()
@@ -78,6 +79,7 @@ class SuperRocketItem extends BaseItem {
             this.rockets[i].active = true
             const rocketSprite = this.rockets[i].getChildByName('Rocket1')
             const explo = this.rockets[i]!.getChildByName('Explosion')?.getComponent(Animation)
+            const bro = this.rockets[i]!.getChildByName('break')?.getComponent(Animation)
             console.log(explo)
 
             this.rockets[i].angle = 0
@@ -114,23 +116,32 @@ class SuperRocketItem extends BaseItem {
                         )
 
                         .call(() => {
-                            tileList[i].onDead(
-                                this.game!.board as Board,
-                                i % 2 == 0,
-                                i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
-                            )
-                            tileList[i].kill()
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
                             explo!.node.active = true
                             explo!.node.angle = -this.rockets[i].angle
+                            bro!.node.active = true
+                            bro!.node.angle = -this.rockets[i].angle
                             explo?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 explo!.node.active = false
                                 this.rockets[i].setWorldPosition(new Vec3(0, -100))
                             })
+                            bro?.play()
+                            bro?.once(Animation.EventType.FINISHED, () => {
+                                bro!.node.active = false
+                                this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                            })
 
                             if (i == 5) {
+                                for (let i = 0; i < 6; i++) {
+                                    tileList[i].onDead(
+                                        this.game!.board as Board,
+                                        i % 2 == 0,
+                                        i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
+                                    )
+                                    tileList[i].kill()
+                                }
                                 this.game?.turnOnInput()
                                 this.itemManager?.showAll()
                                 this.enableFunction()

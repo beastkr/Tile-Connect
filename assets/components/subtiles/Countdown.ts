@@ -1,16 +1,4 @@
-import {
-    _decorator,
-    Animation,
-    AnimationClip,
-    Component,
-    director,
-    find,
-    Layers,
-    Node,
-    Sprite,
-    UITransform,
-} from 'cc'
-import { LevelLoader } from '../level/LevelLoader'
+import { _decorator, Animation, Component, director, find, Node, Sprite } from 'cc'
 const { ccclass, property } = _decorator
 export const GAME_EVENTS = {
     COUNTDOWN_COMPLETE: 'countdown-complete',
@@ -21,7 +9,9 @@ export const GAME_EVENTS = {
 
 @ccclass('Countdown')
 export class Countdown extends Component {
+
     private timer: number = 40
+
     private currentTime: number = 0
     @property(Node)
     private bom: Node | null = null

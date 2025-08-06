@@ -40,8 +40,8 @@ class BaseItem extends Component implements TileConnect.IItem {
         this.textChange()
         this.lock()
         this.unlock()
-        if (this.quantity == 0) this.lock()
-        else this.unlock()
+        if (this.quantity == 0) this.stopFunction()
+        else this.enableFunction()
     }
 
     onUse(): void {

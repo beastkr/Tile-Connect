@@ -1,19 +1,17 @@
-import { FillProgressBar } from './../animation-handler/FillProgressBar'
 import { find, tween, Vec3 } from 'cc'
 import { Popup } from '../../type/global'
 import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
 
-import { LevelLoader } from '../level/LevelLoader'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
+import { LevelLoader } from '../level/LevelLoader'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
-
+        this.game.isgameOver = true
         Promise.all(AnimationHandler.animList).then(() => {
-            this.game.isgameOver = true
- UImanager.togglePauseButton(false)
+            UImanager.togglePauseButton(false)
             if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
                 AnimationHandler.fillProgressBar?.updateTillWin()
             }
@@ -25,7 +23,6 @@ export class WinTurn extends BaseTurn {
                     if (this.game.starPool) {
                         this.startStarAnimation(worldPos, this.game.starPool)
                     }
-
                 }
             }
 

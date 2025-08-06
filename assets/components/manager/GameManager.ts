@@ -19,13 +19,13 @@ import { StartTurn } from '../turns/StartTurn'
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
 import { GAME_EVENTS } from '../subtiles/Countdown'
+import { AdsTurn } from '../turns/AdsTurn'
 import { BombFail } from '../turns/BombFail'
 import { FailTurn } from '../turns/FailTurn'
 import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
 import { ItemManager } from './ItemManager'
-import { AdsTurn } from '../turns/AdsTurn'
 
 const { ccclass, property } = _decorator
 

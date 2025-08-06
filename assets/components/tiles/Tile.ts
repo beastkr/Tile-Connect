@@ -53,7 +53,9 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     protected start(): void {
         // this.setTheme(Theme.FRUIT)
         // this.setTypeID(0)
-        this.itemTypeSprite!.node.on(Node.EventType.TOUCH_START, () => {}, this, false)
+
+        this.node.on(Node.EventType.TOUCH_START, this.emitOnClickCallbacks, this)
+        // this.node.on(Node.EventType.MOUSE_DOWN, this.emitOnClickCallbacks, this)
     }
 
     public onClickCallbacks: ((tile: TileConnect.ITile) => void)[] = []
@@ -113,6 +115,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public kill(): void {
         // Tween.stopAllByTarget(this.wholeSprite!)
+        // this.node.setPosition(-10000, -10000)
         this.wholeSprite!.scale = new Vec3(this.originScale, this.originScale)
         this.wholeSprite!.angle = 0
         this.underKill = false
@@ -245,25 +248,26 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public reScale(scale: number, size: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
-        this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 80, scale * 80))
+        this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 100, scale * 100))
     }
     public onChoose() {
         this.choosingEffect!.active = true
-        Promise.all(this.selfPromise).then(() => {
-            this.selfPromise.push(
-                new Promise<void>((resolve) => {
-                    tween(this.wholeSprite!)
-                        .to(0.1, {
-                            scale: new Vec3(this.originScale * 0.7, this.originScale * 0.7),
-                        })
-                        .to(0.1, { scale: new Vec3(this.originScale, this.originScale) })
-                        .call(() => {
-                            resolve()
-                        })
-                        .start()
-                })
-            )
-        })
+        // Promise.all(this.selfPromise).then(() => {
+        //     this.selfPromise.push(
+        //         new Promise<void>((resolve) => {
+        this.wholeSprite!.setScale(new Vec3(this.originScale, this.originScale))
+        tween(this.wholeSprite!)
+            .to(0.1, {
+                scale: new Vec3(this.originScale * 0.7, this.originScale * 0.7),
+            })
+            .to(0.1, { scale: new Vec3(this.originScale, this.originScale) })
+            .call(() => {
+                // resolve()
+            })
+            .start()
+        //         })
+        //     )
+        // })
         tween(this.rotatedChoosingEff!)
             .repeatForever(tween().by(1, { angle: 360 }))
             .start()
