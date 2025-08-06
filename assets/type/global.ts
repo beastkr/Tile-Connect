@@ -38,6 +38,7 @@ export enum Popup {
     WINPOPUP = 'victoryPopup',
     PAUSEPOPUP = 'pausePopup',
     ADSPOPUP = 'adsPopup',
+    CONTINUE = 'continuePopup',
 }
 
 export enum Theme {
