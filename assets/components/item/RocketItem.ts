@@ -72,16 +72,20 @@ class RocketItem extends BaseItem {
             this.rockets[i].active = true
             const rocketSprite = this.rockets[i].getChildByName('Rocket1')
             const explo = this.rockets[i]!.getChildByName('Explosion')?.getComponent(Animation)
-            console.log(explo)
-
+            const bro = this.rockets[i]!.getChildByName('break')?.getComponent(Animation)
+            console.log(bro)
             this.rockets[i].angle = 0
             rocketSprite!.getComponent(Sprite)!.spriteFrame = fireWork
-            const dust = this.rockets[i]
-                .getChildByName('RocketDust')
-                ?.getComponent(ParticleSystem2D)
-
+            const rocket1 = this.rockets[i].getChildByName('Rocket1')
+            const rocketDust = rocket1 ? rocket1.getChildByName('RocketDust') : null
+            const white = rocketDust ? rocketDust.getChildByName('whiteSmoke') : null
+            white!.active = true
+            white?.getComponent(ParticleSystem2D)?.resetSystem()
+            const yellow = rocketDust ? rocketDust.getChildByName('yellow') : null
+            yellow!.active = true
+            yellow?.getComponent(ParticleSystem2D)?.resetSystem()
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
-            dust?.resetSystem()
+
             rocketSprite!.active = true
             const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
@@ -96,13 +100,15 @@ class RocketItem extends BaseItem {
                 .call(() => {
                     this.rockets[i].setScale(1.2, 1.2)
                     rocketSprite!.getComponent(Sprite)!.spriteFrame = rocketFrame
+                    white!.active = false
+                    yellow!.active = false
                     this.rockets[i].angle = this.getAngleBetween(
                         this.rockets[i].worldPosition,
                         tileList[i].node.worldPosition
                     )
                     tween(this.rockets[i])
                         .to(
-                            0.3 + i * 0.1,
+                            0.1 + i * 0.09,
                             { worldPosition: tileList[i].node.worldPosition },
                             { easing: 'sineOut' }
                         )
@@ -116,11 +122,17 @@ class RocketItem extends BaseItem {
                             tileList[i].kill()
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
+                            bro!.node.active = true
+                            bro!.node.angle = -this.rockets[i].angle
                             explo!.node.active = true
                             explo!.node.angle = -this.rockets[i].angle
+                            bro?.play()
                             explo?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 explo!.node.active = false
+                            })
+                            bro?.once(Animation.EventType.FINISHED, () => {
+                                bro!.node.active = false
                                 this.rockets[i].setWorldPosition(new Vec3(0, -100))
                             })
 

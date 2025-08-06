@@ -110,7 +110,7 @@ export class ShuffleLevel {
         const isEasyMode = difficulty <= 2
 
         if (isEasyMode) {
-            return this.getNearbyPositions(availablePositions)
+            return this.getDistantPositions(availablePositions)
         } else {
             return this.getDistantPositions(availablePositions)
         }

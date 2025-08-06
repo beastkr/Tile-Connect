@@ -17,6 +17,7 @@ export enum Turn {
     FAIL,
     WIN,
     BOOM,
+    ADS,
 }
 
 export enum TileType {
@@ -36,6 +37,7 @@ export enum Popup {
     BOOMPOPUP = 'boomPopup',
     WINPOPUP = 'victoryPopup',
     PAUSEPOPUP = 'pausePopup',
+    ADSPOPUP = 'adsPopup',
 }
 
 export enum Theme {
