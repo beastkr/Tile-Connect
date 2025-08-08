@@ -1,5 +1,5 @@
-import { _decorator, Component, Node, ParticleSystem2D, Sprite, tween, UITransform, Vec3 } from 'cc'
-
+import { _decorator, Component, Node, ParticleSystem2D, Sprite, Tween, tween, Vec3 } from 'cc'
+import { backInSlowEnd } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 const { ccclass, property } = _decorator
@@ -18,33 +18,31 @@ export class Star extends Component implements TileConnect.IPoolObject {
     @property(Node)
     death: Node | null = null
 
-    putAt(pos: Vec3) {
+    putAt(pos: Vec3, delay: number = 0) {
         this.node.setPosition(pos)
         this.star!.node.active = true
         this.circle!.node.active = false
+
         //
         //   AnimationHandler.fillProgressBar?.checkActive()
         const targetStar = AnimationHandler.fillProgressBar?.currentStar
         if (!targetStar) return
         const worldPos = targetStar.getWorldPosition()
-        const localPos =
-            this.node.parent?.getComponent(UITransform)?.convertToNodeSpaceAR(worldPos) || worldPos
-        //
 
         AnimationHandler.animList.push(
             new Promise<void>((resolve) => {
                 tween(this.node)
-                    .delay(0.8)
+                    .delay(0.15 + 0.1 * (delay + 1))
                     .call(() => {
                         this.follow()
                     })
                     .to(
-                        0.7,
-                        { position: localPos, scale: new Vec3(2, 2, 1) },
-                        { easing: 'quadOut' }
+                        1.36 - 0.1 * (delay + 1),
+                        { worldPosition: worldPos, scale: new Vec3(2, 2, 1) },
+                        { easing: backInSlowEnd }
                     )
                     .call(() => {
-                        AnimationHandler.callProgress()
+                        if (this.used) AnimationHandler.callProgress()
                         this.trail!.active = false
                     })
                     .delay(0.1)
@@ -77,6 +75,10 @@ export class Star extends Component implements TileConnect.IPoolObject {
     }
 
     kill(): void {
+        Tween.stopAllByTarget(this.node)
+        Tween.stopAllByTarget(this.star!)
+        Tween.stopAllByTarget(this.circle!)
+        this.used = false
         this.death!.active = false
         this.trail!.active = false
         this.node.scale = new Vec3(1, 1, 1)
@@ -84,10 +86,12 @@ export class Star extends Component implements TileConnect.IPoolObject {
         this.star!.node.active = false
         this.match!.active = false
         this.circle!.node.active = false
-        this.used = false
+
+        this.trail!.active = false
         this.node.active = false
     }
     firstAndLastMatch() {
+        if (!this.used) return
         this.match!.active = true
         this.match?.getComponent(ParticleSystem2D)?.resetSystem()
     }

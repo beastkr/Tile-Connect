@@ -1,6 +1,18 @@
-import { _decorator, Color, Component, director, find, tween, Vec3, view } from 'cc'
+import {
+    _decorator,
+    Color,
+    Component,
+    director,
+    find,
+    ParticleSystem2D,
+    Tween,
+    tween,
+    Vec3,
+    view,
+    Widget,
+} from 'cc'
 
-import { Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
+import { getAllDescendants, Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -97,11 +109,19 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected start(): void {
+        this.pathPool!.initialize(this)
+        this.tilePool?.initialize(this)
+        this.starPool?.initialize(this)
+        const p = this.pathPool?.getFirstItem()
+        console.log('first: ', p)
+        p?.kill()
+        this.subTilePoolInit()
+        // this.turnOnInput()
         this.levelLoader.restartLevel().then(() => {
             this.currentLevel = this.levelLoader.getCurrentLevel()
-            this.tilePool?.initialize(this)
-            this.pathPool?.initialize(this)
-            this.starPool?.initialize(this)
+
+            console.log(this.pathPool)
+
             const s = view.getVisibleSize()
 
             if (s.height >= s.width) {
@@ -112,7 +132,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
                 this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
             }
             this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
-            this.subTilePoolInit()
+
             this.turnInit()
 
             view.on('canvas-resize', this.resize, this)
@@ -127,11 +147,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     resize() {
         const s = view.getVisibleSize()
+        const wgO = this.node.getChildByName('Overlay')?.getComponent(Widget)
 
         if (s.height >= s.width) {
+            if (wgO) wgO.verticalCenter = 0
             this.node.setPosition(new Vec3(0, 0))
             this.currentLevel.scale = s.width / (this.currentLevel.gridWidth + 3) / 80
         } else {
+            if (wgO) wgO.verticalCenter = 50
             this.node.setPosition(new Vec3(0, -50))
             this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
         }
@@ -224,6 +247,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.secondChosen?.getCoordinate()
         )
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
+        this.unChoose()
 
         this.switchTurn(Turn.MATCH)
     }
@@ -281,12 +305,21 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public turnOnInput() {
-        this.board?.setUpManager(this)
+        const tiles = (this.tilePool as TilePool).itemList
+        tiles.forEach((tile) => {
+            if (tile.onClickCallbacks.length == 0)
+                tile.addOnClickCallback((tile: TileConnect.ITile) => this.choose(tile))
+        })
     }
 
     public restart() {
         this.ispause = false
         this.isgameOver = false
+        const des = getAllDescendants(this.node)
+        for (const d of des) {
+            Tween.stopAllByTarget(d)
+            d.getComponent(ParticleSystem2D)?.stopSystem()
+        }
         UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('failed')
@@ -298,6 +331,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public pause() {
         this.ispause = true
+        const des = getAllDescendants(this.node)
+        for (const d of des) {
+            Tween.pauseAllByTarget(d)
+            d.getComponent(ParticleSystem2D)?.stopSystem()
+        }
+
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
@@ -313,6 +352,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public unPause() {
         this.ispause = false
+        const des = getAllDescendants(this.node)
+        for (const d of des) {
+            Tween.resumeAllByTarget(d)
+            if (d.getComponent(ParticleSystem2D)) {
+                d.getComponent(ParticleSystem2D)?.resetSystem()
+            }
+        }
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.turnOnInput()
@@ -332,7 +378,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public turnOffInput() {
-        this.board?.resetInput()
+        const tiles = (this.tilePool as TilePool).itemList
+        tiles.forEach((tile) => {
+            tile.clearOnClickCallbacks()
+        })
     }
 
     protected onDestroy(): void {

@@ -10,16 +10,18 @@ export class LoadTurn extends BaseTurn {
         this.game.subtilePool.forEach((element) => {
             element.returnAll()
         })
+        AnimationHandler.animList = []
+        AnimationHandler.fillProgressBar?.resetProgressBar()
+        this.turnOffInput()
         this.game.tilePool?.returnAll()
         this.game.unChoose()
         this.game.itemManager?.showAll()
-        this.turnOffInput()
 
         GravityManager.setUpManager(this.game.currentLevel)
         this.game.time = this.game.currentLevel.getTime()
         this.game.matchPair = []
         this.game.createBoard(this.game.currentLevel)
-        AnimationHandler.fillProgressBar?.resetProgressBar()
+
         AnimationHandler.fillProgressBar?.setTotal(this.game.currentLevel.getTileNum())
         AnimationHandler.fillProgressBar?.setLv(this.game.currentNumber())
 

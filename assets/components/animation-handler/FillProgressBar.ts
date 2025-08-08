@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, Sprite, tween, UITransform, Vec3 } from 'cc'
+import { _decorator, Component, Label, Node, Sprite, Tween, tween, UITransform, Vec3 } from 'cc'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import GameManager from '../manager/GameManager'
 const { ccclass, property } = _decorator
@@ -51,7 +51,9 @@ export class FillProgressBar extends Component {
     }
 
     public updateProgressBar() {
-        if (this.mid!.node.scale.x > 9) return
+        if (this.mid!.node.scale.x > 9) {
+            return
+        }
         if (this.total <= 0 || this.size <= 0) return
         const progress = (2 * 9) / this.total
         if (this.isFirstFill && progress > 0) {
@@ -139,6 +141,7 @@ export class FillProgressBar extends Component {
     }
 
     public resetProgressBar() {
+        Tween.stopAllByTarget(this.mid?.node)
         this.score = 0
         this.currentTile = 0
         this.isFirstFill = true

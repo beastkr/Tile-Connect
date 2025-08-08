@@ -1,6 +1,4 @@
-import { Victory } from './../ui-manager/victory-popup/victoryPopup'
-import { Popup, Turn } from '../../type/global'
-import { LevelLoader } from '../level/LevelLoader'
+import { Popup } from '../../type/global'
 
 import { UImanager } from '../ui-manager/UImanager'
 
