@@ -18,6 +18,7 @@ class StarPool extends Component implements TileConnect.IObjectPool<Star> {
             if (node) {
                 console.log('added child')
                 game.node.addChild(node)
+                node.setSiblingIndex(999999)
             }
             this.itemList.push(node?.getComponent(Star) as Star)
         }
@@ -28,6 +29,8 @@ class StarPool extends Component implements TileConnect.IObjectPool<Star> {
         for (const tile of this.itemList)
             if (!tile.isUsed()) {
                 tile.reSpawn()
+                tile.node.setSiblingIndex(999999)
+
                 return tile
             }
         return null

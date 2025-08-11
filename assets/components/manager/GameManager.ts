@@ -31,7 +31,6 @@ import { StartTurn } from '../turns/StartTurn'
 
 import { Path } from '../path/Path'
 import { Star } from '../star/Star'
-import { GAME_EVENTS } from '../subtiles/Countdown'
 import { AdsTurn } from '../turns/AdsTurn'
 import { BombFail } from '../turns/BombFail'
 import { FailTurn } from '../turns/FailTurn'
@@ -39,7 +38,14 @@ import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
 import { ItemManager } from './ItemManager'
+
+import { InvalidPath } from '../path/InvalidPath'
+import InvalidPool from '../pool/InvalidPool'
+import NopePool from '../pool/NopePool'
+import { TutorialManager } from './TutorialManager'
+
 import { SoundManager } from './SoundManager'
+
 
 const { ccclass, property } = _decorator
 
@@ -48,6 +54,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     private levelLoader: LevelLoader = LevelLoader.getInstance()
     currentLevel!: Level
     time: number = 0
+    isFirstTouch: number = 0
     ispause: boolean = false
     private turnList: Map<Turn, TileConnect.ITurn> = new Map<Turn, TileConnect.ITurn>()
     private eventTarget = new EventTarget()
@@ -68,10 +75,15 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public pathPool: PathPool | null = null
     @property(StarPool)
     public starPool: StarPool | null = null
+    @property(InvalidPool)
+    public invalid: InvalidPool | null = null
+    @property(NopePool)
+    public nope: NopePool | null = null
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
     hintPath: Path[] = []
     hintPoint: Star[] = []
+
     hintTile: Tile[] = []
     isgameOver: boolean = false
 
@@ -82,11 +94,29 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public offMatchPair(callback: () => void) {
         this.eventTarget.removeEventListener('matchPair', callback)
     }
+    public onTouch(callback: () => void) {
+        this.eventTarget.addEventListener('touch', callback)
+    }
 
+    public offTouch(callback: () => void) {
+        this.eventTarget.removeEventListener('touch', callback)
+    }
+    public onChoose(callback: () => void) {
+        this.eventTarget.addEventListener('choose', callback)
+    }
+
+    public offChoose(callback: () => void) {
+        this.eventTarget.removeEventListener('choose', callback)
+    }
+    private emitChoose() {
+        this.eventTarget.dispatchEvent(new Event('choose'))
+    }
     private emitMatchPair() {
         this.eventTarget.dispatchEvent(new Event('matchPair'))
     }
-
+    private emitTouch() {
+        this.eventTarget.dispatchEvent(new Event('touch'))
+    }
     stopHint() {
         if (this.hintPath.length == 0) return
         for (const path of this.hintPath) {
@@ -111,18 +141,16 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected start(): void {
-        this.pathPool!.initialize(this)
-        this.tilePool?.initialize(this)
-        this.starPool?.initialize(this)
-        const p = this.pathPool?.getFirstItem()
-        console.log('first: ', p)
-        p?.kill()
-        this.subTilePoolInit()
-        // this.turnOnInput()
+
+        this.hideAll()
+        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => {}, this)
         this.levelLoader.restartLevel().then(() => {
             this.currentLevel = this.levelLoader.getCurrentLevel()
-
-            console.log(this.pathPool)
+            this.tilePool?.initialize(this)
+            this.pathPool?.initialize(this)
+            this.starPool?.initialize(this)
+            this.invalid?.initialize(this)
+            this.nope?.initialize(this)
 
             const s = view.getVisibleSize()
 
@@ -136,10 +164,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
 
             this.turnInit()
-
             view.on('canvas-resize', this.resize, this)
             director.on(
-                GAME_EVENTS.COUNTDOWN_COMPLETE,
+                TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE,
                 () => {
                     this.switchTurn(Turn.BOOM)
                 },
@@ -212,7 +239,37 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             t1.getCoordinate().y === t2.getCoordinate().y
         )
     }
+    private hideAll() {
+        const canvas = this.node.scene.getChildByName('Canvas')
+        console.log('hide')
+        if (!canvas) return
 
+        const topNode = canvas.getChildByName('Top')
+        const botNode = canvas.getChildByName('Bot')
+        const combo = find('UImanager/combo', canvas)
+        const good = find('UImanager/good', canvas)
+
+        this.itemManager?.hideAll()
+        if (topNode) topNode.active = false
+        if (botNode) botNode.active = false
+        if (combo) combo.active = false
+        if (good) good.active = false
+    }
+    public showAll() {
+        const canvas = this.node.scene.getChildByName('Canvas')
+        console.log('hide')
+        if (!canvas) return
+
+        const topNode = canvas.getChildByName('Top')
+        const botNode = canvas.getChildByName('Bot')
+        const combo = find('UImanager/combo', canvas)
+        const good = find('UImanager/good', canvas)
+
+        if (topNode) topNode.active = true
+        if (botNode) botNode.active = true
+        if (combo) combo.active = true
+        if (good) good.active = true
+    }
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()
     }
@@ -222,6 +279,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public choose(tile: TileConnect.ITile): void {
         if (tile.getTypeID() == TileType.NONE) return
+        this.emitTouch()
+        this.isFirstTouch++
+        if (this.isFirstTouch == 1) {
+            director.emit(TileConnect.GAME_EVENTS.START_COUNTDOWN)
+        }
+
         console.log(tile.getCoordinate())
         if (!this.firstChosen || !this.sameType(this.firstChosen, tile)) {
             this.firstChosen?.onUnchoose()
@@ -234,13 +297,17 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
                 'second: ',
                 this.secondChosen?.getCoordinate()
             )
+
             return
         }
+
         if (this.isSame(tile, this.firstChosen)) {
             this.firstChosen?.onChoose()
             this.unChoose()
             return
         }
+        this.emitChoose()
+
         this.secondChosen = tile as Tile
         console.log(
             'first: ',
@@ -248,9 +315,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             'second: ',
             this.secondChosen?.getCoordinate()
         )
+
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
         this.unChoose()
 
+
+        this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
+        this.unChoose()
         this.switchTurn(Turn.MATCH)
     }
 
@@ -328,7 +399,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('failed')
         this.levelLoader.restartLevel().then(() => {
-            director.emit(GAME_EVENTS.COUNTDOWN_RESET)
+            director.emit(TileConnect.GAME_EVENTS.COUNTDOWN_RESET)
             this.switchTurn(Turn.LOAD)
         })
     }
@@ -345,9 +416,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public rescue() {
         SoundManager.instance.playSFX(SFX.CLICK)
         this.isgameOver = false
+        this.ispause = false
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.time += 65
+        director.emit(TileConnect.GAME_EVENTS.COUNTDOWN_RESET)
+        director.emit(TileConnect.GAME_EVENTS.START_COUNTDOWN)
+
         this.turnOnInput()
         this.switchTurn(Turn.START)
     }
@@ -389,7 +464,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected onDestroy(): void {
-        director.off(GAME_EVENTS.COUNTDOWN_COMPLETE, () => { }, this)
+
+        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
+    }
+
+    public setActive(active: boolean): void {
+        this.node.active = active
+
     }
 }
 

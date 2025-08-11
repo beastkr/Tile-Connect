@@ -1,5 +1,6 @@
 import {
     _decorator,
+    Animation,
     Color,
     Component,
     Node,
@@ -36,7 +37,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public choosingEffect: Node | null = null
     @property(Node)
     public rotatedChoosingEff: Node | null = null
-
+    @property(Animation)
+    public polishEffect: Animation | null = null
     public underKill: boolean = false
     private selfPromise: Promise<void>[] = []
     originScale: number = 1
@@ -65,17 +67,26 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public getSubtileList() {
         return this.subTileList
     }
+    public playPolish(): void {
+        this.polishEffect!.node.active = true
+        this.polishEffect!.play()
+        this.polishEffect!.once(Animation.EventType.FINISHED, () => {
+            this.polishEffect!.node.active = false
+        })
+    }
     public show() {
         this.node.scale = new Vec3(0, 0, 1)
         tween(this.node)
             .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+            .call(() => this.playPolish())
+
             .start()
     }
     public setTheme(theme: Theme) {
         if (theme == this.theme) return
         this.theme = theme
         const PATH = getTilePath(this.typeID, this.theme)
-        // console.log(PATH)
+        // console.log(PATH)Fre
         const spriteFrame = resources.get(PATH, SpriteFrame)
         // console.log(spriteFrame)
         if (this.itemTypeSprite) this.itemTypeSprite.spriteFrame = spriteFrame

@@ -16,6 +16,7 @@ export class WinTurn extends BaseTurn {
         Promise.all(AnimationHandler.animList).then(() => {
             UImanager.togglePauseButton(false)
             if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
+                console.log('hi')
                 AnimationHandler.fillProgressBar?.updateTillWin()
             }
             const timerNode = find('Canvas/Top/Timer')

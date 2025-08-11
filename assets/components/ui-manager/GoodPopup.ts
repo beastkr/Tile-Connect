@@ -106,7 +106,9 @@ export class Good extends Component {
         this.gud!.active = true
         this.gud!.scale = new Vec3(0, 0, 1)
         tween(this.gud!)
+
             .to(0.3, { scale: new Vec3(0.8, 0.8, 1) }, { easing: 'backOut' })
+
             .call(() => {
                 if (callback) callback()
             })

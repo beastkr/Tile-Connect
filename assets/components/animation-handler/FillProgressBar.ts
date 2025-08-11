@@ -53,9 +53,9 @@ export class FillProgressBar extends Component {
     }
 
     public updateProgressBar() {
-        if (this.mid!.node.scale.x > 9) {
-            return
-        }
+
+        if (this.mid!.node.scale.x > 8) return
+
         if (this.total <= 0 || this.size <= 0) return
         const progress = (2 * 9) / this.total
         if (this.isFirstFill && progress > 0) {
@@ -75,7 +75,8 @@ export class FillProgressBar extends Component {
         return false
     }
     public updateTillWin() {
-        this.updateMidWidth(9 - this.mid!.node.scale.x)
+        this.showLeft()
+        this.updateMidWidth(8 - this.mid!.node.scale.x)
         this.star!.node.active = true
         this.star9!.node.active = true
         this.star1!.node.active = true

@@ -6,7 +6,10 @@ import { BaseTurn } from './BaseTurn'
 
 export class EndTurn extends BaseTurn {
     onEnter(): void {
-        {
+
+        console.log('end')
+        if (this.game.isWin()) {
+
             Promise.all(AnimationHandler.animList).then(() => {
                 if (this.game.isWin()) {
                     this.game.switchTurn(Turn.WIN)

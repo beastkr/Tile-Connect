@@ -29,7 +29,7 @@ class RocketItem extends BaseItem {
     onUse(): void {
         if (this.clicked || this.quantity == 0 || this.locked) return
         super.onUse()
-
+        console.log(this.node.parent)
         const pair = this.getRandomMatchingPair()
         if (!pair) return
 
