@@ -1,5 +1,5 @@
 import { JsonAsset, resources } from 'cc'
-import { Theme } from '../../type/global'
+import { Theme, TileType } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { Level } from './Level'
 import { ShuffleLevel } from './ShuffleLevel'
@@ -69,20 +69,24 @@ export class LevelLoader {
         const grid = this.shuffleLevel.generateMap()
         const layers = this.shuffleLevel.getMapLayer(grid)
         const theme = this.getThemeFromString(levelData.Theme)
-
         if (!this.currentLevel) {
             this.currentLevel = new Level(
-                levelData.GridHeight,
-                levelData.GridWidth,
-                grid,
-                theme,
-                levelData.Time,
-                levelData.Gravity,
-                levelData.Circle,
-                layers
+                5,
+                5,
+                [
+                    [0, 1, 2, 2, 3],
+                    [4, 5, 4, 6, 7],
+                    [3, 2, -1, 2, 6],
+                    [2, 1, -1, -1, 5],
+                    [7, 2, -1, -1, 0],
+                ],
+                Theme.CAKE,
+                1000000,
+                0,
+                false
             )
-            console.log(this.currentLevel)
         } else {
+            if (levelNumber == 1) return true
             this.currentLevel.change(
                 levelData.GridHeight,
                 levelData.GridWidth,

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, ParticleSystem2D, Sprite, SpriteFrame } from 'cc'
+import { _decorator, Component, Node, ParticleSystem2D, resources, Sprite, SpriteFrame } from 'cc'
 import GameManager from '../manager/GameManager'
 import { getComboCount } from '../../type/global'
 const { ccclass, property } = _decorator
@@ -12,9 +12,14 @@ export class Combo extends Component {
     private comboCount = 0
     @property(Sprite)
     private fill: Sprite | null = null
-    private listSprite: { [key: number]: Node } = {}
     @property(Node)
     private bom: Node | null = null
+    @property(Node)
+    private firstNode: Node | null = null
+    @property(Node)
+    private secondNode: Node | null = null
+    @property([SpriteFrame])
+    private listSprite: SpriteFrame[] = []
     private boundOnMatchPair: (() => void) | null = null
 
     start() {
@@ -26,14 +31,6 @@ export class Combo extends Component {
             this.gm.onMatchPair(this.boundOnMatchPair)
         }
         this.node.active = false
-
-        for (let i = 2; i < 10; i++) {
-            const child = this.node.getChildByName(`${i}`)
-            if (child) {
-                this.listSprite[i] = child
-                child.active = false
-            }
-        }
     }
 
     onDestroy() {
@@ -44,7 +41,6 @@ export class Combo extends Component {
 
     update(deltaTime: number) {
         this.currentTime += deltaTime
-
         const progress = Math.min(this.currentTime / this.timer, 1)
         if (this.fill) {
             this.fill.fillRange = 1 - progress
@@ -55,33 +51,43 @@ export class Combo extends Component {
             this.hideAllComboNumbers()
         }
     }
+
     private explode() {
         const particle = this.bom ? this.bom.getComponent(ParticleSystem2D) : null
         if (particle) {
             particle.resetSystem()
         }
     }
+
     private onMatchPair() {
         this.comboCount++
-        if (this.comboCount < 2) return
-        if (this.comboCount > 9) this.comboCount--
+        if (this.comboCount < 2) {
+            return
+        }
+
         this.hideAllComboNumbers()
         this.explode()
-        if (this.listSprite[this.comboCount]) {
-            this.listSprite[this.comboCount].active = true
+
+        if (this.comboCount < 10) {
+            const digit = this.comboCount
+            this.firstNode!.getComponent(Sprite)!.spriteFrame = this.listSprite[digit]
+            this.firstNode!.active = true
+        } else {
+            const firstNum = Math.floor(this.comboCount / 10)
+            const secondNum = this.comboCount % 10
+            this.firstNode!.getComponent(Sprite)!.spriteFrame = this.listSprite[firstNum]
+            this.firstNode!.active = true
+            this.secondNode!.getComponent(Sprite)!.spriteFrame = this.listSprite[secondNum]
+            this.secondNode!.active = true
         }
 
         this.node.active = true
-        console.log('Match pair detected! Combo count:', this.comboCount)
         this.resetCombo()
     }
 
     private hideAllComboNumbers() {
-        for (let i = 2; i < 10; i++) {
-            if (this.listSprite[i]) {
-                this.listSprite[i].active = false
-            }
-        }
+        if (this.firstNode) this.firstNode.active = false
+        if (this.secondNode) this.secondNode.active = false
     }
 
     resetCombo() {

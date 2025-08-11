@@ -5,14 +5,11 @@ import { BaseTurn } from './BaseTurn'
 
 export class MatchTurn extends BaseTurn {
     onEnter(): void {
+        console.log('match')
         this.game.stopHint()
         while (this.game.matchPair.length > 0) this.game.match()
-        // this.game.unChoose()
         Promise.all(AnimationHandler.animTile).then(() => {
             Promise.all(AnimationHandler.animList).then(() => {
-                // LevelLoader.checkNeedToChange('completed')
-                // LevelLoader.changeLevel()
-                // this.game.switchTurn(Turn.LOAD)
                 this.game.switchTurn(Turn.END)
             })
         })

@@ -1,6 +1,8 @@
-import { _decorator, Component, Label } from 'cc'
+import { _decorator, Component, director, Label } from 'cc'
 import { Turn } from '../../type/global'
 import GameManager from '../manager/GameManager'
+import { TileConnect } from '../../type/type'
+import { LevelLoader } from '../level/LevelLoader'
 const { ccclass, property } = _decorator
 
 @ccclass('Timer')
@@ -8,13 +10,22 @@ export class Timer extends Component {
     @property(GameManager)
     gm: GameManager | null = null
     private hasTriggeredTimeUp: boolean = false
+    isrun: boolean = false
 
     start() {
+        this.resetTimer()
+        this.hasTriggeredTimeUp = false
+        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, this.startCountdown, this)
+        director.on(TileConnect.GAME_EVENTS.COUNTDOWN_RESET, this.resetTimer, this)
+    }
+
+    public resetTimer() {
+        this.isrun = false
+        this.hasTriggeredTimeUp = false
         const s = this.node.getComponent(Label)
         if (this.gm && s) {
             s.string = this.convertTime(this.gm.time)
         }
-        this.hasTriggeredTimeUp = false
     }
 
     public convertTime(time: number): string {
@@ -24,8 +35,17 @@ export class Timer extends Component {
         return `${minutes}:${formattedSeconds}`
     }
 
+    public startCountdown() {
+        this.isrun = true
+        const s = this.node.getComponent(Label)
+        console.log(this.gm?.time)
+        if (this.gm && s) {
+            s.string = this.convertTime(this.gm.time)
+        }
+    }
+
     update(deltaTime: number) {
-        if (!this.gm || this.gm.ispause) return
+        if (!this.gm || this.gm.ispause || !this.isrun) return
 
         const s = this.node.getComponent(Label)
         if (this.gm.time > 0 && this.hasTriggeredTimeUp) {
@@ -44,6 +64,7 @@ export class Timer extends Component {
         }
         if (this.gm.time <= 0 && !this.hasTriggeredTimeUp) {
             console.log('Time up!')
+            this.isrun = false
             this.hasTriggeredTimeUp = true
             if (!this.gm.isWin()) this.gm.switchTurn(Turn.FAIL)
             if (s) {
@@ -51,8 +72,14 @@ export class Timer extends Component {
             }
         }
     }
+
     public isWin() {
         if (this.gm?.isWin() && this.gm.time > 0) {
         }
+    }
+
+    onDestroy() {
+        director.off(TileConnect.GAME_EVENTS.START_COUNTDOWN, this.startCountdown, this)
+        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_RESET, this.resetTimer, this)
     }
 }

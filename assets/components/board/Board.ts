@@ -1,4 +1,4 @@
-import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
+import { _decorator, Component, Size, Tween, tween, Vec2, Vec3 } from 'cc'
 import { Theme } from './../../type/global'
 
 import GameConfig from '../../constants/GameConfig'
@@ -14,6 +14,9 @@ import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
+import InvalidPool from '../pool/InvalidPool'
+import NopePool from '../pool/NopePool'
+import { TutorialManager } from '../manager/TutorialManager'
 const { ccclass, property } = _decorator
 
 export interface TilePair {
@@ -27,7 +30,6 @@ export interface TilePair {
 class Board extends Component implements TileConnect.IBoard {
     public board: TileConnect.ITile[][] = []
     shuffling: boolean = false
-    listPair: TilePair[] = []
     game: GameManager | null = null
 
     private matchedPairsCount: number = 0
@@ -43,33 +45,63 @@ class Board extends Component implements TileConnect.IBoard {
             this.drawPath(path.path, this.game?.pathPool!)
             this.putStar(path.path, this.game?.starPool!)
 
-            this.listPair.push({
-                tile: tile1,
-                position: tile1.getCoordinate(),
-                type: tile1.getTypeID(),
-                theme: tile1.getTheme(),
-            })
-            this.listPair.push({
-                tile: tile2,
-                position: tile2.getCoordinate(),
-                type: tile2.getTypeID(),
-                theme: tile2.getTheme(),
-            })
-
             tile1.onDead(this, true, tile2)
             tile2.onDead(this, false, tile1)
             tile1.kill()
             tile2.kill()
 
             this.matchedPairsCount++
-
             this.checkAndRespawnTiles()
         } else {
             ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            if (this.game!.currentNumber() < 2) {
+                let path = this.getInvalidPath(tile1, tile2)
+                if (path.path.length === 0) {
+                    path = this.getPath(tile1, tile2, false)
+                    if (path.path.length === 0) {
+                        path = this.getPath(tile2, tile1, false)
+                    }
+                    TutorialManager.instance?.showObstacle()
+                    const reducePath = this.getTurnPoints(path!.path)
+                    this.drawInvalid(reducePath, this.game?.invalid!)
+                    this.putNope(reducePath, this.game?.nope!)
+                    this.game?.unChoose()
+                    return
+                }
+                const reducePath = this.getTurnPoints(path!.path)
+                this.drawInvalid(reducePath, this.game?.invalid!)
+                this.putNope(reducePath, this.game?.nope!)
+                TutorialManager.instance?.showInvalid()
+
+                console.log(reducePath)
+            }
             this.game?.unChoose()
         }
     }
+    private getTurnPoints(path: Vec2[]): Vec2[] {
+        if (path.length < 2) return path
 
+        const turns = [path[0]]
+
+        for (let i = 1; i < path.length - 1; i++) {
+            const prev = path[i - 1]
+            const curr = path[i]
+            const next = path[i + 1]
+
+            const dx1 = curr.x - prev.x
+            const dy1 = curr.y - prev.y
+            const dx2 = next.x - curr.x
+            const dy2 = next.y - curr.y
+
+            // If direction changes, it's a turn
+            if (dx1 !== dx2 || dy1 !== dy2) {
+                turns.push(curr)
+            }
+        }
+
+        turns.push(path[path.length - 1]) // Always include the end
+        return turns
+    }
     private checkAndRespawnTiles(): void {
         const levelData = LevelLoader.getInstance().getLevelData()
         if (!levelData || levelData.Difficulty < 3) {
@@ -77,11 +109,9 @@ class Board extends Component implements TileConnect.IBoard {
         }
         const shouldRespawn = this.shouldRespawnTiles()
 
-        if (shouldRespawn && this.listPair.length >= 2) {
-            Promise.all(AnimationHandler.animList).then(() => {
-                this.respawnRandomTilePair()
-                this.respawnCount++
-            })
+        if (shouldRespawn) {
+            this.respawnRandomTilePair()
+            this.respawnCount++
         }
     }
 
@@ -106,74 +136,63 @@ class Board extends Component implements TileConnect.IBoard {
     }
 
     private respawnRandomTilePair(): void {
-        if (this.listPair.length < 2) return
+        const availablePositions = this.getAvailableRandomPosInGameArea()
 
-        const availablePairs: number[] = []
-        for (let i = 0; i < this.listPair.length - 1; i += 2) {
-            availablePairs.push(i)
-        }
-
-        if (availablePairs.length === 0) {
-            this.respawnRandomMatchingTiles()
+        if (!availablePositions || availablePositions.length < 2) {
             return
         }
 
-        const randomPairIndex = availablePairs[Math.floor(Math.random() * availablePairs.length)]
-        const idx1 = randomPairIndex
-        const idx2 = randomPairIndex + 1
+        this.shuffleArray(availablePositions)
 
-        this.respawnTileAt(idx1)
-        this.respawnTileAt(idx2)
+        const pos1 = availablePositions[0]
+        const pos2 = availablePositions[1]
+        const randomType = Math.floor(Math.random() * 7) + 1
 
-        this.listPair.splice(idx2, 1)
-        this.listPair.splice(idx1, 1)
+        this.findAndRespawnTileAt(pos1, randomType)
+        this.findAndRespawnTileAt(pos2, randomType)
     }
 
-    private respawnRandomMatchingTiles(): void {
-        const tilesByType: { [key: string]: number[] } = {}
+    private getAvailableRandomPosInGameArea(): Vec2[] {
+        const availablePositions: Vec2[] = []
+        const extra = 1
 
-        this.listPair.forEach((pair, index) => {
-            const typeKey = `${pair.type}_${pair.theme}`
-            if (!tilesByType[typeKey]) {
-                tilesByType[typeKey] = []
+        const level = this.game?.currentLevel
+        if (!level) return availablePositions
+
+        const startY = extra
+        const endY = extra + level.gridHeight
+        const startX = extra
+        const endX = extra + level.gridWidth
+
+        for (let i = startY; i < endY; i++) {
+            for (let j = startX; j < endX; j++) {
+                if (this.board[i][j].getTypeID() === TileType.NONE) {
+                    availablePositions.push(this.board[i][j].getCoordinate())
+                }
             }
-            tilesByType[typeKey].push(index)
-        })
-
-        const availableTypes = Object.keys(tilesByType).filter(
-            (type) => tilesByType[type].length >= 2
-        )
-
-        if (availableTypes.length === 0) return
-
-        const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)]
-        const tilesOfType = tilesByType[selectedType]
-
-        const idx1 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
-        let idx2 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
-
-        while (idx2 === idx1 && tilesOfType.length > 1) {
-            idx2 = tilesOfType[Math.floor(Math.random() * tilesOfType.length)]
         }
 
-        this.respawnTileAt(idx1)
-        this.respawnTileAt(idx2)
-
-        const indicesToRemove = [idx1, idx2].sort((a, b) => b - a)
-        indicesToRemove.forEach((index) => {
-            this.listPair.splice(index, 1)
-        })
+        return availablePositions
     }
 
-    private respawnTileAt(index: number): void {
-        const pairInfo = this.listPair[index]
-        if (!pairInfo) return
+    private shuffleArray<T>(array: T[]): void {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[array[i], array[j]] = [array[j], array[i]]
+        }
+    }
 
-        pairInfo.tile.show()
-        pairInfo.tile.reSpawn()
-        pairInfo.tile.setTypeID(pairInfo.type)
-        pairInfo.tile.setTheme(pairInfo.theme)
-        pairInfo.tile.setCoordinate(pairInfo.position)
+    private findAndRespawnTileAt(position: Vec2, num: number): void {
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[i].length; j++) {
+                if (this.board[i][j].getCoordinate().equals(position)) {
+                    this.board[i][j].reSpawn()
+                    this.board[i][j].setTypeID(num)
+                    this.board[i][j].show()
+                    return
+                }
+            }
+        }
     }
 
     public getMatchedPairsCount(): number {
@@ -197,10 +216,61 @@ class Board extends Component implements TileConnect.IBoard {
         return path.length > 0 && turnNum <= 2
     }
 
-    public getPath(tile1: Tile, tile2: Tile): { path: Vec2[]; turnNum: number } {
+    public getInvalidPath(tile1: Tile, tile2: Tile): { path: Vec2[]; turnNum: number } {
         const start = tile1.getCoordinate()
         const end = tile2.getCoordinate()
+        const height = this.board.length
+        const width = this.board[0].length
 
+        const directions = [new Vec2(-1, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(0, -1)]
+
+        const visited = Array.from({ length: height }, () =>
+            Array.from({ length: width }, () => false)
+        )
+
+        const dfs = (
+            current: Vec2,
+            currentPath: Vec2[],
+            turns: number,
+            lastDir: number
+        ): { path: Vec2[]; turns: number } | null => {
+            if (current.equals(end)) {
+                return { path: [...currentPath, current.clone()], turns }
+            }
+
+            if (turns > 2) return null
+
+            visited[current.y][current.x] = true
+
+            for (let i = 0; i < directions.length; i++) {
+                const next = current.clone().add(directions[i])
+
+                if (!this.validate(next, end) || visited[next.y][next.x]) continue
+
+                const newTurns = i === lastDir || lastDir === -1 ? turns : turns + 1
+
+                const result = dfs(next, [...currentPath, current.clone()], newTurns, i)
+                if (result) {
+                    visited[current.y][current.x] = false
+                    return result
+                }
+            }
+
+            visited[current.y][current.x] = false // Backtrack
+            return null
+        }
+
+        const result = dfs(start, [], 0, -1)
+        return result ? { path: result.path, turnNum: result.turns } : { path: [], turnNum: 0 }
+    }
+
+    public getPath(
+        tile1: Tile,
+        tile2: Tile,
+        validCheck: boolean = true
+    ): { path: Vec2[]; turnNum: number } {
+        const start = tile1.getCoordinate()
+        const end = tile2.getCoordinate()
         const height = this.board.length
         const width = this.board[0].length
 
@@ -232,7 +302,7 @@ class Board extends Component implements TileConnect.IBoard {
         // Khởi tạo từ start
         for (let d = 0; d < 4; d++) {
             const next = start.clone().add(directions[d])
-            if (!this.validate(next, end)) continue
+            if (validCheck && !this.validate(next, end)) continue
 
             visited[next.y][next.x][d] = 0
             open.push({
@@ -288,6 +358,15 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+    public resetInputExcept(tile1: Tile, tile2: Tile) {
+        for (const row of this.board) {
+            for (const tile of row) {
+                tile.clearOnClickCallbacks()
+            }
+        }
+        tile1.addOnClickCallback((tile: TileConnect.ITile) => this.game?.choose(tile))
+        tile2.addOnClickCallback((tile: TileConnect.ITile) => this.game?.choose(tile))
+    }
 
     public getBoardSize() {
         return new Size(
@@ -322,6 +401,8 @@ class Board extends Component implements TileConnect.IBoard {
 
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
+        this.matchedPairsCount = 0
+        this.respawnCount = 0
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
@@ -342,6 +423,9 @@ class Board extends Component implements TileConnect.IBoard {
                     realY >= 0 &&
                     realY < level.gridHeight
                 ) {
+                    if (level.grid[realY][realX] == -1) {
+                        tile?.hide()
+                    }
                     tile?.setTypeID(level.grid[realY][realX])
                     if (tile?.node) {
                         Tween.stopAllByTarget(tile.wholeSprite!)
@@ -445,7 +529,18 @@ class Board extends Component implements TileConnect.IBoard {
             console.log('draw path from', from, 'to', to)
         }
     }
+    public drawInvalid(path: Vec2[], pool: InvalidPool) {
+        for (let i = 0; i < path.length - 1; i++) {
+            const from = path[i]
+            const posFrom = (this.board[from.y][from.x] as Tile).node.getPosition().toVec2()
 
+            const to = path[i + 1]
+            const posTo = (this.board[to.y][to.x] as Tile).node.getPosition().toVec2()
+            const p = pool.getFirstItem()
+            console.log('drew')
+            p?.createPath(posFrom, posTo)
+        }
+    }
     public putStar(path: Vec2[], pool: StarPool) {
         for (let i = 0; i < path.length; i++) {
             const from = path[i]
@@ -455,6 +550,28 @@ class Board extends Component implements TileConnect.IBoard {
                 star?.firstAndLastMatch()
             }
             star?.putAt(pos)
+        }
+    }
+    public putNope(path: Vec2[], pool: NopePool) {
+        if (path.length < 3) {
+            const from = path[0]
+            const end = path[1]
+            const fromPos = (this.board[from.y][from.x] as Tile).node.getPosition()
+            const endPos = (this.board[end.y][end.x] as Tile).node.getPosition()
+            const pos = new Vec3((fromPos.x + endPos.x) / 2, (fromPos.y + endPos.y) / 2, 1)
+            const star = pool.getFirstItem()
+            star?.putAt(pos)
+            return
+        }
+        for (let i = 1; i < path.length - 1; i++) {
+            const from = path[i]
+            const pos = (this.board[from.y][from.x] as Tile).node.getPosition().clone()
+            const star = pool.getFirstItem()
+            if (i < 3) {
+                star?.putX(pos, i)
+            } else {
+                star?.putAt(pos)
+            }
         }
     }
 }

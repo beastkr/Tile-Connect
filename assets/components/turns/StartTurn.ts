@@ -12,8 +12,6 @@ export class StartTurn extends BaseTurn {
             return
         }
         this.game.showItem()
-        // this.game.unChoose()
-        // this.turnOnInput()
     }
 
     onExit(): void {

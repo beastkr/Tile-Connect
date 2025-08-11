@@ -18,6 +18,7 @@ class PathPool extends Component implements TileConnect.IObjectPool<Path> {
             if (node) {
                 console.log('added child')
                 game.node.addChild(node)
+                node.setSiblingIndex(999998)
             }
             this.itemList.push(node?.getComponent(Path) as Path)
         }
@@ -28,6 +29,8 @@ class PathPool extends Component implements TileConnect.IObjectPool<Path> {
         for (const tile of this.itemList)
             if (!tile.isUsed()) {
                 tile.reSpawn()
+                tile.node.setSiblingIndex(999998)
+
                 return tile
             }
         return null

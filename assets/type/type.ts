@@ -11,16 +11,16 @@ export namespace TileConnect {
         addOnClickCallback(callback: (tile: ITile) => void): void
         emitOnClickCallbacks(): void
         clearOnClickCallbacks(): void
-
+        reSpawn(): void
         setTheme(theme: Theme): void
         getTheme(): Theme
 
         getCoordinate(): Vec2
         setCoordinate(newCoordinate: Vec2): void
-
+        playPolish(): void
         getTypeID(): number
         setTypeID(id: number): void
-
+        show(): void
         attachSubType(subTile: ISubTile, key: SubType): void
         detachSubType(key: SubType): void
 
@@ -65,7 +65,13 @@ export namespace TileConnect {
         resetInput(): void
         addSubTile(pool: SubTilePool, level: Level, key: SubType): void
     }
-
+    export const GAME_EVENTS = {
+        START_COUNTDOWN: 'star-countdown',
+        COUNTDOWN_COMPLETE: 'countdown-complete',
+        GAME_OVER: 'game-over',
+        LEVEL_WIN: 'level-win',
+        COUNTDOWN_RESET: 'countdown-reset',
+    }
     export interface ITurn {
         onEnter(): void
         onUpdate(): void
