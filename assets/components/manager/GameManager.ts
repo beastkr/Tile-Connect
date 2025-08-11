@@ -249,8 +249,6 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         if (good) good.active = true
     }
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
-        this.emitChoose()
-
         return t1.getTypeID() === t2.getTypeID()
     }
     public adsPop() {
@@ -286,6 +284,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             this.unChoose()
             return
         }
+        this.emitChoose()
+
         this.secondChosen = tile as Tile
         console.log(
             'first: ',
