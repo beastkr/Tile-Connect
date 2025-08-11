@@ -1,4 +1,4 @@
-import { Direction, SubType } from '../../type/global'
+import { Direction, SubType, Theme } from '../../type/global'
 import { GravityManager } from '../manager/GravityManager'
 
 interface Position {
@@ -281,10 +281,13 @@ export class ShuffleLevel {
         this.layerList.set(SubType.ROCKET, RocketLayer)
         this.layerList.set(SubType.BOOM, BoomLayer)
         this.layerList.set(SubType.GRAVITY, GravityLayer)
-        const ButterflyLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
-            Array(this.gridWidth).fill(1)
-        )
-        this.layerList.set(SubType.BUTTERFLY, ButterflyLayer)
+        if (this.data.theme == Theme.BUTTERFLY) {
+            const ButterflyLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
+                Array(this.gridWidth).fill(1)
+            )
+            this.layerList.set(SubType.BUTTERFLY, ButterflyLayer)
+        }
+
 
         return this.layerList
     }

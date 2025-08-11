@@ -2,7 +2,7 @@ import { _decorator, Node, resources, SceneAsset, Sprite, SpriteFrame, Tween, tw
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
-import { getAllDescendants, getTilePath, Theme } from '../../type/global'
+import { getAllDescendants, getTilePath, Theme, TileType } from '../../type/global'
 import { FillProgressBar } from '../animation-handler/FillProgressBar'
 const { ccclass, property } = _decorator
 
@@ -30,7 +30,7 @@ export class ButterflySubtile extends BaseSubTile {
         this.shadow?.setScale(tile.originScale * 0.6, tile.originScale * 0.6)
     }
     public onDead(board: Board, isMain: boolean, other: BaseSubTile, killByRocket: boolean): void {
-        if (!isMain || killByRocket) return
+        if (!isMain || killByRocket || this.tile!.getTypeID() == TileType.ROCKET) return
         console.log('butter is flying')
         this.setupWing()
         this.wing1?.setPosition(this.tile!.node.position)
