@@ -56,7 +56,7 @@ class SuperRocketItem extends BaseItem {
 
         for (const row of this.game?.board?.board!) {
             for (const tile of row) {
-                ;(tile as Tile).node.setSiblingIndex(1)
+                ; (tile as Tile).node.setSiblingIndex(1)
             }
         }
 
@@ -144,7 +144,7 @@ class SuperRocketItem extends BaseItem {
                                         tileList[i].onDead(
                                             this.game!.board as Board,
                                             i % 2 == 0,
-                                            i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
+                                            i % 2 == 0 ? tileList[i + 1] : tileList[i - 1], true
                                         )
                                         tileList[i].kill()
                                     }

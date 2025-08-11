@@ -154,13 +154,13 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.subTileList.delete(key)
     }
 
-    public onDead(board: Board, isMain: boolean, other: Tile): void {
+    public onDead(board: Board, isMain: boolean, other: Tile, killByRocket: boolean = false): void {
         const otherGrav = other.subTileList.get(SubType.GRAVITY)
-        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!)
+        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!, killByRocket)
         this.detachSubType(SubType.GRAVITY)
         for (const sub of this.subTileList) {
             const otherSub = other.subTileList.get(sub[0])
-            sub[1].onDead(board, isMain, otherSub!)
+            sub[1].onDead(board, isMain, otherSub!, killByRocket)
             this.detachSubType(sub[0])
         }
     }

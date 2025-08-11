@@ -152,7 +152,7 @@ export class RocketSubTile extends BaseSubTile {
                             this.tileBreak?.play()
                             this.tileBreak?.once(Animation.EventType.FINISHED, () => {
                                 this.tileBreak!.node.active = false
-                                selected[0].onDead(board, true, selected[1])
+                                selected[0].onDead(board, true, selected[1], true)
                                 selected[0].kill()
                                 this.node.parent
                                     ?.getComponent(GameManager)!
@@ -202,7 +202,7 @@ export class RocketSubTile extends BaseSubTile {
                             this.tileBreak1?.play()
                             this.tileBreak1?.once(Animation.EventType.FINISHED, () => {
                                 this.tileBreak1!.node.active = false
-                                selected[1].onDead(board, false, selected[0])
+                                selected[1].onDead(board, false, selected[0], true)
                                 selected[1].kill()
                                 this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             })

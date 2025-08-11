@@ -34,7 +34,7 @@ export namespace TileConnect {
 
     /*Base SubTile Interface*/
     export interface ISubTile {
-        onDead(board: Board, isMain: boolean, other: ISubTile): void
+        onDead(board: Board, isMain: boolean, other: ISubTile, killByRocket: boolean): void
         onResolve(): void
         onAttach(tile: ITile): void
         onDetach(): void
