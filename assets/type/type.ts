@@ -34,7 +34,7 @@ export namespace TileConnect {
 
     /*Base SubTile Interface*/
     export interface ISubTile {
-        onDead(board: Board, isMain: boolean, other: ISubTile): void
+        onDead(board: Board, isMain: boolean, other: ISubTile, killByRocket: boolean): void
         onResolve(): void
         onAttach(tile: ITile): void
         onDetach(): void
@@ -59,7 +59,7 @@ export namespace TileConnect {
 
         create(pool: IObjectPool<ITile>, level: Level): void
         match(tile1: ITile, tile2: ITile): void
-        canMatch(tile1: ITile, tile2: ITile): boolean
+        canMatch(tile1: ITile, tile2: ITile, path: Vec2[], turnNum: number): boolean
         getPath(tile1: ITile, tile2: ITile): { path: Vec2[]; turnNum: number }
         setUpManager(game: IGameManager): void
         resetInput(): void

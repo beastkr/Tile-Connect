@@ -1,7 +1,11 @@
-import { Turn } from '../../type/global'
+import { SFX, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { GravityManager } from '../manager/GravityManager'
+
 import { Timer } from '../timer/Timer'
+
+import { SoundManager } from '../manager/SoundManager'
+
 import { BaseTurn } from './BaseTurn'
 import { director } from 'cc'
 import { TileConnect } from '../../type/type'
@@ -16,13 +20,18 @@ export class LoadTurn extends BaseTurn {
         this.game.subtilePool.forEach((element) => {
             element.returnAll()
         })
+        AnimationHandler.animList = []
+        AnimationHandler.fillProgressBar?.resetProgressBar()
+        this.turnOffInput()
         this.game.tilePool?.returnAll()
         this.game.unChoose()
+
         if (this.game.currentNumber() >= 2) {
             this.game.itemManager?.showAll()
             this.game.showAll()
         }
         this.turnOffInput()
+
         GravityManager.setUpManager(this.game.currentLevel)
         this.game.time = this.game.currentLevel.getTime()
 
@@ -30,7 +39,8 @@ export class LoadTurn extends BaseTurn {
 
         this.game.matchPair = []
         this.game.createBoard(this.game.currentLevel)
-        AnimationHandler.fillProgressBar?.resetProgressBar()
+        SoundManager.instance.playSFX(SFX.LEVELSTART)
+
         AnimationHandler.fillProgressBar?.setTotal(this.game.currentLevel.getTileNum())
         AnimationHandler.fillProgressBar?.setLv(this.game.currentNumber())
 
@@ -47,6 +57,7 @@ export class LoadTurn extends BaseTurn {
 
         this.game.switchTurn(Turn.START)
     }
+
 
     onExit(): void {}
 

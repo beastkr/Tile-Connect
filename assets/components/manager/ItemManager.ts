@@ -19,7 +19,7 @@ export class ItemManager extends Component {
     hideExcept(item: Item) {
         // this.bg!.active = false
         for (const i of this.itemList) {
-            if (i[0] != item) i[1].node.active = false
+            if (i[0] != item) i[1].fade(true)
         }
     }
     hideAll() {
@@ -30,7 +30,7 @@ export class ItemManager extends Component {
     showAll() {
         this.bg!.active = true
         for (const i of this.itemList) {
-            i[1].node.active = true
+            i[1].fade(false)
         }
     }
     intialize(game?: GameManager) {
