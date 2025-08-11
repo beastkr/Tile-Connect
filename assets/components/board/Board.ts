@@ -1,5 +1,5 @@
-import { _decorator, Component, Size, Tween, tween, Vec2 } from 'cc'
-import { Theme } from './../../type/global'
+import { _decorator, Component, director, Size, Tween, tween, Vec2 } from 'cc'
+import { SFX, Theme } from './../../type/global'
 
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
@@ -14,6 +14,7 @@ import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
+import { SoundManager } from '../manager/SoundManager'
 const { ccclass, property } = _decorator
 
 export interface TilePair {
@@ -39,8 +40,9 @@ class Board extends Component implements TileConnect.IBoard {
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
         console.log('itemList: ', this.game?.pathPool)
-        if (this.canMatch(tile1, tile2)) {
-            const path = this.getPath(tile1, tile2)
+        const path = this.getPath(tile1, tile2)
+        if (this.canMatch(tile1, tile2, path.path, path.turnNum)) {
+
             this.drawPath(path.path, this.game?.pathPool!)
             this.putStar(path.path, this.game?.starPool!)
 
@@ -70,7 +72,13 @@ class Board extends Component implements TileConnect.IBoard {
                 this.shuffle()
             }
         } else {
-            ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            ; (this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            SoundManager.instance.playSFX(SFX.INVALID_MATCH)
+
+            navigator.vibrate(1000); // vibrate 200ms
+
+
+
             this.game?.unChoose()
         }
     }
@@ -203,10 +211,10 @@ class Board extends Component implements TileConnect.IBoard {
 
                         const tile2 = this.board[y2][x2] as Tile
                         if (!tile2 || tile2.getTypeID() === TileType.NONE) continue
-
+                        const path = this.getPath(tile1, tile2)
                         if (
                             tile1.getTypeID() === tile2.getTypeID() &&
-                            this.canMatch(tile1, tile2)
+                            this.canMatch(tile1, tile2, path.path, path.turnNum)
                         ) {
                             return true
                         }
@@ -222,11 +230,10 @@ class Board extends Component implements TileConnect.IBoard {
         return this.MAX_RESPAWNS_PER_LEVEL - this.respawnCount
     }
 
-    public canMatch(tile1: Tile, tile2: Tile): boolean {
+    public canMatch(tile1: Tile, tile2: Tile, path: Vec2[], turnNum: number): boolean {
         if (tile1.getTypeID() !== tile2.getTypeID()) return false
         if (tile1 === tile2) return false
 
-        const { path, turnNum } = this.getPath(tile1, tile2)
         console.log(path)
         return path.length > 0 && turnNum <= 2
     }
@@ -468,7 +475,7 @@ class Board extends Component implements TileConnect.IBoard {
         // === 5. Shuffle phần còn lại ===
         for (let i = flatten.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
-            ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
+                ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
         }
 
         // === 6. Gán lại tile vào board ===
@@ -508,7 +515,7 @@ class Board extends Component implements TileConnect.IBoard {
         for (const row of this.board) {
             for (const tile of row) {
                 if (tile && tile.getTypeID() !== TileType.NONE) {
-                    ;(tile as Tile).moveToRealPositionWithPadding(
+                    ; (tile as Tile).moveToRealPositionWithPadding(
                         this.game?.currentLevel!,
                         true,
                         0,

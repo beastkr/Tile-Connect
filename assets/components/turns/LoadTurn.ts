@@ -1,6 +1,7 @@
-import { Turn } from '../../type/global'
+import { SFX, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { GravityManager } from '../manager/GravityManager'
+import { SoundManager } from '../manager/SoundManager'
 import { BaseTurn } from './BaseTurn'
 
 export class LoadTurn extends BaseTurn {
@@ -21,6 +22,7 @@ export class LoadTurn extends BaseTurn {
         this.game.time = this.game.currentLevel.getTime()
         this.game.matchPair = []
         this.game.createBoard(this.game.currentLevel)
+        SoundManager.instance.playSFX(SFX.LEVELSTART)
 
         AnimationHandler.fillProgressBar?.setTotal(this.game.currentLevel.getTileNum())
         AnimationHandler.fillProgressBar?.setLv(this.game.currentNumber())
@@ -31,7 +33,7 @@ export class LoadTurn extends BaseTurn {
         this.game.switchTurn(Turn.START)
     }
 
-    onExit(): void {}
+    onExit(): void { }
     private turnOnInput() {
         this.game.board?.setUpManager(this.game)
     }

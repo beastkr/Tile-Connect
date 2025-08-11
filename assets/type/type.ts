@@ -59,7 +59,7 @@ export namespace TileConnect {
 
         create(pool: IObjectPool<ITile>, level: Level): void
         match(tile1: ITile, tile2: ITile): void
-        canMatch(tile1: ITile, tile2: ITile): boolean
+        canMatch(tile1: ITile, tile2: ITile, path: Vec2[], turnNum: number): boolean
         getPath(tile1: ITile, tile2: ITile): { path: Vec2[]; turnNum: number }
         setUpManager(game: IGameManager): void
         resetInput(): void

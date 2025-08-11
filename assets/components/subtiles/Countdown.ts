@@ -1,4 +1,6 @@
 import { _decorator, Animation, Component, director, find, Node, Sprite } from 'cc'
+import { SoundManager } from '../manager/SoundManager'
+import { SFX } from '../../type/global'
 const { ccclass, property } = _decorator
 export const GAME_EVENTS = {
     COUNTDOWN_COMPLETE: 'countdown-complete',
@@ -41,6 +43,7 @@ export class Countdown extends Component {
 
     private onCountdownComplete() {
         this.enabled = false
+        SoundManager.instance.playSFX(SFX.EXPLODE)
         this.playAnimation()
         this.resetCountdown()
         this.node.parent!.active = false

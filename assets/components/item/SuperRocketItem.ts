@@ -11,10 +11,11 @@ import {
     view,
     Widget,
 } from 'cc'
-import { FIREWORK_PATH, Item, ROCKET_PATH, TileType, Turn } from '../../type/global'
+import { FIREWORK_PATH, Item, ROCKET_PATH, SFX, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
+import { SoundManager } from '../manager/SoundManager'
 
 const { ccclass, property } = _decorator
 
@@ -105,7 +106,9 @@ class SuperRocketItem extends BaseItem {
             tween(this.rockets[i])
                 .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 50) })
                 .delay(0.2)
-                .to(0.1 + 0.1 * i, { angle: angle - 25 })
+                .to(0.1 + 0.1 * i, { angle: angle - 25 }).call(() => {
+                    SoundManager.instance.playSFX(SFX.ROCKET_FLY)
+                })
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
                 .delay(0.5)
                 .call(() => {
@@ -123,6 +126,7 @@ class SuperRocketItem extends BaseItem {
                         )
 
                         .call(() => {
+                            SoundManager.instance.playSFX(SFX.EXPLODE)
                             tileList[i].wholeSprite!.active = false
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false

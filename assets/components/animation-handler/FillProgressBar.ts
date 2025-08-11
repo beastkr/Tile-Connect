@@ -1,6 +1,8 @@
-import { _decorator, Component, Label, Node, Sprite, Tween, tween, UITransform, Vec3 } from 'cc'
+import { _decorator, Component, Label, Node, setDefaultLogTimes, Sprite, Tween, tween, UITransform, Vec3 } from 'cc'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import GameManager from '../manager/GameManager'
+import { SoundManager } from '../manager/SoundManager'
+import { SFX } from '../../type/global'
 const { ccclass, property } = _decorator
 
 @ccclass('FillProgressBar')
@@ -97,6 +99,7 @@ export class FillProgressBar extends Component {
     }
 
     private updateMidWidth(progress: number) {
+        SoundManager.instance.playSFX(SFX.PROGRESS)
         tween(this.mid!.node)
             .to(
                 0.3,

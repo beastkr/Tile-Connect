@@ -15,6 +15,6 @@ export class EndTurn extends BaseTurn {
         }
     }
 
-    onExit(): void {}
-    onUpdate(): void {}
+    onExit(): void { }
+    onUpdate(): void { }
 }

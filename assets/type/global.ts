@@ -154,3 +154,21 @@ export function getAllDescendants(node: Node): Node[] {
     traverse(node)
     return result
 }
+
+export enum SFX {
+    CLICK = 'clicks',
+    COLLECT_STAR = 'collect_stars',
+    PROGRESS = 'progress_star',
+    LEVELSTART = 'level_start',
+    COMBO1 = 'combo_1',
+    COMBO2 = 'combo_2',
+    COMBO3 = 'combo_3',
+    COMBO4 = 'combo_4',
+    COMBO5 = 'combo_5',
+    LEVELCOMPLETE = 'level_complete',
+    THREE_STAR = 'three_stars',
+    ROCKET_FLY = 'rocket_fly',
+    EXPLODE = 'bomb_explode_1',
+    INVALID_MATCH = 'invalid_match'
+
+}

@@ -43,6 +43,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
     }
 
     public updateVisual(tg: Node, tweening: boolean = true, duration: number = 0.2) {
+        this.node.setSiblingIndex(2000)
         const target = tg.getChildByName('Path')!
         const sprite = target.getComponent(Sprite)
         const { angle, length } = this.calcDir()

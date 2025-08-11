@@ -3,11 +3,11 @@ const { ccclass } = _decorator
 
 @ccclass('BasePopup')
 export abstract class BasePopup extends Component {
-    public onPopupShow(curr?: number): void {}
+    public onPopupShow(curr?: number): void { }
 
-    public onPopupHide(): void {}
+    public onPopupHide(): void { }
 
-    public onPopupDestroy(): void {}
+    public onPopupDestroy(): void { }
 
-    protected closePopup(): void {}
+    protected closePopup(): void { }
 }

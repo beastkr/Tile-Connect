@@ -1,10 +1,11 @@
 import { _decorator, Animation, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
-import { backInSlowEnd, getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
+import { backInSlowEnd, getTilePositionByLevel, Item, SFX, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
+import { SoundManager } from '../manager/SoundManager'
 const { ccclass, property } = _decorator
 
 @ccclass('RocketSubTile')
@@ -117,6 +118,7 @@ export class RocketSubTile extends BaseSubTile {
             // Tính hướng xoay
             const angle1 = getAngleBetween(start1, pos1)
             const angle2 = getAngleBetween(start2, pos2)
+            SoundManager.instance.playSFX(SFX.ROCKET_FLY)
             AnimationHandler.animTile.push(
                 new Promise<void>((resolve) => {
                     tween(this.rocket1!.node)
@@ -130,6 +132,7 @@ export class RocketSubTile extends BaseSubTile {
                         )
                         .to(0.6, { position: pos1 }, { easing: backInSlowEnd }) // thêm angle vào đây
                         .call(() => {
+                            SoundManager.instance.playSFX(SFX.EXPLODE)
                             selected[0].wholeSprite!.active = false
 
                             this.tileBreak!.node.setScale(

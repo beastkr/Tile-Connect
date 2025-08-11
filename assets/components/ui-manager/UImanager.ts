@@ -1,6 +1,7 @@
-import { _decorator, Component, Node, tween, Vec3, view, Widget } from 'cc'
+import { _decorator, Component, Node, resources, SpringJoint2D, Sprite, SpriteFrame, tween, Vec3, view, Widget } from 'cc'
 import { Popup } from './../../type/global'
 import { BasePopup } from './basePopup'
+import { SoundManager } from '../manager/SoundManager'
 
 const { ccclass, property } = _decorator
 
@@ -20,6 +21,12 @@ export class UImanager extends Component {
     @property(Node)
     pauseButton: Node | null = null
 
+    @property(Node)
+    soundButton: Node | null = null
+    @property(Node)
+    musicButton: Node | null = null
+    @property(Node)
+    vibrateButton: Node | null = null
     start() {
         UImanager.instance = this
         this.cachePopupNodes()
@@ -105,11 +112,15 @@ export class UImanager extends Component {
         const popupComponent = UImanager.instance.popupComponents.get(popupType)
 
         if (popup && popup.active) {
-            UImanager.instance!.overlay!.active = false
-            if (popupComponent) {
-                popupComponent.onPopupHide()
-            }
-            popup.active = false
+
+            tween(popup).delay(0.15)
+                .to(0.3, { scale: new Vec3(0, 0, 1) }, { easing: 'backOut' }).call(() => {
+                    UImanager.instance!.overlay!.active = false
+                    if (popupComponent) {
+                        popupComponent.onPopupHide()
+                    }
+                })
+                .start()
         }
     }
 
@@ -148,5 +159,45 @@ export class UImanager extends Component {
                 component.onPopupDestroy()
             }
         })
+    }
+
+    ToggleSound() {
+        SoundManager.instance.soundOn = !SoundManager.instance.soundOn
+        if (!SoundManager.instance.soundOn) {
+            const PATH = 'AllTiles/sound-off/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.soundButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
+        else {
+            const PATH = 'AllTiles/sound-on/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.soundButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
+    }
+    ToggleMusic() {
+        SoundManager.instance.musicOn = !SoundManager.instance.musicOn
+        if (!SoundManager.instance.musicOn) {
+            const PATH = 'AllTiles/music-off/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.musicButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
+        else {
+            const PATH = 'AllTiles/music-on/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.musicButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
+    }
+    ToggleVibration() {
+        SoundManager.instance.vibrateOn = !SoundManager.instance.vibrateOn
+        if (!SoundManager.instance.vibrateOn) {
+            const PATH = 'AllTiles/vibrate-off/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.vibrateButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
+        else {
+            const PATH = 'AllTiles/vibrate-on/spriteFrame'
+            const spriteFrame = resources.get(PATH, SpriteFrame)
+            this.vibrateButton!.getComponent(Sprite)!.spriteFrame = spriteFrame
+        }
     }
 }

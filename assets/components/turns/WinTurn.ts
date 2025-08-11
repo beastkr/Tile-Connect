@@ -1,15 +1,18 @@
 import { find, tween, Vec3 } from 'cc'
-import { Popup } from '../../type/global'
+import { Popup, SFX } from '../../type/global'
 import StarPool from '../pool/StarPool'
 import { UImanager } from '../ui-manager/UImanager'
 import { BaseTurn } from './BaseTurn'
 
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import { LevelLoader } from '../level/LevelLoader'
+import { SoundManager } from '../manager/SoundManager'
 
 export class WinTurn extends BaseTurn {
     onEnter(): void {
         this.game.isgameOver = true
+
+
         Promise.all(AnimationHandler.animList).then(() => {
             UImanager.togglePauseButton(false)
             if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
@@ -41,6 +44,7 @@ export class WinTurn extends BaseTurn {
                 )
                 .delay(0.2)
                 .call(() => {
+                    SoundManager.instance.playSFX(SFX.LEVELCOMPLETE)
                     UImanager.showPopup(
                         Popup.WINPOPUP,
                         true,
@@ -69,6 +73,8 @@ export class WinTurn extends BaseTurn {
         }
     }
 
-    onExit(): void {}
-    onUpdate(): void {}
+    onExit(): void {
+        SoundManager.instance.stopSFX(SFX.LEVELCOMPLETE)
+    }
+    onUpdate(): void { }
 }

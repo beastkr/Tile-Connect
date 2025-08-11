@@ -1,5 +1,6 @@
 import {
     _decorator,
+    Animation,
     Color,
     Component,
     director,
@@ -12,7 +13,7 @@ import {
     Widget,
 } from 'cc'
 
-import { getAllDescendants, Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
+import { getAllDescendants, Item, SFX, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -38,6 +39,7 @@ import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
 import { ItemManager } from './ItemManager'
+import { SoundManager } from './SoundManager'
 
 const { ccclass, property } = _decorator
 
@@ -161,8 +163,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
         this.board?.board.forEach((tile) => {
             tile.forEach((t) => {
-                ;(t as Tile).reScale(this.currentLevel.scale)
-                ;(t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
+                ; (t as Tile).reScale(this.currentLevel.scale)
+                    ; (t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
             })
         })
     }
@@ -260,7 +262,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public match(): void {
         if (this.matchPair.length > 0) {
-            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2)) {
+            const path = this.board?.getPath(this.matchPair[0].tile1, this.matchPair[0].tile2)
+            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2, path!.path, path!.turnNum)) {
                 this.emitMatchPair()
             }
             this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
@@ -272,7 +275,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         return this.levelLoader.getCurrentLevelNumber()
     }
 
-    public poolInit(): void {}
+    public poolInit(): void { }
 
     public createBoard(level: Level): void {
         this.hintPath = []
@@ -313,6 +316,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public restart() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.ispause = false
         this.isgameOver = false
         const des = getAllDescendants(this.node)
@@ -330,12 +334,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public pause() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.ispause = true
-        const des = getAllDescendants(this.node)
-        for (const d of des) {
-            Tween.pauseAllByTarget(d)
-            d.getComponent(ParticleSystem2D)?.stopSystem()
-        }
 
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
@@ -343,6 +343,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         // this.hideItem()
     }
     public rescue() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.isgameOver = false
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
@@ -352,11 +353,13 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public unPause() {
         this.ispause = false
+        SoundManager.instance.playSFX(SFX.CLICK)
         const des = getAllDescendants(this.node)
         for (const d of des) {
             Tween.resumeAllByTarget(d)
             if (d.getComponent(ParticleSystem2D)) {
                 d.getComponent(ParticleSystem2D)?.resetSystem()
+                // d.getComponent(Animation)?.resume()
             }
         }
         UImanager.hideAllPopups()
@@ -367,6 +370,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public moveOn() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.isgameOver = false
         this.ispause = false
         UImanager.togglePauseButton(true)
@@ -385,7 +389,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected onDestroy(): void {
-        director.off(GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
+        director.off(GAME_EVENTS.COUNTDOWN_COMPLETE, () => { }, this)
     }
 }
 

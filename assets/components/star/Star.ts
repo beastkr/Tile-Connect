@@ -1,7 +1,8 @@
 import { _decorator, Component, Node, ParticleSystem2D, Sprite, Tween, tween, Vec3 } from 'cc'
-import { backInSlowEnd } from '../../type/global'
+import { backInSlowEnd, SFX } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
+import { SoundManager } from '../manager/SoundManager'
 const { ccclass, property } = _decorator
 
 @ccclass('Star')
@@ -47,11 +48,13 @@ export class Star extends Component implements TileConnect.IPoolObject {
                     })
                     .delay(0.1)
                     .call(() => {
+                        // SoundManager.instance.playSFX(SFX.COLLECT_STAR)
                         this.explode()
                     })
                     .delay(0.5)
                     .call(() => {
                         this.kill()
+
                         resolve()
                     })
                     .start()
@@ -163,6 +166,7 @@ export class Star extends Component implements TileConnect.IPoolObject {
                         }
                     )
                     .call(() => {
+                        SoundManager.instance.playSFX(SFX.COLLECT_STAR)
                         this.kill()
                         resolve()
                     })

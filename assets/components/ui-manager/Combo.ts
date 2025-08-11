@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, ParticleSystem2D, Sprite, SpriteFrame } from 'cc'
 import GameManager from '../manager/GameManager'
-import { getComboCount } from '../../type/global'
+import { getComboCount, SFX } from '../../type/global'
+import { SoundManager } from '../manager/SoundManager'
 const { ccclass, property } = _decorator
 
 @ccclass('Combo')
@@ -63,6 +64,8 @@ export class Combo extends Component {
     }
     private onMatchPair() {
         this.comboCount++
+        const c = 'combo_' + String(this.comboCount > 5 ? 5 : this.comboCount)
+        SoundManager.instance.playSFX(c)
         if (this.comboCount < 2) return
         if (this.comboCount > 9) this.comboCount--
         this.hideAllComboNumbers()

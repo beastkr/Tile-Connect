@@ -7,6 +7,7 @@ export class AssetLoader extends Component {
     protected __preload(): void {
         console.log('preloading')
         if (!this.progressBar) throw new Error('ProgressBar is required')
+        resources.loadDir('sfx')
         director.preloadScene('Prototype')
         // resources.preloadDir('sprite')
 
