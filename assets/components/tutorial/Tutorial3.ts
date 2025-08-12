@@ -11,8 +11,8 @@ export class Level3Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
-    private originalUseHint: () => void = () => { }
-
+    private originalUseHint: () => void = () => {}
+    private originalUseShuffle: () => void = () => {}
     begin(board: Board, gm: GameManager) {
         this.gm = gm
         this.currentBoard = board
@@ -75,13 +75,13 @@ export class Level3Tutorial extends BaseTutorial {
     }
 
     private listenForShuffleUsage() {
-        const originalUseShuffle = this.gm!.itemManager?.useShuffle.bind(this.gm!.itemManager)
+        this.originalUseShuffle = this.gm!.itemManager?.useShuffle.bind(this.gm!.itemManager)!
 
         if (this.gm!.itemManager) {
             this.gm!.itemManager.useShuffle = () => {
                 if (this.currentPhase === 2 && !this.shuffleUsed) {
                     this.shuffleUsed = true
-                    originalUseShuffle?.()
+                    this.originalUseShuffle?.()
                     setTimeout(() => {
                         this.end()
                     }, 500)
@@ -106,7 +106,7 @@ export class Level3Tutorial extends BaseTutorial {
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
             this.gm.itemManager.useHint = this.originalUseHint
-            this.gm.itemManager.useShuffle = this.gm.itemManager.useShuffle
+            this.gm.itemManager.useShuffle = this.originalUseShuffle
         }
     }
 
