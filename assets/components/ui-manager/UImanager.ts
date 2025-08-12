@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, resources, SpringJoint2D, Sprite, SpriteFrame, tween, Vec3, view, Widget } from 'cc'
+import { _decorator, Component, game, Node, resources, SpringJoint2D, Sprite, SpriteFrame, tween, Vec3, view, Widget } from 'cc'
 import { Popup } from './../../type/global'
 import { BasePopup } from './basePopup'
 import { SoundManager } from '../manager/SoundManager'
+import { LevelLoader } from '../level/LevelLoader'
 
 const { ccclass, property } = _decorator
 
@@ -48,7 +49,7 @@ export class UImanager extends Component {
             barWidget.isAlignVerticalCenter = true
             barWidget.verticalCenter = 10
         } else {
-            this.bot!.active = true
+            if (LevelLoader.getInstance().getCurrentLevelNumber() != 1) this.bot!.active = true
             this.bot?.addChild(this.itembar!)
             barWidget!.target = this.bot
             barWidget.isAlignHorizontalCenter = true

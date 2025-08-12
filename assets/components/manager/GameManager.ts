@@ -141,17 +141,18 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected start(): void {
-
+        this.tilePool?.initialize(this)
+        this.pathPool?.initialize(this)
+        this.starPool?.initialize(this)
+        this.invalid?.initialize(this)
+        this.nope?.initialize(this)
+        this.subTilePoolInit()
         this.hideAll()
-        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => {}, this)
+        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => { }, this)
         this.levelLoader.restartLevel().then(() => {
             this.currentLevel = this.levelLoader.getCurrentLevel()
-            this.tilePool?.initialize(this)
-            this.pathPool?.initialize(this)
-            this.starPool?.initialize(this)
-            this.invalid?.initialize(this)
-            this.nope?.initialize(this)
 
+            console.log(this.pathPool)
             const s = view.getVisibleSize()
 
             if (s.height >= s.width) {
@@ -320,8 +321,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.unChoose()
 
 
-        this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
-        this.unChoose()
+
         this.switchTurn(Turn.MATCH)
     }
 
@@ -333,7 +333,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public match(): void {
         if (this.matchPair.length > 0) {
+            console.log(this.matchPair[0])
             const path = this.board?.getPath(this.matchPair[0].tile1, this.matchPair[0].tile2)
+
             if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2, path!.path, path!.turnNum)) {
                 this.emitMatchPair()
             }
@@ -465,7 +467,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     protected onDestroy(): void {
 
-        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
+        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => { }, this)
     }
 
     public setActive(active: boolean): void {

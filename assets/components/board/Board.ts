@@ -1,5 +1,5 @@
 
-import { _decorator, Component, director, Size, Tween, tween, Vec2 } from 'cc'
+import { _decorator, Component, director, Size, Tween, tween, Vec2, Vec3 } from 'cc'
 import { SFX, Theme } from './../../type/global'
 
 
@@ -65,7 +65,7 @@ class Board extends Component implements TileConnect.IBoard {
                 this.shuffle()
             }
         } else {
-            ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            ; (this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
             if (this.game!.currentNumber() < 2) {
                 let path = this.getInvalidPath(tile1, tile2)
                 if (path.path.length === 0) {
@@ -78,6 +78,7 @@ class Board extends Component implements TileConnect.IBoard {
                     this.drawInvalid(reducePath, this.game?.invalid!)
                     this.putNope(reducePath, this.game?.nope!)
                     this.game?.unChoose()
+                    SoundManager.instance.playSFX(SFX.INVALID_MATCH)
                     return
                 }
                 const reducePath = this.getTurnPoints(path!.path)
@@ -199,7 +200,7 @@ class Board extends Component implements TileConnect.IBoard {
     private shuffleArray<T>(array: T[]): void {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
-            ;[array[i], array[j]] = [array[j], array[i]]
+                ;[array[i], array[j]] = [array[j], array[i]]
         }
     }
 
@@ -451,8 +452,6 @@ class Board extends Component implements TileConnect.IBoard {
 
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
-        this.matchedPairsCount = 0
-        this.respawnCount = 0
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
@@ -473,10 +472,8 @@ class Board extends Component implements TileConnect.IBoard {
                     realY >= 0 &&
                     realY < level.gridHeight
                 ) {
-                    if (level.grid[realY][realX] == -1) {
-                        tile?.hide()
-                    }
                     tile?.setTypeID(level.grid[realY][realX])
+                    if (tile?.getTypeID() == TileType.NONE) tile.hide()
                     if (tile?.node) {
                         Tween.stopAllByTarget(tile.wholeSprite!)
                     }
@@ -497,6 +494,7 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
     }
+
 
     public shuffle() {
         console.log('shuffle')
