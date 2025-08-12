@@ -11,8 +11,8 @@ export class Level6Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
-    private originalUseHint: () => void = () => { }
-    private originalUseShuffle: () => void = () => { }
+    private originalUseBoom: () => void = () => {}
+    private originalUseRocket: () => void = () => {}
 
     begin(board: Board, gm: GameManager) {
         this.gm = gm
@@ -27,8 +27,8 @@ export class Level6Tutorial extends BaseTutorial {
         this.startPhase1()
         this.gm.turnOffInput()
 
-        this.listenForHintUsage()
-        this.listenForShuffleUsage()
+        this.listenForBoomUsage()
+        this.listenForRocketUsage()
     }
 
     private startPhase1() {
@@ -45,48 +45,42 @@ export class Level6Tutorial extends BaseTutorial {
         this.gm!.itemManager?.showItem(Item.ROCKET)
     }
 
-    private listenForHintUsage() {
-        this.originalUseHint = this.gm!.itemManager?.useBoom.bind(this.gm!.itemManager)!
-        console.log(this.originalUseHint)
+    private listenForBoomUsage() {
+        this.originalUseBoom = this.gm!.itemManager?.useBoom.bind(this.gm!.itemManager)!
 
         if (this.gm!.itemManager) {
-
             this.gm!.itemManager.useBoom = () => {
-                console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
                 if (this.currentPhase === 1 && !this.hintUsed) {
-
                     this.hintUsed = true
-                    this.originalUseHint()
+                    this.originalUseBoom()
                     this.hideOverlay()
                     this.hidePanel()
                     this.setupOverlay()
-                    this.startPhase2()
+                    this.scheduleOnce(() => {
+                        this.startPhase2()
+                    }, 1)
                 }
             }
             console.log(this.gm!.itemManager.useBoom)
         }
     }
 
-
-    private listenForShuffleUsage() {
-        this.originalUseShuffle = this.gm!.itemManager?.useRocket.bind(this.gm!.itemManager)!
+    private listenForRocketUsage() {
+        this.originalUseRocket = this.gm!.itemManager?.useRocket.bind(this.gm!.itemManager)!
 
         if (this.gm!.itemManager) {
             this.gm!.itemManager.useRocket = () => {
                 if (this.currentPhase === 2 && !this.shuffleUsed) {
                     this.shuffleUsed = true
 
-                    this.originalUseShuffle()
+                    this.originalUseRocket()
                     this.end()
-
-
                 }
             }
         }
     }
 
     end() {
-        // console.log('ending')
         this.gm?.itemManager?.showAll()
         this.gm!.board?.resetInput()
         this.gm?.turnOnInput()
@@ -98,8 +92,8 @@ export class Level6Tutorial extends BaseTutorial {
 
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
-            this.gm.itemManager.useBoom = this.originalUseHint
-            this.gm.itemManager.useShuffle = this.originalUseShuffle
+            this.gm.itemManager.useBoom = this.originalUseBoom
+            this.gm.itemManager.useRocket = this.originalUseRocket
         }
     }
 
