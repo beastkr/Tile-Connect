@@ -45,6 +45,7 @@ import NopePool from '../pool/NopePool'
 import { TutorialManager } from './TutorialManager'
 
 import { SoundManager } from './SoundManager'
+import { ConfettiManager } from '../confetti/ConfettiManager'
 
 
 const { ccclass, property } = _decorator
@@ -52,6 +53,7 @@ const { ccclass, property } = _decorator
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     private levelLoader: LevelLoader = LevelLoader.getInstance()
+
     currentLevel!: Level
     time: number = 0
     isFirstTouch: number = 0
@@ -79,6 +81,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public invalid: InvalidPool | null = null
     @property(NopePool)
     public nope: NopePool | null = null
+
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
     hintPath: Path[] = []
@@ -86,6 +89,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     hintTile: Tile[] = []
     isgameOver: boolean = false
+    @property(ConfettiManager)
+    conf: ConfettiManager[] = []
 
     public onMatchPair(callback: () => void) {
         this.eventTarget.addEventListener('matchPair', callback)

@@ -13,6 +13,7 @@ export class WinTurn extends BaseTurn {
         this.game.isgameOver = true
 
 
+
         Promise.all(AnimationHandler.animList).then(() => {
             UImanager.togglePauseButton(false)
             if (AnimationHandler.fillProgressBar?.isLastStar() == false) {
@@ -45,6 +46,9 @@ export class WinTurn extends BaseTurn {
                 )
                 .delay(0.2)
                 .call(() => {
+                    this.game.conf.forEach(element => {
+                        element.emit()
+                    });
                     SoundManager.instance.playSFX(SFX.LEVELCOMPLETE)
                     UImanager.showPopup(
                         Popup.WINPOPUP,
