@@ -39,7 +39,11 @@ export namespace TileConnect {
         onAttach(tile: ITile): void
         onDetach(): void
     }
-
+    export interface PhaseConfig {
+        tiles: [number, number][]
+        helpText: string
+        showHelpAfterClick?: boolean
+    }
     export interface ILevelData {
         GridHeight: number
         GridWidth: number
@@ -72,12 +76,17 @@ export namespace TileConnect {
         LEVEL_WIN: 'level-win',
         COUNTDOWN_RESET: 'countdown-reset',
     }
+
     export interface ITurn {
         onEnter(): void
         onUpdate(): void
         onExit(): void
     }
-
+    export interface ITutorial {
+        onEnter(): void
+        onUpdate(): void
+        onExit(): void
+    }
     /*Object Pool*/
     export interface IPoolObject {
         isUsed(): boolean

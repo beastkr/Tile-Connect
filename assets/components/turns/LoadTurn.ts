@@ -26,8 +26,12 @@ export class LoadTurn extends BaseTurn {
         this.game.tilePool?.returnAll()
         this.game.unChoose()
 
+        if (this.game.currentNumber() < 2) {
+            this.game.hideBot()
+            this.game.itemManager?.hideAll()
+        }
+
         if (this.game.currentNumber() >= 2) {
-            this.game.itemManager?.showAll()
             this.game.showAll()
         }
         this.turnOffInput()
@@ -45,14 +49,12 @@ export class LoadTurn extends BaseTurn {
         AnimationHandler.fillProgressBar?.setLv(this.game.currentNumber())
 
         this.turnOnInput()
-        if (this.game.currentNumber() <= 2) {
-            if (this.game.board) {
-                TutorialManager.showCurrentTutorial(
-                    this.game.currentNumber(),
-                    this.game.board as Board,
-                    this.game
-                )
-            }
+        if (this.game.board) {
+            TutorialManager.showCurrentTutorial(
+                this.game.currentNumber(),
+                this.game.board as Board,
+                this.game
+            )
         }
 
         this.game.switchTurn(Turn.START)
