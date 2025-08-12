@@ -8,7 +8,7 @@ export class LevelLoader {
     private static instance: LevelLoader | null = null
     private currentLevel: Level | null = null
 
-    private current: number = 1
+    private current: number = 7
 
     private needToChange: boolean = false
     private data: TileConnect.ILevelData | null = null

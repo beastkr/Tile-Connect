@@ -1,7 +1,17 @@
-import { _decorator, Component, Node, ParticleSystem2D, resources, Sprite, SpriteFrame } from 'cc'
+import {
+    _decorator,
+    Component,
+    director,
+    Node,
+    ParticleSystem2D,
+    resources,
+    Sprite,
+    SpriteFrame,
+} from 'cc'
 import GameManager from '../manager/GameManager'
 import { getComboCount, SFX } from '../../type/global'
 import { SoundManager } from '../manager/SoundManager'
+import { TileConnect } from '../../type/type'
 const { ccclass, property } = _decorator
 
 @ccclass('Combo')
@@ -32,6 +42,7 @@ export class Combo extends Component {
             this.gm.onMatchPair(this.boundOnMatchPair)
         }
         this.node.active = false
+        director.on(TileConnect.GAME_EVENTS.COUNTDOWN_RESET, this.resetCombo, this)
     }
 
     onDestroy() {
@@ -67,11 +78,8 @@ export class Combo extends Component {
             return
         }
 
-
         const c = 'combo_' + String(this.comboCount > 5 ? 5 : this.comboCount)
         SoundManager.instance.playSFX(c)
-
-
 
         this.hideAllComboNumbers()
         this.explode()
@@ -90,7 +98,7 @@ export class Combo extends Component {
         }
 
         this.node.active = true
-        this.resetCombo()
+        //    this.resetCombo()
     }
 
     private hideAllComboNumbers() {
@@ -99,6 +107,8 @@ export class Combo extends Component {
     }
 
     resetCombo() {
+        this.comboCount = 0
+        this.node.active = false
         this.currentTime = 0
         if (this.fill) {
             this.fill.fillRange = 1

@@ -1,5 +1,17 @@
-import { _decorator, Color, Component, Node, Sprite, SpriteFrame, Tween, tween, Vec3 } from 'cc'
+import {
+    _decorator,
+    Color,
+    Component,
+    director,
+    Node,
+    Sprite,
+    SpriteFrame,
+    Tween,
+    tween,
+    Vec3,
+} from 'cc'
 import GameManager from '../manager/GameManager'
+import { TileConnect } from '../../type/type'
 const { ccclass, property } = _decorator
 
 @ccclass('Good')
@@ -27,6 +39,7 @@ export class Good extends Component {
         }
         this.node.active = false
         this.origin = this.node.position.clone()
+        director.on(TileConnect.GAME_EVENTS.COUNTDOWN_RESET, this.resetCombo1, this)
     }
 
     onDestroy() {
@@ -106,7 +119,6 @@ export class Good extends Component {
         this.gud!.active = true
         this.gud!.scale = new Vec3(0, 0, 1)
         tween(this.gud!)
-
             .to(0.3, { scale: new Vec3(0.8, 0.8, 1) }, { easing: 'backOut' })
 
             .call(() => {
@@ -143,6 +155,10 @@ export class Good extends Component {
     }
 
     private resetCombo() {
+        this.currentTime = 0
+    }
+    private resetCombo1() {
+        this.comboCount = 0
         this.currentTime = 0
     }
 }
