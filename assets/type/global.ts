@@ -39,6 +39,8 @@ export enum Popup {
     PAUSEPOPUP = 'pausePopup',
     ADSPOPUP = 'adsPopup',
     CONTINUE = 'continuePopup',
+    ROCKETTUTORIAL = 'rocketTutorial',
+    BOOMTUTORIAL = 'Bomtuto',
 }
 
 export enum Theme {
