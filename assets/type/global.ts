@@ -1,4 +1,4 @@
-import { Vec2, Vec3, view } from 'cc'
+import { easing, Node, Vec2, Vec3, view } from 'cc'
 import { Level } from '../components/level/Level'
 import GameConfig from '../constants/GameConfig'
 
@@ -129,3 +129,45 @@ export enum Item {
     SUPERROCKET = 'SuperRocketItem',
 }
 export const ROCKET_PATH = 'sprite/prop_rocket/spriteFrame'
+
+// Usage in tween
+export function backInSlowEnd(t: number) {
+    if (t < 0.5) {
+        // First 50% of time → backIn acceleration
+        return easing.backIn(t * 2) / 2
+    } else {
+        // Second 50% of time → slow down to the end
+        return 0.5 + easing.cubicOut((t - 0.5) * 2) / 2
+    }
+}
+export function getAllDescendants(node: Node): Node[] {
+    const result: Node[] = []
+
+    function traverse(current: Node) {
+        for (const child of current.children) {
+            result.push(child)
+            traverse(child) // recursively collect child's children
+        }
+    }
+
+    traverse(node)
+    return result
+}
+
+export enum SFX {
+    CLICK = 'clicks',
+    COLLECT_STAR = 'collect_stars',
+    PROGRESS = 'progress_star',
+    LEVELSTART = 'level_start',
+    COMBO1 = 'combo_1',
+    COMBO2 = 'combo_2',
+    COMBO3 = 'combo_3',
+    COMBO4 = 'combo_4',
+    COMBO5 = 'combo_5',
+    LEVELCOMPLETE = 'level_complete',
+    THREE_STAR = 'three_stars',
+    ROCKET_FLY = 'rocket_fly',
+    EXPLODE = 'bomb_explode_1',
+    INVALID_MATCH = 'invalid_match'
+
+}

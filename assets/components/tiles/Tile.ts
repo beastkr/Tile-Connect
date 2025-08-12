@@ -30,6 +30,8 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private backGroundSpite: Sprite | null = null
     @property(Node)
     public wholeSprite: Node | null = null
+    @property(Node)
+    hintGlow: Node | null = null
 
     @property(Node)
     public choosingEffect: Node | null = null
@@ -46,6 +48,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private coordinate: Vec2 = new Vec2()
     private typeID: TileType = TileType.NONE
     private hintAnimation: Tween<Node> | null = null
+    private hintglow: Tween<Node> | null = null
 
     private subTileList: Map<SubType, TileConnect.ISubTile> = new Map<
         SubType,
@@ -131,7 +134,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public kill(): void {
         // Tween.stopAllByTarget(this.wholeSprite!)
-        // this.node.setPosition(-10000, -10000)
+
         this.wholeSprite!.scale = new Vec3(this.originScale, this.originScale)
         this.wholeSprite!.angle = 0
         this.underKill = false
@@ -165,13 +168,13 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.subTileList.delete(key)
     }
 
-    public onDead(board: Board, isMain: boolean, other: Tile): void {
+    public onDead(board: Board, isMain: boolean, other: Tile, killByRocket: boolean = false): void {
         const otherGrav = other.subTileList.get(SubType.GRAVITY)
-        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!)
+        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!, killByRocket)
         this.detachSubType(SubType.GRAVITY)
         for (const sub of this.subTileList) {
             const otherSub = other.subTileList.get(sub[0])
-            sub[1].onDead(board, isMain, otherSub!)
+            sub[1].onDead(board, isMain, otherSub!, killByRocket)
             this.detachSubType(sub[0])
         }
     }
@@ -181,6 +184,16 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         // console.log('moved to: ', pos)
     }
     public onHint() {
+        this.hintGlow!.active = true
+        if (!this.hintglow)
+            this.hintglow = tween(this.hintGlow!)
+                .repeatForever(
+                    tween()
+                        .to(3, {
+                            angle: 360
+                        }).call(() => { this.hintGlow!.angle = 0 })
+                )
+                .start()
         if (!this.hintAnimation)
             this.hintAnimation = tween(this.wholeSprite!)
                 .repeatForever(
@@ -197,11 +210,16 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
                         })
                 )
                 .start()
-        else this.hintAnimation.start()
+        else {
+            this.hintAnimation.start()
+            this.hintglow.start()
+        }
     }
     public onUnHint() {
         if (!this.wholeSprite) return
         this.hintAnimation?.stop()
+        this.hintglow?.stop()
+        this.hintGlow!.active = false
         this.wholeSprite.angle = 0
         tween(this.wholeSprite!)
             .to(

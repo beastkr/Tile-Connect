@@ -12,7 +12,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     private tilePrefab: Prefab | null = null
     @property(Number)
     private size: number = 0
-    private itemList: Tile[] = []
+    public itemList: Tile[] = []
     shaking: boolean = false
 
     public initialize(game: GameManager) {
@@ -64,6 +64,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     }
     public returnMultiple(objects: Tile[]): void {
         for (const tile of objects) {
+            tile.node.setPosition(-10000, -10000)
             tile.kill()
             tile.detachAll()
         }

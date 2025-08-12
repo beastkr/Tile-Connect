@@ -1,5 +1,7 @@
-import { _decorator, Component, Size, Tween, tween, Vec2, Vec3 } from 'cc'
-import { Theme } from './../../type/global'
+
+import { _decorator, Component, director, Size, Tween, tween, Vec2, Vec3 } from 'cc'
+import { SFX, Theme } from './../../type/global'
+
 
 import GameConfig from '../../constants/GameConfig'
 import { SubType, TileType } from '../../type/global'
@@ -14,9 +16,13 @@ import TilePool from '../pool/TilePool'
 import { BaseSubTile } from '../subtiles/BaseSubTile'
 import SubTilePool from '../subtiles/SubTilePool'
 import Tile from '../tiles/Tile'
+
 import InvalidPool from '../pool/InvalidPool'
 import NopePool from '../pool/NopePool'
 import { TutorialManager } from '../manager/TutorialManager'
+
+import { SoundManager } from '../manager/SoundManager'
+
 const { ccclass, property } = _decorator
 
 export interface TilePair {
@@ -40,8 +46,10 @@ class Board extends Component implements TileConnect.IBoard {
 
     public match(tile1: Tile, tile2: Tile): void {
         if (tile1.underKill || tile2.underKill) return
-        if (this.canMatch(tile1, tile2)) {
-            const path = this.getPath(tile1, tile2)
+        console.log('itemList: ', this.game?.pathPool)
+        const path = this.getPath(tile1, tile2)
+        if (this.canMatch(tile1, tile2, path.path, path.turnNum)) {
+
             this.drawPath(path.path, this.game?.pathPool!)
             this.putStar(path.path, this.game?.starPool!)
 
@@ -52,8 +60,12 @@ class Board extends Component implements TileConnect.IBoard {
 
             this.matchedPairsCount++
             this.checkAndRespawnTiles()
+            if (!this.hasAnyValidPair()) {
+                console.log('No valid pairs left — shuffling board')
+                this.shuffle()
+            }
         } else {
-            ;(this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            ; (this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
             if (this.game!.currentNumber() < 2) {
                 let path = this.getInvalidPath(tile1, tile2)
                 if (path.path.length === 0) {
@@ -66,6 +78,7 @@ class Board extends Component implements TileConnect.IBoard {
                     this.drawInvalid(reducePath, this.game?.invalid!)
                     this.putNope(reducePath, this.game?.nope!)
                     this.game?.unChoose()
+                    SoundManager.instance.playSFX(SFX.INVALID_MATCH)
                     return
                 }
                 const reducePath = this.getTurnPoints(path!.path)
@@ -75,6 +88,15 @@ class Board extends Component implements TileConnect.IBoard {
 
                 console.log(reducePath)
             }
+
+            ; (this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
+            SoundManager.instance.playSFX(SFX.INVALID_MATCH)
+
+            navigator.vibrate(1000); // vibrate 200ms
+
+
+
+
             this.game?.unChoose()
         }
     }
@@ -178,7 +200,7 @@ class Board extends Component implements TileConnect.IBoard {
     private shuffleArray<T>(array: T[]): void {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
-            ;[array[i], array[j]] = [array[j], array[i]]
+                ;[array[i], array[j]] = [array[j], array[i]]
         }
     }
 
@@ -202,16 +224,44 @@ class Board extends Component implements TileConnect.IBoard {
     public getRespawnCount(): number {
         return this.respawnCount
     }
+    private hasAnyValidPair(): boolean {
+        const height = this.board.length
+        const width = this.board[0].length
+
+        for (let y1 = 0; y1 < height; y1++) {
+            for (let x1 = 0; x1 < width; x1++) {
+                const tile1 = this.board[y1][x1] as Tile
+                if (!tile1 || tile1.getTypeID() === TileType.NONE) continue
+
+                for (let y2 = 0; y2 < height; y2++) {
+                    for (let x2 = 0; x2 < width; x2++) {
+                        if (x1 === x2 && y1 === y2) continue
+
+                        const tile2 = this.board[y2][x2] as Tile
+                        if (!tile2 || tile2.getTypeID() === TileType.NONE) continue
+                        const path = this.getPath(tile1, tile2)
+                        if (
+                            tile1.getTypeID() === tile2.getTypeID() &&
+                            this.canMatch(tile1, tile2, path.path, path.turnNum)
+                        ) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+
+        return false
+    }
 
     public getRemainingRespawns(): number {
         return this.MAX_RESPAWNS_PER_LEVEL - this.respawnCount
     }
 
-    public canMatch(tile1: Tile, tile2: Tile): boolean {
+    public canMatch(tile1: Tile, tile2: Tile, path: Vec2[], turnNum: number): boolean {
         if (tile1.getTypeID() !== tile2.getTypeID()) return false
         if (tile1 === tile2) return false
 
-        const { path, turnNum } = this.getPath(tile1, tile2)
         console.log(path)
         return path.length > 0 && turnNum <= 2
     }
@@ -391,7 +441,8 @@ class Board extends Component implements TileConnect.IBoard {
         this.game = game as GameManager
         for (const row of this.board) {
             for (const tile of row)
-                tile.addOnClickCallback((tile: TileConnect.ITile) => game.choose(tile))
+                if ((tile as Tile).onClickCallbacks.length == 0)
+                    tile.addOnClickCallback((tile: TileConnect.ITile) => game.choose(tile))
         }
     }
 
@@ -401,8 +452,6 @@ class Board extends Component implements TileConnect.IBoard {
 
     public create(pool: TilePool, level: Level): void {
         pool.returnAll()
-        this.matchedPairsCount = 0
-        this.respawnCount = 0
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
@@ -423,10 +472,8 @@ class Board extends Component implements TileConnect.IBoard {
                     realY >= 0 &&
                     realY < level.gridHeight
                 ) {
-                    if (level.grid[realY][realX] == -1) {
-                        tile?.hide()
-                    }
                     tile?.setTypeID(level.grid[realY][realX])
+                    if (tile?.getTypeID() == TileType.NONE) tile.hide()
                     if (tile?.node) {
                         Tween.stopAllByTarget(tile.wholeSprite!)
                     }
@@ -448,14 +495,16 @@ class Board extends Component implements TileConnect.IBoard {
         }
     }
 
+
     public shuffle() {
         console.log('shuffle')
         if (this.shuffling) return
+
         this.shuffling = true
-        const flatten: Tile[] = []
         this.game?.stopHint()
 
-        // Collect all non-NONE tiles into flatten array
+        // === 1. Gom tất cả các tile không phải NONE vào mảng flatten ===
+        const flatten: Tile[] = []
         for (const row of this.board) {
             for (const tile of row) {
                 if (tile.getTypeID() !== TileType.NONE) {
@@ -464,35 +513,110 @@ class Board extends Component implements TileConnect.IBoard {
             }
         }
 
-        // Fisher–Yates shuffle
-        for (let i = flatten.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1))
-            ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
+        // === 2. Gom nhóm tile theo loại để chọn 2 tile cùng loại ===
+        const typeGroups: Record<number, Tile[]> = {}
+        for (const tile of flatten) {
+            const type = tile.getTypeID()
+            if (!typeGroups[type]) typeGroups[type] = []
+            typeGroups[type].push(tile)
         }
 
-        // Reassign shuffled tiles back to the board, skipping NONEs
+        const availableTypes = Object.keys(typeGroups).filter((t) => typeGroups[+t].length >= 2)
+
+        // === 3. Tìm tất cả các cặp vị trí liền kề không phải NONE ===
+        const neighborPositions: [number, number, number, number][] = []
+        for (let y = 0; y < this.board.length; y++) {
+            for (let x = 0; x < this.board[y].length; x++) {
+                if (this.board[y][x].getTypeID() === TileType.NONE) continue
+
+                if (
+                    x + 1 < this.board[y].length &&
+                    this.board[y][x + 1].getTypeID() !== TileType.NONE
+                ) {
+                    neighborPositions.push([x, y, x + 1, y])
+                }
+
+                if (
+                    y + 1 < this.board.length &&
+                    this.board[y + 1][x].getTypeID() !== TileType.NONE
+                ) {
+                    neighborPositions.push([x, y, x, y + 1])
+                }
+            }
+        }
+
+        // === 4. Nếu có đủ tile và vị trí, chọn 2 tile cùng loại và vị trí để đặt cặp match ===
+        let chosenTiles: Tile[] = []
+        let neighborPos: [number, number, number, number] | null = null
+
+        if (availableTypes.length > 0 && neighborPositions.length > 0) {
+            const chosenType = +availableTypes[Math.floor(Math.random() * availableTypes.length)]
+            chosenTiles = typeGroups[chosenType].splice(0, 2)
+
+            // Xoá 2 tile này khỏi flatten
+            for (const t of chosenTiles) {
+                const idx = flatten.indexOf(t)
+                if (idx >= 0) flatten.splice(idx, 1)
+            }
+
+            neighborPos = neighborPositions[Math.floor(Math.random() * neighborPositions.length)]
+        }
+
+        // === 5. Shuffle phần còn lại ===
+        for (let i = flatten.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+                ;[flatten[i], flatten[j]] = [flatten[j], flatten[i]]
+        }
+
+        // === 6. Gán lại tile vào board ===
         let index = 0
         for (let i = 0; i < this.board.length; i++) {
             for (let j = 0; j < this.board[i].length; j++) {
                 if (this.board[i][j].getTypeID() !== TileType.NONE) {
-                    const shuffledTile = flatten[index++]
-                    this.board[i][j] = shuffledTile
+                    let tile: Tile | undefined
 
-                    shuffledTile.setCoordinate(new Vec2(j, i))
+                    // Nếu đây là vị trí được chọn cho cặp match
+                    if (
+                        neighborPos &&
+                        chosenTiles.length === 2 &&
+                        ((i === neighborPos[1] && j === neighborPos[0]) ||
+                            (i === neighborPos[3] && j === neighborPos[2]))
+                    ) {
+                        tile =
+                            i === neighborPos[1] && j === neighborPos[0]
+                                ? chosenTiles[0]
+                                : chosenTiles[1]
+                    } else {
+                        tile = flatten[index++]
+                    }
+
+                    if (!tile) {
+                        console.warn(`⚠️ Thiếu tile để gán tại (${i}, ${j})`)
+                        continue
+                    }
+
+                    this.board[i][j] = tile
+                    tile.setCoordinate(new Vec2(j, i))
                 }
             }
         }
+
+        // === 7. Animate toàn bộ tile ===
         for (const row of this.board) {
             for (const tile of row) {
-                ;(tile as Tile).moveToRealPositionWithPadding(
-                    this.game?.currentLevel!,
-                    true,
-                    0,
-                    'expoInOut',
-                    1
-                )
+                if (tile && tile.getTypeID() !== TileType.NONE) {
+                    ; (tile as Tile).moveToRealPositionWithPadding(
+                        this.game?.currentLevel!,
+                        true,
+                        0,
+                        'expoInOut',
+                        1
+                    )
+                }
             }
         }
+
+        // === 8. Kết thúc shuffle khi animation hoàn tất ===
         Promise.all(AnimationHandler.animTile).then(() => {
             this.shuffling = false
         })
@@ -525,7 +649,7 @@ class Board extends Component implements TileConnect.IBoard {
             const posTo = (this.board[to.y][to.x] as Tile).node.getPosition().toVec2()
             const p = pool.getFirstItem()
             console.log('from: ', posFrom, 'to: ', posTo)
-            p?.createPath(posFrom, posTo)
+            p?.createPath(posFrom, posTo, true, 0.6)
             console.log('draw path from', from, 'to', to)
         }
     }
@@ -549,7 +673,7 @@ class Board extends Component implements TileConnect.IBoard {
             if (i == 0 || i == path.length - 1) {
                 star?.firstAndLastMatch()
             }
-            star?.putAt(pos)
+            star?.putAt(pos, i)
         }
     }
     public putNope(path: Vec2[], pool: NopePool) {

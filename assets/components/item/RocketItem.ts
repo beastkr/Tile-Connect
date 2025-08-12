@@ -9,11 +9,13 @@ import {
     tween,
     Vec3,
     view,
+    Widget,
 } from 'cc'
-import { FIREWORK_PATH, Item, ROCKET_PATH, TileType, Turn } from '../../type/global'
+import { FIREWORK_PATH, Item, ROCKET_PATH, SFX, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
+import { SoundManager } from '../manager/SoundManager'
 
 const { ccclass, property } = _decorator
 
@@ -38,6 +40,7 @@ class RocketItem extends BaseItem {
         const tileList: Tile[] = [...pair, ...pair2]
 
         this.game?.node.addChild(this.overlay!)
+        this.overlay!.getComponent(Widget)!.verticalCenter = -this.game!.node.position.y
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
         if (view.getVisibleSize().width < view.getVisibleSize().height)
@@ -48,7 +51,7 @@ class RocketItem extends BaseItem {
 
         for (const row of this.game?.board?.board!) {
             for (const tile of row) {
-                ;(tile as Tile).node.setSiblingIndex(1)
+                ; (tile as Tile).node.setSiblingIndex(1)
             }
         }
 
@@ -88,14 +91,16 @@ class RocketItem extends BaseItem {
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
 
             rocketSprite!.active = true
-            const side = i >= 2 ? view.getVisibleSize().width + 200 : -200
+            const side = i >= 2 ? view.getVisibleSize().width + 1000 : -1000
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
-            this.rockets[i].setScale(0.8, 0.8)
+            this.rockets[i].setScale(0.8 * tileList[0].originScale, 0.8 * tileList[0].originScale)
             tween(this.rockets[i])
                 .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 50) })
                 .delay(0.2)
-                .to(0.1 + 0.1 * i, { angle: angle - 25 })
+                .to(0.1 + 0.1 * i, { angle: angle - 25 }).call(() => {
+                    SoundManager.instance.playSFX(SFX.ROCKET_FLY)
+                })
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
                 .delay(0.5)
                 .call(() => {
@@ -115,6 +120,7 @@ class RocketItem extends BaseItem {
                         )
 
                         .call(() => {
+                            SoundManager.instance.playSFX(SFX.EXPLODE)
                             tileList[i].wholeSprite!.active = false
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
@@ -126,31 +132,32 @@ class RocketItem extends BaseItem {
                             explo?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 explo!.node.active = false
+                                if (i == 3) {
+                                    this.game?.turnOnInput()
+                                    this.itemManager?.showAll()
+
+                                    this.overlay!.active = false
+
+                                    this.itemManager!.botOverlay!.active = false
+                                    for (let i = 0; i < 4; i++) {
+                                        tileList[i].onDead(
+                                            this.game!.board as Board,
+                                            i % 2 == 0,
+                                            i % 2 == 0 ? tileList[i + 1] : tileList[i - 1],
+                                            true
+                                        )
+                                        tileList[i].kill()
+                                    }
+                                }
+                                this.game?.switchTurn(Turn.MATCH)
                             })
                             bro?.once(Animation.EventType.FINISHED, () => {
                                 bro!.node.active = false
+                                this.enableFunction()
                                 // this.rockets[i].setWorldPosition(
                                 //     new Vec3(segment * (i + 1), -view.getVisibleSize().height)
                                 // )
                             })
-
-                            if (i == 3) {
-                                this.game?.turnOnInput()
-                                this.itemManager?.showAll()
-                                this.enableFunction()
-                                this.overlay!.active = false
-
-                                this.itemManager!.botOverlay!.active = false
-                                for (let i = 0; i < 4; i++) {
-                                    tileList[i].onDead(
-                                        this.game!.board as Board,
-                                        i % 2 == 0,
-                                        i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
-                                    )
-                                    tileList[i].kill()
-                                }
-                            }
-                            this.game?.switchTurn(Turn.MATCH)
                         })
                         .start()
                 })

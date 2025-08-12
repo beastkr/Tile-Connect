@@ -7,12 +7,11 @@ const { ccclass, property } = _decorator
 @ccclass('BaseSubTile')
 export class BaseSubTile
     extends Component
-    implements TileConnect.ISubTile, TileConnect.IPoolObject
-{
+    implements TileConnect.ISubTile, TileConnect.IPoolObject {
     private used: boolean = false
     public tile: Tile | null = null
-    public onDead(board: Board, isMain: boolean, other: BaseSubTile): void {}
-    public onResolve(): void {}
+    public onDead(board: Board, isMain: boolean, other: BaseSubTile, killByRocket: boolean = false): void { }
+    public onResolve(): void { }
     public onAttach(tile: Tile): void {
         this.tile = tile
     }

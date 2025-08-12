@@ -5,7 +5,7 @@ const { ccclass, property } = _decorator
 
 @ccclass('Path')
 export class Path extends Component implements TileConnect.IPoolObject {
-    private used: boolean = false
+    used: boolean = false
     private headCoord: Vec2 = new Vec2()
     private tailCoord: Vec2 = new Vec2()
 
@@ -24,10 +24,10 @@ export class Path extends Component implements TileConnect.IPoolObject {
     //     this.tailNode!.active = false
     //     this.headNode!.active = false
     // }
-    public createPath(first: Vec2, second: Vec2, fading: boolean = true) {
+    public createPath(first: Vec2, second: Vec2, fading: boolean = true, duration: number = 0.2) {
         this.headCoord = first
         this.tailCoord = second
-        this.updateVisual(this.node, fading)
+        this.updateVisual(this.node, fading, duration)
         // if (!fading) {
         //     this.showHeadTail()
         //     this.tailNode?.setWorldPosition(this.tailPoint?.getWorldPosition()!)
@@ -42,7 +42,8 @@ export class Path extends Component implements TileConnect.IPoolObject {
         return { angle, length }
     }
 
-    public updateVisual(tg: Node, tweening: boolean = true) {
+    public updateVisual(tg: Node, tweening: boolean = true, duration: number = 0.2) {
+        this.node.setSiblingIndex(2000)
         const target = tg.getChildByName('Path')!
         const sprite = target.getComponent(Sprite)
         const { angle, length } = this.calcDir()
@@ -65,7 +66,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
                 new Promise<void>((resolve) => {
                     tween(sprite!)
                         .delay(0.1)
-                        .to(0.15, { color: new Color(255, 255, 255, 0) })
+                        .to(duration, { color: new Color(255, 255, 255, 0) })
                         .call(() => {
                             sprite!.color = new Color(255, 255, 255, 255)
                             this.kill()

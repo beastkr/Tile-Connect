@@ -7,7 +7,6 @@ import { ShuffleLevel } from './ShuffleLevel'
 export class LevelLoader {
     private static instance: LevelLoader | null = null
     private currentLevel: Level | null = null
-
     private current: number = 1
 
     private needToChange: boolean = false
