@@ -26,6 +26,7 @@ export class TutorialManager extends Component {
         TutorialManager.instance = this
         this.initializeTutorials()
         this.hand!.active = false
+
         this.panel!.active = false
     }
 
@@ -55,10 +56,10 @@ export class TutorialManager extends Component {
     }
 
     private setTutorialProperties(tutorial: BaseTutorial) {
-        ;(tutorial as any).overlay = this.overlay
-        ;(tutorial as any).panel = this.panel
-        ;(tutorial as any).help = this.help
-        ;(tutorial as any).hand = this.hand
+        ; (tutorial as any).overlay = this.overlay
+            ; (tutorial as any).panel = this.panel
+            ; (tutorial as any).help = this.help
+            ; (tutorial as any).hand = this.hand
     }
 
     public static showCurrentTutorial(level: number, board?: Board, gm?: GameManager) {

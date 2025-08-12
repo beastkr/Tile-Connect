@@ -75,7 +75,7 @@ export class RocketTutorial extends Component {
 
         tween({ t: 0 })
             .to(
-                0.7,
+                0.85,
                 { t: 1 },
                 {
                     onUpdate: (target) => {
@@ -97,9 +97,10 @@ export class RocketTutorial extends Component {
                         const currentPos = new Vec3(x, y, 0)
                         this.topRocket!.position = new Vec3(currentPos)
 
-                        const currentAngle = startAngle - 90 * t
-                        this.topRocket!.angle = currentAngle
+                        const angle = t * (-180 + 25)
+                        this.topRocket!.angle = angle
                     },
+
                 }
             )
             .call(() => {
@@ -120,10 +121,10 @@ export class RocketTutorial extends Component {
             0
         )
         const controlPoint2 = new Vec3(startPos.x + (endPos.x - startPos.x) * 0.7, endPos.y - 90, 0)
-
+        this.BotRocket!.angle = -180 + 25
         tween({ t: 0 })
             .to(
-                0.7,
+                0.85,
                 { t: 1 },
                 {
                     onUpdate: (target) => {
@@ -145,7 +146,7 @@ export class RocketTutorial extends Component {
                         const currentPos = new Vec3(x, y, 0)
                         this.BotRocket!.position = new Vec3(currentPos)
 
-                        const currentAngle = startAngle - 90 * t
+                        const currentAngle = 25 * t
                         this.BotRocket!.angle = currentAngle
                     },
                 }
@@ -176,5 +177,5 @@ export class RocketTutorial extends Component {
         tween(uiOpacity).to(0.6, { opacity: 0 }, { easing: 'quadOut' }).start()
     }
 
-    update(deltaTime: number) {}
+    update(deltaTime: number) { }
 }

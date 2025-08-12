@@ -91,20 +91,20 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 6.165,
+      "y": 0,
       "z": 0
     },
     "_lrot": {
       "__type__": "cc.Quat",
       "x": 0,
       "y": 0,
-      "z": 0,
-      "w": 1
+      "z": 0.7071067811865475,
+      "w": 0.7071067811865476
     },
     "_lscale": {
       "__type__": "cc.Vec3",
       "x": 1,
-      "y": 5,
+      "y": 1,
       "z": 1
     },
     "_mobility": 0,
@@ -113,7 +113,7 @@
       "__type__": "cc.Vec3",
       "x": 0,
       "y": 0,
-      "z": 0
+      "z": 90
     },
     "_id": ""
   },
@@ -224,8 +224,8 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
-      "y": 0.35
+      "x": 0,
+      "y": 0.5
     },
     "_id": ""
   },
@@ -256,10 +256,10 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "9ce1068b-1b68-4251-bc2a-d719c7bef0ac@f9941",
+      "__uuid__": "3256dbd8-68dd-474c-832c-b10246eee8c0@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 3,
+    "_type": 0,
     "_fillType": 1,
     "_sizeMode": 0,
     "_fillCenter": {
@@ -267,7 +267,7 @@
       "x": 0,
       "y": 0
     },
-    "_fillStart": 0.35,
+    "_fillStart": 0,
     "_fillRange": 0.32,
     "_isTrimmedMode": true,
     "_useGrayscale": false,
@@ -287,8 +287,6 @@
       "__id__": 0
     },
     "fileId": "86rnoZhPxED5YmIQjTKJLT",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
