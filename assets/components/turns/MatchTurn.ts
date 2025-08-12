@@ -14,6 +14,6 @@ export class MatchTurn extends BaseTurn {
             })
         })
     }
-    onExit(): void {}
-    onUpdate(): void {}
+    onExit(): void { }
+    onUpdate(): void { }
 }

@@ -1,6 +1,19 @@
-import { _decorator, Color, Component, director, find, tween, Vec3, view } from 'cc'
+import {
+    _decorator,
+    Animation,
+    Color,
+    Component,
+    director,
+    find,
+    ParticleSystem2D,
+    Tween,
+    tween,
+    Vec3,
+    view,
+    Widget,
+} from 'cc'
 
-import { Item, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
+import { getAllDescendants, Item, SFX, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -25,16 +38,22 @@ import { PauseTurn } from '../turns/PauseTurn'
 import { WinTurn } from '../turns/WinTurn'
 import { UImanager } from '../ui-manager/UImanager'
 import { ItemManager } from './ItemManager'
+
 import { InvalidPath } from '../path/InvalidPath'
 import InvalidPool from '../pool/InvalidPool'
 import NopePool from '../pool/NopePool'
 import { TutorialManager } from './TutorialManager'
+
+import { SoundManager } from './SoundManager'
+import { ConfettiManager } from '../confetti/ConfettiManager'
+
 
 const { ccclass, property } = _decorator
 
 @ccclass('GameManager')
 class GameManager extends Component implements TileConnect.ITurnManager, TileConnect.IGameManager {
     private levelLoader: LevelLoader = LevelLoader.getInstance()
+
     currentLevel!: Level
     time: number = 0
     isFirstTouch: number = 0
@@ -62,6 +81,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     public invalid: InvalidPool | null = null
     @property(NopePool)
     public nope: NopePool | null = null
+
     firstChosen: Tile | null = null
     secondChosen: Tile | null = null
     hintPath: Path[] = []
@@ -69,6 +89,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     hintTile: Tile[] = []
     isgameOver: boolean = false
+    @property(ConfettiManager)
+    conf: ConfettiManager[] = []
 
     public onMatchPair(callback: () => void) {
         this.eventTarget.addEventListener('matchPair', callback)
@@ -124,15 +146,18 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected start(): void {
+        this.tilePool?.initialize(this)
+        this.pathPool?.initialize(this)
+        this.starPool?.initialize(this)
+        this.invalid?.initialize(this)
+        this.nope?.initialize(this)
+        this.subTilePoolInit()
         this.hideAll()
-        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => {}, this)
+        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => { }, this)
         this.levelLoader.restartLevel().then(() => {
             this.currentLevel = this.levelLoader.getCurrentLevel()
-            this.tilePool?.initialize(this)
-            this.pathPool?.initialize(this)
-            this.starPool?.initialize(this)
-            this.invalid?.initialize(this)
-            this.nope?.initialize(this)
+
+            console.log(this.pathPool)
             const s = view.getVisibleSize()
 
             if (s.height >= s.width) {
@@ -143,7 +168,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
                 this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
             }
             this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
-            this.subTilePoolInit()
+
             this.turnInit()
             view.on('canvas-resize', this.resize, this)
             director.on(
@@ -157,19 +182,22 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     resize() {
         const s = view.getVisibleSize()
+        const wgO = this.node.getChildByName('Overlay')?.getComponent(Widget)
 
         if (s.height >= s.width) {
+            if (wgO) wgO.verticalCenter = 0
             this.node.setPosition(new Vec3(0, 0))
             this.currentLevel.scale = s.width / (this.currentLevel.gridWidth + 3) / 80
         } else {
+            if (wgO) wgO.verticalCenter = 50
             this.node.setPosition(new Vec3(0, -50))
             this.currentLevel.scale = s.height / (this.currentLevel.gridHeight + 3) / 80
         }
         this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
         this.board?.board.forEach((tile) => {
             tile.forEach((t) => {
-                ;(t as Tile).reScale(this.currentLevel.scale)
-                ;(t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
+                ; (t as Tile).reScale(this.currentLevel.scale)
+                    ; (t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
             })
         })
     }
@@ -249,8 +277,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         const good = find('UImanager/good', canvas)
 
         if (topNode) topNode.active = true
+
+        if (botNode && view.getVisibleSize().height > view.getVisibleSize().width) botNode.active = true
+
         if (combo) combo.active = true
         if (good) good.active = true
+        this.resize()
     }
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()
@@ -300,6 +332,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
         this.unChoose()
+
+
+
         this.switchTurn(Turn.MATCH)
     }
 
@@ -311,7 +346,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
     public match(): void {
         if (this.matchPair.length > 0) {
-            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2)) {
+            console.log(this.matchPair[0])
+            const path = this.board?.getPath(this.matchPair[0].tile1, this.matchPair[0].tile2)
+
+            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2, path!.path, path!.turnNum)) {
                 this.emitMatchPair()
             }
             this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
@@ -323,7 +361,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         return this.levelLoader.getCurrentLevelNumber()
     }
 
-    public poolInit(): void {}
+    public poolInit(): void { }
 
     public createBoard(level: Level): void {
         this.hintPath = []
@@ -356,12 +394,22 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public turnOnInput() {
-        this.board?.setUpManager(this)
+        const tiles = (this.tilePool as TilePool).itemList
+        tiles.forEach((tile) => {
+            if (tile.onClickCallbacks.length == 0)
+                tile.addOnClickCallback((tile: TileConnect.ITile) => this.choose(tile))
+        })
     }
 
     public restart() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.ispause = false
         this.isgameOver = false
+        const des = getAllDescendants(this.node)
+        for (const d of des) {
+            Tween.stopAllByTarget(d)
+            d.getComponent(ParticleSystem2D)?.stopSystem()
+        }
         UImanager.togglePauseButton(true)
         UImanager.hideAllPopups()
         this.levelLoader.checkNeedToChange('failed')
@@ -372,13 +420,16 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public pause() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.ispause = true
+
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(false)
         this.switchTurn(Turn.PAUSE)
         // this.hideItem()
     }
     public rescue() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.isgameOver = false
         this.ispause = false
         UImanager.hideAllPopups()
@@ -392,6 +443,15 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public unPause() {
         this.ispause = false
+        SoundManager.instance.playSFX(SFX.CLICK)
+        const des = getAllDescendants(this.node)
+        for (const d of des) {
+            Tween.resumeAllByTarget(d)
+            if (d.getComponent(ParticleSystem2D)) {
+                d.getComponent(ParticleSystem2D)?.resetSystem()
+                // d.getComponent(Animation)?.resume()
+            }
+        }
         UImanager.hideAllPopups()
         UImanager.togglePauseButton(true)
         this.turnOnInput()
@@ -400,6 +460,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public moveOn() {
+        SoundManager.instance.playSFX(SFX.CLICK)
         this.isgameOver = false
         this.ispause = false
         UImanager.togglePauseButton(true)
@@ -411,15 +472,20 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     public turnOffInput() {
-        this.board?.resetInput()
+        const tiles = (this.tilePool as TilePool).itemList
+        tiles.forEach((tile) => {
+            tile.clearOnClickCallbacks()
+        })
     }
 
     protected onDestroy(): void {
-        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
+
+        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => { }, this)
     }
 
     public setActive(active: boolean): void {
         this.node.active = active
+
     }
 }
 

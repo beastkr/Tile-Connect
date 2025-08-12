@@ -1,5 +1,7 @@
 import { _decorator, Button, Label, Node, ParticleSystem2D, Sprite, Tween, tween, Vec3 } from 'cc'
 import { BasePopup } from '../basePopup'
+import { SoundManager } from '../../manager/SoundManager'
+import { SFX } from 'db://assets/type/global'
 
 const { ccclass, property } = _decorator
 
@@ -25,7 +27,7 @@ export class Victory extends BasePopup {
                 this.glow!.node.active = true
                 this.repeatStar()
                 this.playJiggle()
-                this.playLevel(() => {}, curr)
+                this.playLevel(() => { }, curr)
                 this.playContinue()
             })
         })
@@ -90,6 +92,7 @@ export class Victory extends BasePopup {
     }
 
     public popStar(onComplete?: () => void): void {
+        SoundManager.instance.playSFX(SFX.THREE_STAR)
         this.stars.forEach((starNode) => {
             const starChildNode = starNode.getChildByName('Star')
             if (starChildNode) {

@@ -36,6 +36,21 @@ class BaseItem extends Component implements TileConnect.IItem {
         this.quantity = n
     }
 
+    fade(toZero: boolean = true) {
+        const opacity = toZero ? 0 : 255
+        const duration = 0.2
+        if (this.currentNote) this.currentNote.active = !toZero
+        tween(this.mainBG!)
+            .to(duration, { color: new Color(255, 255, 255, opacity) })
+            .call(() => {
+                this.node.active = !toZero
+            })
+            .start()
+        tween(this.mainIcon!)
+            .to(duration, { color: new Color(255, 255, 255, opacity) })
+            .start()
+    }
+
     init() {
         this.textChange()
         this.lock()

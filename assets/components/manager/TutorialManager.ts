@@ -29,6 +29,7 @@ export class TutorialManager extends Component {
         this.panel!.active = false
     }
 
+
     private initializeTutorials() {
         const level1Tutorial = this.node.addComponent(Level1Tutorial)
         const level2Tutorial = this.node.addComponent(Level2Tutorial)
@@ -36,6 +37,7 @@ export class TutorialManager extends Component {
         const level4Tutorial = this.node.addComponent(Level4Tutorial)
         const level5Tutorial = this.node.addComponent(Level5Tutorial)
         const level6Tutorial = this.node.addComponent(Level6Tutorial)
+
 
         this.setTutorialProperties(level1Tutorial)
         this.setTutorialProperties(level2Tutorial)
