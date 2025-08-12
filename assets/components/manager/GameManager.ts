@@ -217,6 +217,12 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             t1.getCoordinate().y === t2.getCoordinate().y
         )
     }
+    public hideBot() {
+        const canvas = this.node.scene.getChildByName('Canvas')
+        if (!canvas) return
+        const botNode = canvas.getChildByName('Bot')
+        if (botNode) botNode.active = false
+    }
     private hideAll() {
         const canvas = this.node.scene.getChildByName('Canvas')
         console.log('hide')
@@ -239,12 +245,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         if (!canvas) return
 
         const topNode = canvas.getChildByName('Top')
-        const botNode = canvas.getChildByName('Bot')
         const combo = find('UImanager/combo', canvas)
         const good = find('UImanager/good', canvas)
 
         if (topNode) topNode.active = true
-        if (botNode) botNode.active = true
         if (combo) combo.active = true
         if (good) good.active = true
     }

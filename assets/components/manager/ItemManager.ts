@@ -27,6 +27,13 @@ export class ItemManager extends Component {
             i[1].node.active = false
         }
     }
+    showItem(item: Item) {
+        this.bg!.active = true
+
+        for (const i of this.itemList) {
+            if (i[0] == item) i[1].node.active = true
+        }
+    }
     showAll() {
         this.bg!.active = true
         for (const i of this.itemList) {
