@@ -92,8 +92,10 @@ export class Level6Tutorial extends BaseTutorial {
 
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
+
             this.gm.itemManager.useBoom = this.originalUseBoom
             this.gm.itemManager.useRocket = this.originalUseRocket
+
         }
     }
 

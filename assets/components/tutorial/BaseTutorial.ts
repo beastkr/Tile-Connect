@@ -101,9 +101,10 @@ export abstract class BaseTutorial extends Component {
 
         this.clearOverlayEvents()
 
-        this.overlay.setPosition(new Vec3(0, 50, 0))
+        this.overlay.setPosition(this.gm!.node.position.clone().multiplyScalar(-1))
         this.gm?.node.addChild(this.overlay)
         this.overlay.active = true
+        this.overlay.setPosition(this.gm!.node.position.clone().multiplyScalar(-1))
     }
     protected cleanup() {
         if (this.boundOnChoose) {
