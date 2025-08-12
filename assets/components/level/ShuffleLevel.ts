@@ -281,7 +281,7 @@ export class ShuffleLevel {
         this.layerList.set(SubType.ROCKET, RocketLayer)
         this.layerList.set(SubType.BOOM, BoomLayer)
         this.layerList.set(SubType.GRAVITY, GravityLayer)
-        if (this.data.theme == Theme.BUTTERFLY) {
+        if (this.data.Theme.toUpperCase() == 'BUTTERFLY') {
             const ButterflyLayer: number[][] = Array.from({ length: this.gridHeight }, () =>
                 Array(this.gridWidth).fill(1)
             )

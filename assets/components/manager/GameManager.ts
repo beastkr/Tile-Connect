@@ -275,6 +275,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         const topNode = canvas.getChildByName('Top')
         const combo = find('UImanager/combo', canvas)
         const good = find('UImanager/good', canvas)
+        const botNode = canvas.getChildByName('Bot')
 
         if (topNode) topNode.active = true
 

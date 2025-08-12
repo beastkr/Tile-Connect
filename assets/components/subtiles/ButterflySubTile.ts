@@ -30,6 +30,7 @@ export class ButterflySubtile extends BaseSubTile {
         this.shadow?.setScale(tile.originScale * 0.6, tile.originScale * 0.6)
     }
     public onDead(board: Board, isMain: boolean, other: BaseSubTile, killByRocket: boolean): void {
+
         if (!isMain || killByRocket || this.tile!.getTypeID() == TileType.ROCKET) return
         console.log('butter is flying')
         this.setupWing()

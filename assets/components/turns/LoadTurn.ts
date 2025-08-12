@@ -61,7 +61,7 @@ export class LoadTurn extends BaseTurn {
     }
 
 
-    onExit(): void {}
+    onExit(): void { }
 
     private turnOnInput() {
         this.game.board?.setUpManager(this.game)
