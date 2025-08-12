@@ -122,6 +122,9 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     private emitTouch() {
         this.eventTarget.dispatchEvent(new Event('touch'))
     }
+    protected update(dt: number): void {
+        console.log(this.currentTurn)
+    }
     stopHint() {
         if (this.hintPath.length == 0) return
         for (const path of this.hintPath) {

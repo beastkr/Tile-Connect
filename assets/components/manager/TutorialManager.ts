@@ -26,6 +26,7 @@ export class TutorialManager extends Component {
         TutorialManager.instance = this
         this.initializeTutorials()
         this.hand!.active = false
+
         this.panel!.active = false
     }
 
