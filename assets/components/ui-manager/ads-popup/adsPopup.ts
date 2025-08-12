@@ -1,6 +1,6 @@
 import { _decorator, Button, director, Label, Node, Sprite, VideoClip, VideoPlayer } from 'cc'
 import { BasePopup } from '../basePopup'
-import { GAME_EVENTS } from '../../subtiles/Countdown'
+import { TileConnect } from '../../../type/type'
 
 const { ccclass, property } = _decorator
 
@@ -43,7 +43,7 @@ export class Ads extends BasePopup {
         if (sprite) {
             sprite.fillRange = 1
         }
-        director.emit(GAME_EVENTS.COUNTDOWN_RESET)
+        director.emit(TileConnect.GAME_EVENTS.COUNTDOWN_RESET)
 
         this.currentTime = 0
     }

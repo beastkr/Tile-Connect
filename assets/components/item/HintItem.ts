@@ -30,8 +30,8 @@ class HintItem extends BaseItem {
                     for (let x2 = xStart; x2 < board[0].length; x2++) {
                         const tile2 = board[y2][x2] as Tile
                         if (!tile2 || tile2.getTypeID() == TileType.NONE) continue
-
-                        if (tile1 !== tile2 && this.game?.board?.canMatch(tile1, tile2)) {
+                        const p = (this.game!.board)?.getPath(tile1, tile2)
+                        if (tile1 !== tile2 && this.game?.board?.canMatch(tile1, tile2, p!.path, p!.turnNum)) {
                             this.showHintEffect(tile1, tile2)
                             found = true
                             break outer

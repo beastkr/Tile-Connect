@@ -1,21 +1,21 @@
 {
     "Level": 5,
     "Difficulty": 2.5,
-    "GridHeight": 6,
-    "GridWidth": 6,
-    "Theme": "FRUIT",
+    "GridHeight": 5,
+    "GridWidth": 8,
+    "Theme": "DRINK",
     "Tiles": {
-        "TotalTiles": 36,
-        "RocketTiles": 2,
-        "BombEffects": 2,
+        "TotalTiles": 40,
+        "RocketTiles": 40,
+        "BombEffects": 0,
         "NormalTiles": {
-            "0": 10,
-            "1": 8,
-            "2": 8,
-            "3": 8
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0
         }
     },
-    "Time": 90,
-    "Gravity": 0,
+    "Time": 120,
+    "Gravity": 1,
     "Circle": false
 }

@@ -1,5 +1,6 @@
 import {
     _decorator,
+    Animation,
     Color,
     Component,
     Node,
@@ -29,21 +30,25 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     private backGroundSpite: Sprite | null = null
     @property(Node)
     public wholeSprite: Node | null = null
+    @property(Node)
+    hintGlow: Node | null = null
 
     @property(Node)
     public choosingEffect: Node | null = null
     @property(Node)
     public rotatedChoosingEff: Node | null = null
-
+    @property(Animation)
+    public polishEffect: Animation | null = null
     public underKill: boolean = false
     private selfPromise: Promise<void>[] = []
-    private originScale: number = 1
+    originScale: number = 1
 
     private used: boolean = false
     private theme: Theme = Theme.NONE
     private coordinate: Vec2 = new Vec2()
     private typeID: TileType = TileType.NONE
     private hintAnimation: Tween<Node> | null = null
+    private hintglow: Tween<Node> | null = null
 
     private subTileList: Map<SubType, TileConnect.ISubTile> = new Map<
         SubType,
@@ -62,12 +67,26 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     public getSubtileList() {
         return this.subTileList
     }
+    public playPolish(): void {
+        this.polishEffect!.node.active = true
+        this.polishEffect!.play()
+        this.polishEffect!.once(Animation.EventType.FINISHED, () => {
+            this.polishEffect!.node.active = false
+        })
+    }
+    public show() {
+        this.node.scale = new Vec3(0, 0, 1)
+        tween(this.node)
+            .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+            .call(() => this.playPolish())
 
+            .start()
+    }
     public setTheme(theme: Theme) {
         if (theme == this.theme) return
         this.theme = theme
         const PATH = getTilePath(this.typeID, this.theme)
-        // console.log(PATH)
+        // console.log(PATH)Fre
         const spriteFrame = resources.get(PATH, SpriteFrame)
         // console.log(spriteFrame)
         if (this.itemTypeSprite) this.itemTypeSprite.spriteFrame = spriteFrame
@@ -115,7 +134,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
     }
     public kill(): void {
         // Tween.stopAllByTarget(this.wholeSprite!)
-        // this.node.setPosition(-10000, -10000)
+
         this.wholeSprite!.scale = new Vec3(this.originScale, this.originScale)
         this.wholeSprite!.angle = 0
         this.underKill = false
@@ -149,13 +168,13 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.subTileList.delete(key)
     }
 
-    public onDead(board: Board, isMain: boolean, other: Tile): void {
+    public onDead(board: Board, isMain: boolean, other: Tile, killByRocket: boolean = false): void {
         const otherGrav = other.subTileList.get(SubType.GRAVITY)
-        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!)
+        this.subTileList.get(SubType.GRAVITY)?.onDead(board, isMain, otherGrav!, killByRocket)
         this.detachSubType(SubType.GRAVITY)
         for (const sub of this.subTileList) {
             const otherSub = other.subTileList.get(sub[0])
-            sub[1].onDead(board, isMain, otherSub!)
+            sub[1].onDead(board, isMain, otherSub!, killByRocket)
             this.detachSubType(sub[0])
         }
     }
@@ -165,6 +184,16 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         // console.log('moved to: ', pos)
     }
     public onHint() {
+        this.hintGlow!.active = true
+        if (!this.hintglow)
+            this.hintglow = tween(this.hintGlow!)
+                .repeatForever(
+                    tween()
+                        .to(3, {
+                            angle: 360
+                        }).call(() => { this.hintGlow!.angle = 0 })
+                )
+                .start()
         if (!this.hintAnimation)
             this.hintAnimation = tween(this.wholeSprite!)
                 .repeatForever(
@@ -181,11 +210,16 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
                         })
                 )
                 .start()
-        else this.hintAnimation.start()
+        else {
+            this.hintAnimation.start()
+            this.hintglow.start()
+        }
     }
     public onUnHint() {
         if (!this.wholeSprite) return
         this.hintAnimation?.stop()
+        this.hintglow?.stop()
+        this.hintGlow!.active = false
         this.wholeSprite.angle = 0
         tween(this.wholeSprite!)
             .to(
@@ -245,7 +279,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
             this.node.setPosition(targetPos)
         }
     }
-    public reScale(scale: number, size: number) {
+    public reScale(scale: number) {
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 100, scale * 100))

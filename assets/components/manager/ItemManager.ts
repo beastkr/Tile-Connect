@@ -19,13 +19,25 @@ export class ItemManager extends Component {
     hideExcept(item: Item) {
         // this.bg!.active = false
         for (const i of this.itemList) {
-            if (i[0] != item) i[1].node.active = false
+            if (i[0] != item) i[1].fade(true)
+        }
+    }
+    hideAll() {
+        for (const i of this.itemList) {
+            i[1].node.active = false
+        }
+    }
+    showItem(item: Item) {
+        this.bg!.active = true
+
+        for (const i of this.itemList) {
+            if (i[0] == item) i[1].node.active = true
         }
     }
     showAll() {
         this.bg!.active = true
         for (const i of this.itemList) {
-            i[1].node.active = true
+            i[1].fade(false)
         }
     }
     intialize(game?: GameManager) {
@@ -33,7 +45,8 @@ export class ItemManager extends Component {
         if (game) this.game = game
         console.log('DONE INIT, GAME MANAGER: ', game)
         for (const item of this.itemList) {
-            const QUANTITY = Number(localStorage.getItem(item[0]))
+            var QUANTITY = Number(localStorage.getItem(item[0]))
+            if (!localStorage.getItem(item[0])) QUANTITY = 10
             if (QUANTITY == 0) localStorage.setItem(item[0], '0')
             console.log(QUANTITY)
             item[1].setquantity(QUANTITY)
@@ -57,7 +70,7 @@ export class ItemManager extends Component {
         const item = this.itemList.get(itemType)
         item?.onUse()
         // item?.stopFunction()
-        if (item?.quantity == 0) item.lock()
+        if (item?.quantity == 0) item.stopFunction()
         localStorage.setItem(itemType, String(item?.quantity))
     }
 

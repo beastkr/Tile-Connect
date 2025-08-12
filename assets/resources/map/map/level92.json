@@ -2,24 +2,24 @@
     "Level": 92,
     "Difficulty": 4.0,
     "GridHeight": 8,
-    "GridWidth": 8,
-    "Theme": "BUTTERFLY",
+    "GridWidth": 9,
+    "Theme": "FRUIT",
     "Tiles": {
-        "TotalTiles": 64,
+        "TotalTiles": 72,
         "RocketTiles": 2,
         "BombEffects": 4,
         "NormalTiles": {
             "0": 8,
             "1": 8,
-            "2": 8,
+            "2": 10,
             "3": 8,
             "4": 8,
             "5": 8,
-            "6": 8,
-            "7": 6
+            "6": 10,
+            "7": 10
         }
     },
     "Time": 120,
-    "Gravity": 3,
+    "Gravity": 4,
     "Circle": false
 }

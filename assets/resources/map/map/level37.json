@@ -1,20 +1,20 @@
 {
     "Level": 37,
     "Difficulty": 1.5,
-    "GridHeight": 5,
+    "GridHeight": 4,
     "GridWidth": 6,
-    "Theme": "CAKE",
+    "Theme": "DRINK",
     "Tiles": {
-        "TotalTiles": 30,
+        "TotalTiles": 24,
         "RocketTiles": 2,
         "BombEffects": 1,
         "NormalTiles": {
             "0": 4,
-            "1": 6,
+            "1": 4,
             "2": 4,
             "3": 4,
             "4": 4,
-            "5": 6
+            "5": 2
         }
     },
     "Time": 90,

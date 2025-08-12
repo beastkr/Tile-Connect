@@ -1,6 +1,8 @@
-import { _decorator, Component, Label, Node, Sprite, tween, UITransform, Vec3 } from 'cc'
+import { _decorator, Component, Label, Node, setDefaultLogTimes, Sprite, Tween, tween, UITransform, Vec3 } from 'cc'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import GameManager from '../manager/GameManager'
+import { SoundManager } from '../manager/SoundManager'
+import { SFX } from '../../type/global'
 const { ccclass, property } = _decorator
 
 @ccclass('FillProgressBar')
@@ -51,6 +53,9 @@ export class FillProgressBar extends Component {
     }
 
     public updateProgressBar() {
+
+        if (this.mid!.node.scale.x > 8) return
+
         if (this.total <= 0 || this.size <= 0) return
         const progress = (2 * 9) / this.total
         if (this.isFirstFill && progress > 0) {
@@ -70,7 +75,8 @@ export class FillProgressBar extends Component {
         return false
     }
     public updateTillWin() {
-        this.updateMidWidth(9 - this.mid!.node.scale.x)
+        this.showLeft()
+        this.updateMidWidth(8 - this.mid!.node.scale.x)
         this.star!.node.active = true
         this.star9!.node.active = true
         this.star1!.node.active = true
@@ -94,6 +100,7 @@ export class FillProgressBar extends Component {
     }
 
     private updateMidWidth(progress: number) {
+        SoundManager.instance.playSFX(SFX.PROGRESS)
         tween(this.mid!.node)
             .to(
                 0.3,
@@ -138,6 +145,7 @@ export class FillProgressBar extends Component {
     }
 
     public resetProgressBar() {
+        Tween.stopAllByTarget(this.mid?.node)
         this.score = 0
         this.currentTile = 0
         this.isFirstFill = true

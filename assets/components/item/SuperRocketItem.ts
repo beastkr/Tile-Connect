@@ -9,11 +9,13 @@ import {
     tween,
     Vec3,
     view,
+    Widget,
 } from 'cc'
-import { FIREWORK_PATH, Item, ROCKET_PATH, TileType, Turn } from '../../type/global'
+import { FIREWORK_PATH, Item, ROCKET_PATH, SFX, TileType, Turn } from '../../type/global'
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
+import { SoundManager } from '../manager/SoundManager'
 
 const { ccclass, property } = _decorator
 
@@ -46,6 +48,7 @@ class SuperRocketItem extends BaseItem {
         this.overlay!.active = true
         this.overlay!.setPosition(new Vec3())
         console.log(this.itemManager!.botOverlay)
+        this.overlay!.getComponent(Widget)!.verticalCenter = -this.game!.node.position.y
         if (view.getVisibleSize().width < view.getVisibleSize().height)
             this.itemManager!.botOverlay!.active = true
         this.itemManager!.botOverlay!.setSiblingIndex(this.node.getSiblingIndex() - 1)
@@ -54,7 +57,7 @@ class SuperRocketItem extends BaseItem {
 
         for (const row of this.game?.board?.board!) {
             for (const tile of row) {
-                ;(tile as Tile).node.setSiblingIndex(1)
+                ; (tile as Tile).node.setSiblingIndex(1)
             }
         }
 
@@ -84,25 +87,32 @@ class SuperRocketItem extends BaseItem {
 
             this.rockets[i].angle = 0
             rocketSprite!.getComponent(Sprite)!.spriteFrame = fireWork
-            const dust = this.rockets[i]
-                .getChildByName('RocketDust')
-                ?.getComponent(ParticleSystem2D)
+            const rocket1 = this.rockets[i].getChildByName('Rocket1')
+            const rocketDust = rocket1 ? rocket1.getChildByName('RocketDust') : null
+            const white = rocketDust ? rocketDust.getChildByName('whiteSmoke') : null
+            white!.active = true
+            white?.getComponent(ParticleSystem2D)?.resetSystem()
+            const yellow = rocketDust ? rocketDust.getChildByName('yellow') : null
+            yellow!.active = true
+            yellow?.getComponent(ParticleSystem2D)?.resetSystem()
 
             this.rockets[i].setWorldPosition(new Vec3(segment * (i + 1), -100))
-            dust?.resetSystem()
+
             rocketSprite!.active = true
-            const side = i >= 3 ? view.getVisibleSize().width + 200 : -200
+            const side = i >= 3 ? view.getVisibleSize().width + 1000 : -1000
             const angle = this.getAngleBetween(this.rockets[i].worldPosition, new Vec3(side, 500))
             tileList[i].underKill = true
-            this.rockets[i].setScale(0.8, 0.8)
+            this.rockets[i].setScale(0.8 * tileList[0].originScale, 0.8 * tileList[0].originScale)
             tween(this.rockets[i])
                 .to(0.5, { worldPosition: new Vec3(segment * (i + 1), 50) })
                 .delay(0.2)
-                .to(0.1 + 0.1 * i, { angle: angle - 25 })
+                .to(0.1 + 0.1 * i, { angle: angle - 25 }).call(() => {
+                    SoundManager.instance.playSFX(SFX.ROCKET_FLY)
+                })
                 .to(0.5, { worldPosition: new Vec3(side, screenSize.height / 2) })
                 .delay(0.5)
                 .call(() => {
-                    this.rockets[i].setScale(1.2, 1.2)
+                    this.rockets[i].setScale(tileList[i].originScale, tileList[i].originScale)
                     rocketSprite!.getComponent(Sprite)!.spriteFrame = rocketFrame
                     this.rockets[i].angle = this.getAngleBetween(
                         this.rockets[i].worldPosition,
@@ -110,14 +120,17 @@ class SuperRocketItem extends BaseItem {
                     )
                     tween(this.rockets[i])
                         .to(
-                            0.3 + i * 0.1,
+                            0.1 + i * 0.09,
                             { worldPosition: tileList[i].node.worldPosition },
                             { easing: 'sineOut' }
                         )
 
                         .call(() => {
+                            SoundManager.instance.playSFX(SFX.EXPLODE)
+                            tileList[i].wholeSprite!.active = false
                             tileList[i].node.setSiblingIndex(1)
                             rocketSprite!.active = false
+                            bro!.node.active = true
                             explo!.node.active = true
                             explo!.node.angle = -this.rockets[i].angle
                             bro!.node.active = true
@@ -125,30 +138,28 @@ class SuperRocketItem extends BaseItem {
                             explo?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 explo!.node.active = false
-                                this.rockets[i].setWorldPosition(new Vec3(0, -100))
+                                if (i == 5) {
+                                    this.game?.turnOnInput()
+                                    this.itemManager?.showAll()
+
+                                    this.overlay!.active = false
+                                    this.itemManager!.botOverlay!.active = false
+                                    for (let i = 0; i < 6; i++) {
+                                        tileList[i].onDead(
+                                            this.game!.board as Board,
+                                            i % 2 == 0,
+                                            i % 2 == 0 ? tileList[i + 1] : tileList[i - 1], true
+                                        )
+                                        tileList[i].kill()
+                                    }
+                                }
+                                this.game?.switchTurn(Turn.MATCH)
                             })
                             bro?.play()
-                            bro?.once(Animation.EventType.FINISHED, () => {
+                            explo?.once(Animation.EventType.FINISHED, () => {
                                 bro!.node.active = false
-                                this.rockets[i].setWorldPosition(new Vec3(0, -100))
-                            })
-
-                            if (i == 5) {
-                                for (let i = 0; i < 6; i++) {
-                                    tileList[i].onDead(
-                                        this.game!.board as Board,
-                                        i % 2 == 0,
-                                        i % 2 == 0 ? tileList[i + 1] : tileList[i - 1]
-                                    )
-                                    tileList[i].kill()
-                                }
-                                this.game?.turnOnInput()
-                                this.itemManager?.showAll()
                                 this.enableFunction()
-                                this.overlay!.active = false
-                                this.itemManager!.botOverlay!.active = false
-                            }
-                            this.game?.switchTurn(Turn.MATCH)
+                            })
                         })
                         .start()
                 })

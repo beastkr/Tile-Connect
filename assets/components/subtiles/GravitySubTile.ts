@@ -6,6 +6,7 @@ import { GravityManager } from '../manager/GravityManager'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
 
+
 const { ccclass, property } = _decorator
 
 @ccclass('GravitySubtile')

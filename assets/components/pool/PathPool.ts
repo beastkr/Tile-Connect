@@ -10,7 +10,7 @@ class PathPool extends Component implements TileConnect.IObjectPool<Path> {
     private pathPrefab: Prefab | null = null
     @property(Number)
     private size: number = 0
-    private itemList: Path[] = []
+    itemList: Path[] = []
 
     public initialize(game: GameManager) {
         for (let i = 0; i < this.size; i++) {
@@ -18,7 +18,9 @@ class PathPool extends Component implements TileConnect.IObjectPool<Path> {
             if (node) {
                 console.log('added child')
                 game.node.addChild(node)
+                node.setSiblingIndex(999998)
             }
+            ;(node?.getComponent(Path) as Path).kill()
             this.itemList.push(node?.getComponent(Path) as Path)
         }
         this.returnAll()
@@ -28,6 +30,8 @@ class PathPool extends Component implements TileConnect.IObjectPool<Path> {
         for (const tile of this.itemList)
             if (!tile.isUsed()) {
                 tile.reSpawn()
+                tile.node.setSiblingIndex(999998)
+
                 return tile
             }
         return null

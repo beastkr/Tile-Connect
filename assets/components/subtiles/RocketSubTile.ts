@@ -1,10 +1,11 @@
 import { _decorator, Animation, Node, ParticleSystem2D, Sprite, tween, Vec3 } from 'cc'
-import { getTilePositionByLevel, Item, TileType, Turn } from '../../type/global'
+import { backInSlowEnd, getTilePositionByLevel, Item, SFX, TileType, Turn } from '../../type/global'
 import { AnimationHandler } from '../animation-handler/AnimationHandler'
 import Board from '../board/Board'
 import GameManager from '../manager/GameManager'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
+import { SoundManager } from '../manager/SoundManager'
 const { ccclass, property } = _decorator
 
 @ccclass('RocketSubTile')
@@ -31,6 +32,14 @@ export class RocketSubTile extends BaseSubTile {
         // tile.setTypeID(TileType.ROCKET)
         console.log(this.tile?.node.position)
     }
+    public kill() {
+        this.rocket1!.node.active = false
+        this.rocket1!.node.active = false
+        this.particle!.active = false
+        this.rocket2!.node.active = false
+        super.kill()
+    }
+
     public onDead(board: Board, isMain: boolean, other: RocketSubTile): void {
         this.kill()
         this.tile?.node.removeChild(this.particle!)
@@ -96,6 +105,8 @@ export class RocketSubTile extends BaseSubTile {
         ).toVec3()
         this.rocket1?.node.setPosition(start1)
         this.rocket2?.node.setPosition(start2)
+        // this.rocket1?.node.setScale(new Vec3(this.tile.originScale, this.tile.originScale))
+        // this.rocket2?.node.setScale(new Vec3(this.tile.originScale, this.tile.originScale))
         // this.node.parent?.getComponent(GameManager)?.turnOffInput()
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {
@@ -107,44 +118,53 @@ export class RocketSubTile extends BaseSubTile {
             // Tính hướng xoay
             const angle1 = getAngleBetween(start1, pos1)
             const angle2 = getAngleBetween(start2, pos2)
+            SoundManager.instance.playSFX(SFX.ROCKET_FLY)
             AnimationHandler.animTile.push(
                 new Promise<void>((resolve) => {
                     tween(this.rocket1!.node)
                         .to(
                             0.2,
                             {
-                                scale: new Vec3(
-                                    this.tile!.node.getScale().x * 1.2,
-                                    this.tile!.node.getScale().y * 1.2,
-                                    1
-                                ),
+                                scale: new Vec3(this.tile?.originScale, this.tile?.originScale),
                                 angle: angle1,
                             },
                             { easing: 'sineOut' }
                         )
-                        .to(0.4, { position: pos1 }, { easing: 'sineInOut' }) // thêm angle vào đây
+                        .to(0.6, { position: pos1 }, { easing: backInSlowEnd }) // thêm angle vào đây
                         .call(() => {
-                            this.node.parent
-                                ?.getComponent(GameManager)!
-                                .itemManager!.unlockItem(Item.ROCKET)
-                            selected[0].onDead(board, true, selected[1])
-                            selected[0].kill()
+                            SoundManager.instance.playSFX(SFX.EXPLODE)
+                            selected[0].wholeSprite!.active = false
+
+                            this.tileBreak!.node.setScale(
+                                new Vec3(selected[0].originScale, selected[0].originScale)
+                            )
+                            this.exploAnim!.node.setScale(
+                                new Vec3(selected[0].originScale, selected[0].originScale)
+                            )
+
                             this.rocket1!.node.active = false
                             this.rocket1!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket1!.node.angle = 0 // reset angle nếu cần
                             this.exploAnim!.node.setPosition(this.rocket1?.node.position!)
                             this.exploAnim!.node.active = true
+
                             this.exploAnim?.play()
                             this.tileBreak!.node.setPosition(this.rocket1?.node.position!)
                             this.tileBreak!.node.active = true
+
                             this.tileBreak?.play()
                             this.tileBreak?.once(Animation.EventType.FINISHED, () => {
                                 this.tileBreak!.node.active = false
+                                selected[0].onDead(board, true, selected[1], true)
+                                selected[0].kill()
+                                this.node.parent
+                                    ?.getComponent(GameManager)!
+                                    .itemManager!.unlockItem(Item.ROCKET)
                             })
                             this.exploAnim?.once(Animation.EventType.FINISHED, () => {
                                 this.exploAnim!.node.active = false
+                                this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             })
-                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
 
                             resolve()
                         })
@@ -157,38 +177,43 @@ export class RocketSubTile extends BaseSubTile {
                         .to(
                             0.2,
                             {
-                                scale: new Vec3(
-
-                                    this.tile!.node.getScale().x * 1.2,
-                                    this.tile!.node.getScale().y,
-
-                                    1
-                                ),
+                                scale: new Vec3(this.tile?.originScale, this.tile?.originScale),
                                 angle: angle2,
                             },
                             { easing: 'sineOut' }
                         )
-                        .to(0.4, { position: pos2 }, { easing: 'sineInOut' }) // thêm angle ở đây
+                        .to(0.6, { position: pos2 }, { easing: backInSlowEnd }) // thêm angle ở đây
                         .call(() => {
-                            selected[1].onDead(board, false, selected[0])
-                            selected[1].kill()
+                            selected[1].wholeSprite!.active = false
+                            this.exploAnim2!.node.setScale(
+                                new Vec3(selected[1].originScale, selected[1].originScale)
+                            )
+                            this.tileBreak1!.node.setScale(
+                                new Vec3(selected[1].originScale, selected[1].originScale)
+                            )
+
                             this.rocket2!.node.active = false
                             this.rocket2!.node.setScale(new Vec3(1, 1, 1))
                             this.rocket2!.node.angle = 0
                             this.exploAnim2!.node.setPosition(this.rocket2?.node.position!)
                             this.exploAnim2!.node.active = true
+
                             this.exploAnim2?.play()
                             this.tileBreak1!.node.setPosition(this.rocket2?.node.position!)
                             this.tileBreak1!.node.active = true
+
                             this.tileBreak1?.play()
                             this.tileBreak1?.once(Animation.EventType.FINISHED, () => {
                                 this.tileBreak1!.node.active = false
+                                selected[1].onDead(board, false, selected[0], true)
+                                selected[1].kill()
+                                this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
                             })
                             this.exploAnim2?.once(Animation.EventType.FINISHED, () => {
                                 console.log('2')
                                 this.exploAnim2!.node.active = false
                             })
-                            this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+
                             resolve()
                         })
                         .start()
@@ -202,5 +227,5 @@ function getAngleBetween(from: Vec3, to: Vec3): number {
     const dy = to.y - from.y
     const radians = Math.atan2(dy, dx)
     const degrees = (radians * 180) / Math.PI
-    return degrees - 90 + 25
+    return degrees - 90
 }

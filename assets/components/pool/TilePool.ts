@@ -12,7 +12,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     private tilePrefab: Prefab | null = null
     @property(Number)
     private size: number = 0
-    private itemList: Tile[] = []
+    public itemList: Tile[] = []
     shaking: boolean = false
 
     public initialize(game: GameManager) {
@@ -23,7 +23,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
                 game.node.addChild(node)
             }
             this.itemList.push(node?.getComponent(Tile) as Tile)
-            node?.setPosition(new Vec3(-1000, -1000))
+            node?.setPosition(new Vec3(-10000, -10000))
         }
         this.returnAll()
     }
@@ -64,6 +64,7 @@ class TilePool extends Component implements TileConnect.IObjectPool<Tile> {
     }
     public returnMultiple(objects: Tile[]): void {
         for (const tile of objects) {
+            tile.node.setPosition(-10000, -10000)
             tile.kill()
             tile.detachAll()
         }

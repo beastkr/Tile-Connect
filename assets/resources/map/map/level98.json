@@ -1,25 +1,25 @@
 {
     "Level": 98,
     "Difficulty": 1.0,
-    "GridHeight": 7,
-    "GridWidth": 8,
+    "GridHeight": 5,
+    "GridWidth": 6,
     "Theme": "DRINK",
     "Tiles": {
-        "TotalTiles": 56,
+        "TotalTiles": 30,
         "RocketTiles": 2,
-        "BombEffects": 2,
+        "BombEffects": 1,
         "NormalTiles": {
-            "0": 8,
-            "1": 6,
-            "2": 6,
-            "3": 8,
-            "4": 6,
-            "5": 6,
-            "6": 6,
-            "7": 8
+            "0": 4,
+            "1": 4,
+            "2": 4,
+            "3": 4,
+            "4": 2,
+            "5": 4,
+            "6": 4,
+            "7": 2
         }
     },
-    "Time": 120,
+    "Time": 90,
     "Gravity": 0,
     "Circle": false
 }

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Sprite, SpriteFrame, tween, Vec3 } from 'cc'
+import { _decorator, Color, Component, Node, Sprite, SpriteFrame, Tween, tween, Vec3 } from 'cc'
 import GameManager from '../manager/GameManager'
 const { ccclass, property } = _decorator
 
@@ -71,21 +71,34 @@ export class Good extends Component {
     }
 
     private playSequentialAnimation() {
-        this.showLight(() => {
-            this.showPic(() => {
-                this.moveNodeUp()
-            })
-        })
+        Tween.stopAllByTarget(this.light!)
+        Tween.stopAllByTarget(this.gud!)
+        Tween.stopAllByTarget(this.node)
+        this.showLight(() => {})
+        this.showPic(() => {})
+        this.moveNodeUp()
     }
 
     private showLight(callback?: () => void) {
         this.light!.active = true
         this.light!.scale = new Vec3(0, 0, 1)
+        this.light!.getComponent(Sprite)!.color = new Color(255, 255, 255, 0)
         tween(this.light!)
-            .to(0.1, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+            .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' })
             .call(() => {
                 if (callback) callback()
             })
+            .start()
+        tween(this.light?.getComponent(Sprite)!)
+            .repeatForever(
+                tween()
+                    .to(0.1, { color: new Color(255, 255, 255, 255) }, { easing: 'sineOut' })
+                    .to(0.1, { color: new Color(255, 255, 255, 0) }, { easing: 'sineOut' })
+                    .call(() => {
+                        if (callback) callback()
+                    })
+            )
+
             .start()
     }
 
@@ -93,7 +106,9 @@ export class Good extends Component {
         this.gud!.active = true
         this.gud!.scale = new Vec3(0, 0, 1)
         tween(this.gud!)
-            .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+
+            .to(0.3, { scale: new Vec3(0.8, 0.8, 1) }, { easing: 'backOut' })
+
             .call(() => {
                 if (callback) callback()
             })
@@ -104,17 +119,25 @@ export class Good extends Component {
         const currentPosition = this.node.position.clone()
         const targetPosition = new Vec3(
             currentPosition.x,
-            currentPosition.y + 30,
+            currentPosition.y + 70,
             currentPosition.z
         )
 
         tween(this.node)
-            .to(0.3, { position: targetPosition }, { easing: 'quadOut' })
+            .to(0.6, { position: targetPosition }, { easing: 'quadOut' })
             .delay(0.2)
             .call(() => {
-                this.gud!.active = false
-                this.light!.active = false
-                this.node.position = currentPosition
+                tween(this.node.getComponent(Sprite)!)
+                    .to(0.15, {
+                        color: new Color(255, 255, 255, 0),
+                    })
+                    .call(() => {
+                        this.node.getComponent(Sprite)!.color = new Color(255, 255, 255, 255)
+                        this.gud!.active = false
+                        this.light!.active = false
+                        this.node.position = currentPosition
+                    })
+                    .start()
             })
             .start()
     }
