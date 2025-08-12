@@ -99,7 +99,7 @@ export class Level6Tutorial extends BaseTutorial {
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
             this.gm.itemManager.useBoom = this.originalUseHint
-            this.gm.itemManager.useShuffle = this.originalUseShuffle
+            this.gm.itemManager.useRocket = this.originalUseShuffle
         }
     }
 

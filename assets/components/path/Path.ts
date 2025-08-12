@@ -52,7 +52,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
         // Đặt vị trí node tại headCoord (đã là pixel position)
         tg.setPosition(this.headCoord.x, this.headCoord.y)
         console.log('length: ', length)
-        target.setScale(new Vec3(1, length / 12))
+        target.setScale(new Vec3(length / 36, 1))
         // Resize chiều dài
         // const uiTransform = target.getComponent(UITransform)
         // if (uiTransform) {
