@@ -2,7 +2,7 @@ import { _decorator, Node, resources, SceneAsset, Sprite, SpriteFrame, Tween, tw
 import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import { BaseSubTile } from './BaseSubTile'
-import { getAllDescendants, getTilePath, Theme, TileType } from '../../type/global'
+import { getAllDescendants, getTilePath, SubType, Theme, TileType } from '../../type/global'
 import { FillProgressBar } from '../animation-handler/FillProgressBar'
 const { ccclass, property } = _decorator
 
@@ -24,6 +24,11 @@ export class ButterflySubtile extends BaseSubTile {
     private wingType: SpriteFrame | null = null
 
     public onAttach(tile: Tile): void {
+        if (tile.getTypeID() == TileType.ROCKET) {
+            tile.detachSubType(SubType.BUTTERFLY)
+            this.kill()
+            return
+        }
         super.onAttach(tile)
         const PATH = getTilePath(this.tile!.getTypeID(), Theme.BUTTERFLY)
         this.wingType = resources.get(PATH, SpriteFrame)

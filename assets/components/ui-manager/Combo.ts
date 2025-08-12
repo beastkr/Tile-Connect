@@ -70,8 +70,8 @@ export class Combo extends Component {
 
         const c = 'combo_' + String(this.comboCount > 5 ? 5 : this.comboCount)
         SoundManager.instance.playSFX(c)
-        
-        if (this.comboCount > 9) this.comboCount--
+
+
 
         this.hideAllComboNumbers()
         this.explode()

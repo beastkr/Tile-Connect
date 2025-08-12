@@ -210,6 +210,10 @@ class Board extends Component implements TileConnect.IBoard {
                 if (this.board[i][j].getCoordinate().equals(position)) {
                     this.board[i][j].reSpawn()
                     this.board[i][j].setTypeID(num)
+                    if (this.game?.currentLevel.theme == Theme.BUTTERFLY) {
+                        const butterfly = this.game.subtilePool.get(SubType.BUTTERFLY)?.getFirstItem()
+                        this.board[i][j].attachSubType(butterfly!, SubType.BUTTERFLY)
+                    }
                     this.board[i][j].show()
                     return
                 }
