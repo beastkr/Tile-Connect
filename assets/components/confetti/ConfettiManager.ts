@@ -51,19 +51,21 @@ export class ConfettiManager extends Component {
 
             // Random color
             const sprite = c.node.getComponent(Sprite);
+            const randColor = new Color(
+                Math.floor(Math.random() * 256), // R
+                Math.floor(Math.random() * 256), // G
+                Math.floor(Math.random() * 256), // B
+                255                              // A
+            );
             if (sprite) {
-                sprite.color = new Color(
-                    Math.floor(Math.random() * 256), // R
-                    Math.floor(Math.random() * 256), // G
-                    Math.floor(Math.random() * 256), // B
-                    255                              // A
-                );
+                sprite.color = randColor
             }
 
             // Fade out after 5s
+
             tween(c.node.getComponent(Sprite)!)
-                .delay(5)
-                .to(0.5, { color: new Color(255, 255, 255, 0) })
+                .delay(2.5 + Math.random() * 0.2)
+                .to(0.5, { color: new Color(randColor.r, randColor.g, randColor.b, 0) })
                 .start();
 
             // Base force from initial direction (scaled)

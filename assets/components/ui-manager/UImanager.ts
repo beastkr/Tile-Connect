@@ -41,7 +41,7 @@ export class UImanager extends Component {
         const barWidget = this.itembar?.getComponent(Widget)
         if (!barWidget) return
         if (v.width >= v.height) {
-            this.bot!.active = false
+            if (LevelLoader.getInstance().getCurrentLevelNumber() != 1) this.bot!.active = false
             this.top?.addChild(this.itembar!)
             barWidget!.target = this.top
             barWidget.isAlignRight = true

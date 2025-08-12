@@ -272,9 +272,10 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         const good = find('UImanager/good', canvas)
 
         if (topNode) topNode.active = true
-        if (botNode) botNode.active = true
+        if (botNode && view.getVisibleSize().height > view.getVisibleSize().width) botNode.active = true
         if (combo) combo.active = true
         if (good) good.active = true
+        this.resize()
     }
     private sameType(t1: TileConnect.ITile, t2: TileConnect.ITile): boolean {
         return t1.getTypeID() === t2.getTypeID()

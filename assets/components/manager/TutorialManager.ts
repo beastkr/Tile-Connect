@@ -113,7 +113,7 @@ export class TutorialManager extends Component {
         board.resetInputExcept(tileList[0], tileList[1])
         for (const row of board.board) {
             for (const tile of row) {
-                ;(tile as Tile).node.setSiblingIndex(1)
+                ; (tile as Tile).node.setSiblingIndex(1)
             }
         }
 
