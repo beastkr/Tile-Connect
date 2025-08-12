@@ -11,6 +11,7 @@ export class Level3Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
+    private originalUseHint: () => void = () => { }
 
     begin(board: Board, gm: GameManager) {
         this.gm = gm
@@ -45,13 +46,13 @@ export class Level3Tutorial extends BaseTutorial {
     }
 
     private listenForHintUsage() {
-        const originalUseHint = this.gm!.itemManager?.useHint.bind(this.gm!.itemManager)
+        this.originalUseHint = this.gm!.itemManager?.useHint.bind(this.gm!.itemManager)!
 
         if (this.gm!.itemManager) {
             this.gm!.itemManager.useHint = () => {
                 if (this.currentPhase === 1 && !this.hintUsed) {
                     this.hintUsed = true
-                    originalUseHint?.()
+                    this.originalUseHint()
                     this.hideOverlay()
                     this.hidePanel()
                     this.gm!.turnOnInput()
@@ -104,7 +105,7 @@ export class Level3Tutorial extends BaseTutorial {
 
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
-            this.gm.itemManager.useHint = this.gm.itemManager.useHint
+            this.gm.itemManager.useHint = this.originalUseHint
             this.gm.itemManager.useShuffle = this.gm.itemManager.useShuffle
         }
     }

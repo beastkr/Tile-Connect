@@ -11,6 +11,8 @@ export class Level6Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
+    private originalUseHint: () => void = () => { }
+    private originalUseShuffle: () => void = () => { }
 
     begin(board: Board, gm: GameManager) {
         this.gm = gm
@@ -26,7 +28,6 @@ export class Level6Tutorial extends BaseTutorial {
         this.gm.turnOffInput()
 
         this.listenForHintUsage()
-        this.listenForMatchPair()
         this.listenForShuffleUsage()
     }
 
@@ -45,61 +46,60 @@ export class Level6Tutorial extends BaseTutorial {
     }
 
     private listenForHintUsage() {
-        const originalUseHint = this.gm!.itemManager?.useBoom.bind(this.gm!.itemManager)
+        this.originalUseHint = this.gm!.itemManager?.useBoom.bind(this.gm!.itemManager)!
+        console.log(this.originalUseHint)
 
         if (this.gm!.itemManager) {
-            this.gm!.itemManager.useHint = () => {
+
+            this.gm!.itemManager.useBoom = () => {
+                console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
                 if (this.currentPhase === 1 && !this.hintUsed) {
+
                     this.hintUsed = true
-                    originalUseHint?.()
+                    this.originalUseHint()
                     this.hideOverlay()
                     this.hidePanel()
                     this.setupOverlay()
                     this.startPhase2()
                 }
             }
+            console.log(this.gm!.itemManager.useBoom)
         }
     }
 
-    private listenForMatchPair() {
-        if (this.gm) {
-            if (this.currentPhase === 1 && this.hintUsed) {
-                setTimeout(() => {}, 500)
-            }
-        }
-    }
 
     private listenForShuffleUsage() {
-        const originalUseShuffle = this.gm!.itemManager?.useRocket.bind(this.gm!.itemManager)
+        this.originalUseShuffle = this.gm!.itemManager?.useRocket.bind(this.gm!.itemManager)!
 
         if (this.gm!.itemManager) {
-            this.gm!.itemManager.useShuffle = () => {
+            this.gm!.itemManager.useRocket = () => {
                 if (this.currentPhase === 2 && !this.shuffleUsed) {
                     this.shuffleUsed = true
-                    originalUseShuffle?.()
-                    setTimeout(() => {
-                        this.end()
-                    }, 500)
+
+                    this.originalUseShuffle()
+                    this.end()
+
+
                 }
             }
         }
     }
 
     end() {
-        this.hideOverlay()
-        this.hidePanel()
+        // console.log('ending')
         this.gm?.itemManager?.showAll()
-
         this.gm!.board?.resetInput()
         this.gm?.turnOnInput()
         this.cleanup()
         this.restoreOriginalMethods()
+        this.hideOverlay()
+        this.hidePanel()
     }
 
     private restoreOriginalMethods() {
         if (this.gm?.itemManager) {
-            this.gm.itemManager.useHint = this.gm.itemManager.useBoom
-            this.gm.itemManager.useShuffle = this.gm.itemManager.useRocket
+            this.gm.itemManager.useBoom = this.originalUseHint
+            this.gm.itemManager.useShuffle = this.originalUseShuffle
         }
     }
 

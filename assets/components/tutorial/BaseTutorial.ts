@@ -21,6 +21,7 @@ export abstract class BaseTutorial extends Component {
     protected hideOverlay() {
         if (this.overlay) {
             this.overlay.active = false
+            console.log('OVERLAY: ', this.overlay.active)
         }
     }
 
@@ -34,6 +35,7 @@ export abstract class BaseTutorial extends Component {
     protected hidePanel() {
         if (this.panel) {
             this.panel.active = false
+            console.log('PANEL: ', this.panel.active)
         }
     }
 

@@ -12,7 +12,7 @@ export class ConfettiManager extends Component {
 
     start() {
         for (const conf of this.confettiList) {
-            for (let i = 1; i < 10; i++) {
+            for (let i = 1; i < 20; i++) {
                 const node = instantiate(conf)
                 this.node.addChild(node)
                 const rb = node.getComponent(RigidBody2D)
@@ -73,7 +73,7 @@ export class ConfettiManager extends Component {
             const dirForce = new Vec2(this.dir.x * baseSpeed, this.dir.y * baseSpeed);
 
             // Add some random variation
-            const randomForceX = (0 + Math.random() * 50);
+            const randomForceX = (-10 + Math.random() * 50);
             const randomForceY = (0 + Math.random() * 50);
 
             // Apply velocities
