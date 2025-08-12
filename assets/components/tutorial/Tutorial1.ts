@@ -145,7 +145,7 @@ export class Level1Tutorial extends BaseTutorial {
         ).toVec3()
 
         this.hand.setScale(new Vec3(1, 1, 1))
-        this.hand.setPosition(startPos)
+        this.hand.setPosition(startPos.clone().add(this.gm!.node.position.clone()))
         circle.setScale(new Vec3(0, 0, 0))
         circle.getComponent(UIOpacity)!.opacity = 255
 
@@ -161,7 +161,7 @@ export class Level1Tutorial extends BaseTutorial {
         }
 
         const moveToEnd = tween(this.hand)
-            .to(0.5, { position: endPos, scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' })
+            .to(0.5, { position: endPos.clone().add(this.gm!.node.position.clone()), scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' })
             .call(() => circle.setScale(new Vec3(0, 0, 0)))
             .to(0.1, { scale: new Vec3(0.8, 0.8, 0.8) })
             .call(animCircle)
@@ -170,7 +170,7 @@ export class Level1Tutorial extends BaseTutorial {
             .call(() => circle.setScale(new Vec3(0, 0, 0)))
 
         const moveToStart = tween(this.hand)
-            .to(0.5, { position: startPos, scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' })
+            .to(0.5, { position: startPos.clone().add(this.gm!.node.position.clone()), scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' })
             .call(() => circle.setScale(new Vec3(0, 0, 0)))
             .to(0.1, { scale: new Vec3(0.8, 0.8, 0.8) })
             .call(animCircle)
