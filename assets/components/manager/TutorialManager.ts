@@ -5,6 +5,9 @@ import { Level1Tutorial } from '../tutorial/Tutorial1'
 import { Level2Tutorial } from '../tutorial/Tutorial2'
 import { Level3Tutorial } from '../tutorial/Tutorial3'
 import { BaseTutorial } from '../tutorial/BaseTutorial'
+import { Level4Tutorial } from '../tutorial/Tutorial4'
+import { Level5Tutorial } from '../tutorial/Tutorial5'
+import { Level6Tutorial } from '../tutorial/Tutorial6'
 
 const { ccclass, property } = _decorator
 
@@ -31,15 +34,24 @@ export class TutorialManager extends Component {
         const level1Tutorial = this.node.addComponent(Level1Tutorial)
         const level2Tutorial = this.node.addComponent(Level2Tutorial)
         const level3Tutorial = this.node.addComponent(Level3Tutorial)
+        const level4Tutorial = this.node.addComponent(Level4Tutorial)
+        const level5Tutorial = this.node.addComponent(Level5Tutorial)
+        const level6Tutorial = this.node.addComponent(Level6Tutorial)
 
 
         this.setTutorialProperties(level1Tutorial)
         this.setTutorialProperties(level2Tutorial)
         this.setTutorialProperties(level3Tutorial)
+        this.setTutorialProperties(level4Tutorial)
+        this.setTutorialProperties(level5Tutorial)
+        this.setTutorialProperties(level6Tutorial)
 
         this.tutorials.set(1, level1Tutorial)
         this.tutorials.set(2, level2Tutorial)
         this.tutorials.set(3, level3Tutorial)
+        this.tutorials.set(4, level4Tutorial)
+        this.tutorials.set(5, level5Tutorial)
+        this.tutorials.set(6, level6Tutorial)
     }
 
     private setTutorialProperties(tutorial: BaseTutorial) {
@@ -50,7 +62,7 @@ export class TutorialManager extends Component {
     }
 
     public static showCurrentTutorial(level: number, board?: Board, gm?: GameManager) {
-        if (!TutorialManager.instance || level > 3) return
+        if (!TutorialManager.instance || level > 6) return
 
         if (board && gm) {
             TutorialManager.instance.startTutorial(level, board, gm)
