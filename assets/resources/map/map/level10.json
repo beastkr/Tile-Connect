@@ -3,7 +3,7 @@
     "Difficulty": 5.0,
     "GridHeight": 6,
     "GridWidth": 7,
-    "Theme": "CAKE",
+    "Theme": "FRUIT",
     "Tiles": {
         "TotalTiles": 42,
         "RocketTiles": 2,
@@ -17,6 +17,6 @@
         }
     },
     "Time": 120,
-    "Gravity": 3,
+    "Gravity": 4,
     "Circle": true
 }
