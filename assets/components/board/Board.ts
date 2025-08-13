@@ -92,7 +92,7 @@ class Board extends Component implements TileConnect.IBoard {
             ; (this.game?.tilePool as TilePool).shake(10, this.game!.currentLevel)
             SoundManager.instance.playSFX(SFX.INVALID_MATCH)
 
-            navigator.vibrate(1000); // vibrate 200ms
+            if (SoundManager.instance.vibrateOn) navigator.vibrate(200); // vibrate 200ms
 
 
 

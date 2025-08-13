@@ -21,6 +21,8 @@ export class UImanager extends Component {
     private static instance: UImanager | null = null
     @property(Node)
     pauseButton: Node | null = null
+    @property(Node)
+    progressBar: Node | null = null
 
     @property(Node)
     soundButton: Node | null = null
@@ -43,6 +45,7 @@ export class UImanager extends Component {
         if (v.width >= v.height) {
             if (LevelLoader.getInstance().getCurrentLevelNumber() != 1) this.bot!.active = false
             this.top?.addChild(this.itembar!)
+            this.progressBar?.setScale(new Vec3(1, 1))
             barWidget!.target = this.top
             barWidget.isAlignRight = true
             barWidget.right = 100
@@ -51,6 +54,7 @@ export class UImanager extends Component {
         } else {
             if (LevelLoader.getInstance().getCurrentLevelNumber() != 1) this.bot!.active = true
             this.bot?.addChild(this.itembar!)
+            this.progressBar?.setScale(new Vec3(v.width / 800, v.width / 800))
             barWidget!.target = this.bot
             barWidget.isAlignHorizontalCenter = true
             barWidget.horizontalCenter = 0
