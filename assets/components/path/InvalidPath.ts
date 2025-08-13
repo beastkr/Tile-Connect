@@ -33,19 +33,17 @@ export class InvalidPath extends Component implements TileConnect.IPoolObject {
         target.setScale(new Vec3(1, length / 12))
         sprite!.color = new Color(255, 255, 255, 255)
         if (tweening) {
-            AnimationHandler.animList.push(
-                new Promise<void>((resolve) => {
-                    tween(sprite!)
-                        .delay(0.1)
-                        .to(0.45, { color: new Color(255, 255, 255, 0) })
-                        .call(() => {
-                            sprite!.color = new Color(255, 255, 255, 255)
-                            this.kill()
-                            resolve()
-                        })
-                        .start()
+
+            tween(sprite!)
+                .delay(0.1)
+                .to(0.45, { color: new Color(255, 255, 255, 0) })
+                .call(() => {
+                    sprite!.color = new Color(255, 255, 255, 255)
+                    this.kill()
+
                 })
-            )
+                .start()
+
         }
     }
 
