@@ -11,8 +11,8 @@ export class Level3Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
-    private originalUseHint: () => void = () => {}
-    private originalUseShuffle: () => void = () => {}
+    private originalUseHint: () => void = () => { }
+    private originalUseShuffle: () => void = () => { }
     begin(board: Board, gm: GameManager) {
         this.gm = gm
         this.currentBoard = board
@@ -29,6 +29,9 @@ export class Level3Tutorial extends BaseTutorial {
         this.listenForHintUsage()
         this.listenForMatchPair()
         this.listenForShuffleUsage()
+        this.gm!.itemManager?.itemList.forEach(element => {
+            element.setquantity(11)
+        });
     }
 
     private startPhase1() {

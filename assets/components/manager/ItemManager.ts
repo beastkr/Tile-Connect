@@ -12,6 +12,9 @@ export class ItemManager extends Component {
     bg: Node | null = null
     @property(Node)
     botOverlay: Node | null = null
+    @property(Node)
+    skipButton: Node | null = null
+
     protected onLoad(): void {
         this.cacheAllItem()
         // this.intialize()
@@ -61,6 +64,7 @@ export class ItemManager extends Component {
         Object.values(Item).forEach((itemType) => {
             const node = this.node.getChildByName(itemType)
             node!.getComponent(BaseItem)!.itemManager = this
+            node!.getComponent(BaseItem)!.itemName = itemType
             if (node) this.itemList.set(itemType, node.getComponent(BaseItem)!)
             console.log('cached: ', itemType)
         })
@@ -70,7 +74,10 @@ export class ItemManager extends Component {
         const item = this.itemList.get(itemType)
         item?.onUse()
         // item?.stopFunction()
-        if (item?.quantity == 0) item.stopFunction()
+        if (item?.quantity == 0) {
+            item.stopFunction()
+            item.needToAds()
+        }
         localStorage.setItem(itemType, String(item?.quantity))
     }
 

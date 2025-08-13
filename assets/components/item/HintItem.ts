@@ -10,6 +10,7 @@ const { ccclass, property } = _decorator
 
 @ccclass('HintItem')
 class HintItem extends BaseItem {
+    protected item: string = 'useHint'
     onUse(): void {
         if (this.clicked || this.locked || this.game?.isgameOver) return
         super.onUse()

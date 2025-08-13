@@ -11,8 +11,8 @@ export class Level6Tutorial extends BaseTutorial {
     private currentPhase: number = 1
     private hintUsed: boolean = false
     private shuffleUsed: boolean = false
-    private originalUseBoom: () => void = () => {}
-    private originalUseRocket: () => void = () => {}
+    private originalUseBoom: () => void = () => { }
+    private originalUseRocket: () => void = () => { }
 
     begin(board: Board, gm: GameManager) {
         this.gm = gm
@@ -81,7 +81,7 @@ export class Level6Tutorial extends BaseTutorial {
     }
 
     end() {
-        this.gm?.itemManager?.showAll()
+        // this.gm?.itemManager?.showAll()
         this.gm!.board?.resetInput()
         this.gm?.turnOnInput()
         this.cleanup()

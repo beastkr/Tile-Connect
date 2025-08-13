@@ -13,6 +13,6 @@ export class AdsTurn extends BaseTurn {
         UImanager.showPopup(Popup.ADSPOPUP, true, this.game.currentNumber())
     }
 
-    onExit(): void {}
-    onUpdate(): void {}
+    onExit(): void { }
+    onUpdate(): void { }
 }

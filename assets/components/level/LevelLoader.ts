@@ -9,7 +9,7 @@ export class LevelLoader {
     private currentLevel: Level | null = null
 
 
-    private current: number = 1
+    private current: number = 6
 
 
 
