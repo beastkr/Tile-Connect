@@ -230,7 +230,12 @@ export class RocketSubTile extends BaseSubTile {
             )
         }
         Promise.all(AnimationHandler.animTile).then(() => {
-            console.log('doneAnim')
+            this.node.parent
+                ?.getComponent(GameManager)!
+                .itemManager!.unlockItem(Item.ROCKET)
+            this.node.parent
+                ?.getComponent(GameManager)!
+                .itemManager!.unlockItem(Item.SUPERROCKET)
         })
     }
 }
