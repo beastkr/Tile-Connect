@@ -16,6 +16,7 @@ import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
 import { SoundManager } from '../manager/SoundManager'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 
 const { ccclass, property } = _decorator
 
@@ -154,7 +155,7 @@ class RocketItem extends BaseItem {
                             })
                             bro?.once(Animation.EventType.FINISHED, () => {
                                 bro!.node.active = false
-                                this.enableFunction()
+                                if (i == 3) { Promise.all(AnimationHandler.animTile).then(() => { this.enableFunction() }) }
                                 // this.rockets[i].setWorldPosition(
                                 //     new Vec3(segment * (i + 1), -view.getVisibleSize().height)
                                 // )

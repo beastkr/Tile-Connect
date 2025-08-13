@@ -100,10 +100,10 @@ export class ItemManager extends Component {
     }
 
     unlockItem(itemType: Item) {
-        this.itemList.get(itemType)?.unlock()
+        this.itemList.get(itemType)?.enableFunction()
     }
     lockItem(itemType: Item) {
-        this.itemList.get(itemType)?.lock()
+        this.itemList.get(itemType)?.stopFunction()
     }
 
     lockAll() {

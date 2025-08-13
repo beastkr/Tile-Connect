@@ -16,6 +16,7 @@ import Board from '../board/Board'
 import Tile from '../tiles/Tile'
 import BaseItem from './BaseItem'
 import { SoundManager } from '../manager/SoundManager'
+import { AnimationHandler } from '../animation-handler/AnimationHandler'
 
 const { ccclass, property } = _decorator
 
@@ -159,7 +160,7 @@ class SuperRocketItem extends BaseItem {
                             bro?.play()
                             explo?.once(Animation.EventType.FINISHED, () => {
                                 bro!.node.active = false
-                                this.enableFunction()
+                                if (i == 5) { Promise.all(AnimationHandler.animTile).then(() => { this.enableFunction() }) }
                             })
                         })
                         .start()

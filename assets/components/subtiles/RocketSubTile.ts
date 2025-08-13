@@ -111,6 +111,7 @@ export class RocketSubTile extends BaseSubTile {
 
         if (selected && selected.length >= 2 && this.rocket1 && this.rocket2) {
             this.node.parent?.getComponent(GameManager)!.itemManager!.lockItem(Item.ROCKET)
+            this.node.parent?.getComponent(GameManager)!.itemManager!.lockItem(Item.SUPERROCKET)
             // const pos1 = selected[0].node.getPosition()
             // const pos2 = selected[1].node.getPosition()
 
@@ -157,16 +158,16 @@ export class RocketSubTile extends BaseSubTile {
                                 this.tileBreak!.node.active = false
                                 selected[0].onDead(board, true, selected[1], true)
                                 selected[0].kill()
-                                this.node.parent
-                                    ?.getComponent(GameManager)!
-                                    .itemManager!.unlockItem(Item.ROCKET)
+
                             })
                             this.exploAnim?.once(Animation.EventType.FINISHED, () => {
                                 this.exploAnim!.node.active = false
                                 this.node.parent?.getComponent(GameManager)?.switchTurn(Turn.MATCH)
+                                resolve()
+
                             })
 
-                            resolve()
+
                         })
                         .start()
                 })
@@ -212,14 +213,25 @@ export class RocketSubTile extends BaseSubTile {
                             this.exploAnim2?.once(Animation.EventType.FINISHED, () => {
                                 console.log('2')
                                 this.exploAnim2!.node.active = false
+                                // this.node.parent
+                                //     ?.getComponent(GameManager)!
+                                //     .itemManager!.unlockItem(Item.ROCKET)
+                                // this.node.parent
+                                //     ?.getComponent(GameManager)!
+                                //     .itemManager!.unlockItem(Item.SUPERROCKET)
+                                resolve()
+
                             })
 
-                            resolve()
+
                         })
                         .start()
                 })
             )
         }
+        Promise.all(AnimationHandler.animTile).then(() => {
+            console.log('doneAnim')
+        })
     }
 }
 function getAngleBetween(from: Vec3, to: Vec3): number {
