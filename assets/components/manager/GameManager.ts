@@ -13,7 +13,15 @@ import {
     Widget,
 } from 'cc'
 
-import { getAllDescendants, Item, SFX, SUBTILE_PATH, SubType, TileType, Turn } from '../../type/global'
+import {
+    getAllDescendants,
+    Item,
+    SFX,
+    SUBTILE_PATH,
+    SubType,
+    TileType,
+    Turn,
+} from '../../type/global'
 import { TileConnect } from '../../type/type'
 import Board from '../board/Board'
 import { Level } from '../level/Level'
@@ -46,7 +54,6 @@ import { TutorialManager } from './TutorialManager'
 
 import { SoundManager } from './SoundManager'
 import { ConfettiManager } from '../confetti/ConfettiManager'
-
 
 const { ccclass, property } = _decorator
 
@@ -153,7 +160,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.nope?.initialize(this)
         this.subTilePoolInit()
         this.hideAll()
-        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => { }, this)
+        director.on(TileConnect.GAME_EVENTS.START_COUNTDOWN, () => {}, this)
         this.levelLoader.restartLevel().then(() => {
             this.currentLevel = this.levelLoader.getCurrentLevel()
 
@@ -196,8 +203,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.currentLevel.tileSize = this.currentLevel.scale * 80 + 5
         this.board?.board.forEach((tile) => {
             tile.forEach((t) => {
-                ; (t as Tile).reScale(this.currentLevel.scale)
-                    ; (t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
+                ;(t as Tile).reScale(this.currentLevel.scale)
+                ;(t as Tile).moveToRealPositionWithPadding(this.currentLevel, false)
             })
         })
     }
@@ -279,7 +286,8 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
 
         if (topNode) topNode.active = true
 
-        if (botNode && view.getVisibleSize().height > view.getVisibleSize().width) botNode.active = true
+        if (botNode && view.getVisibleSize().height > view.getVisibleSize().width)
+            botNode.active = true
 
         if (combo) combo.active = true
         if (good) good.active = true
@@ -334,8 +342,6 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         this.matchPair.push({ tile1: this.firstChosen, tile2: this.secondChosen })
         this.unChoose()
 
-
-
         this.switchTurn(Turn.MATCH)
     }
 
@@ -350,7 +356,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
             console.log(this.matchPair[0])
             const path = this.board?.getPath(this.matchPair[0].tile1, this.matchPair[0].tile2)
 
-            if (this.board?.canMatch(this.matchPair[0].tile1, this.matchPair[0].tile2, path!.path, path!.turnNum)) {
+            if (
+                this.board?.canMatch(
+                    this.matchPair[0].tile1,
+                    this.matchPair[0].tile2,
+                    path!.path,
+                    path!.turnNum
+                )
+            ) {
                 this.emitMatchPair()
             }
             this.board?.match(this.matchPair[0].tile1, this.matchPair[0].tile2)
@@ -362,7 +375,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
         return this.levelLoader.getCurrentLevelNumber()
     }
 
-    public poolInit(): void { }
+    public poolInit(): void {}
 
     public createBoard(level: Level): void {
         this.hintPath = []
@@ -480,13 +493,11 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
 
     protected onDestroy(): void {
-
-        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => { }, this)
+        director.off(TileConnect.GAME_EVENTS.COUNTDOWN_COMPLETE, () => {}, this)
     }
 
     public setActive(active: boolean): void {
         this.node.active = active
-
     }
 }
 
