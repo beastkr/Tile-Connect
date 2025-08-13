@@ -131,9 +131,7 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     private emitTouch() {
         this.eventTarget.dispatchEvent(new Event('touch'))
     }
-    protected update(dt: number): void {
-        console.log(this.currentTurn)
-    }
+
     stopHint() {
         if (this.hintPath.length == 0) return
         for (const path of this.hintPath) {
@@ -303,14 +301,14 @@ class GameManager extends Component implements TileConnect.ITurnManager, TileCon
     }
     public adsPop() {
         this.switchTurn(Turn.ADS)
-        const btn = this.itemManager?.skipButton!.getComponent(Button);
+        const btn = this.itemManager?.skipButton!.getComponent(Button)
         if (btn) {
-            btn.clickEvents.length = 0; // clear old events
-            const eventHandler = new EventHandler();
-            eventHandler.target = this.node; // or another node that has the ads logic
-            eventHandler.component = 'GameManager'; // script name
-            eventHandler.handler = 'rescue'; // method to run
-            btn.clickEvents.push(eventHandler);
+            btn.clickEvents.length = 0 // clear old events
+            const eventHandler = new EventHandler()
+            eventHandler.target = this.node // or another node that has the ads logic
+            eventHandler.component = 'GameManager' // script name
+            eventHandler.handler = 'rescue' // method to run
+            btn.clickEvents.push(eventHandler)
         }
         console.log(this.currentTurn)
     }

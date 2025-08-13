@@ -73,7 +73,6 @@ export class Combo extends Component {
 
     private onMatchPair() {
         this.comboCount++
-
         if (this.comboCount < 2) {
             return
         }
@@ -83,6 +82,7 @@ export class Combo extends Component {
 
         this.hideAllComboNumbers()
         this.explode()
+        console.log(this.comboCount)
 
         if (this.comboCount < 10) {
             const digit = this.comboCount
@@ -96,9 +96,11 @@ export class Combo extends Component {
             this.secondNode!.getComponent(Sprite)!.spriteFrame = this.listSprite[secondNum]
             this.secondNode!.active = true
         }
-
         this.node.active = true
-        //    this.resetCombo()
+        this.currentTime = 0
+        if (this.fill) {
+            this.fill.fillRange = 1
+        }
     }
 
     private hideAllComboNumbers() {
