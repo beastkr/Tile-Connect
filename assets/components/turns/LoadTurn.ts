@@ -34,6 +34,7 @@ export class LoadTurn extends BaseTurn {
         if (this.game.currentNumber() >= 2) {
             this.game.showAll()
         }
+
         this.turnOffInput()
 
         GravityManager.setUpManager(this.game.currentLevel)
@@ -56,12 +57,13 @@ export class LoadTurn extends BaseTurn {
                 this.game
             )
         }
-
+        if (this.game.currentNumber() >= 7) {
+            this.game.itemManager?.showAll()
+        }
         this.game.switchTurn(Turn.START)
     }
 
-
-    onExit(): void { }
+    onExit(): void {}
 
     private turnOnInput() {
         this.game.board?.setUpManager(this.game)

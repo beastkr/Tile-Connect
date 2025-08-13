@@ -62,19 +62,17 @@ export class Path extends Component implements TileConnect.IPoolObject {
         // }
         sprite!.color = new Color(255, 255, 255, 255)
         if (tweening) {
-            AnimationHandler.animList.push(
-                new Promise<void>((resolve) => {
-                    tween(sprite!)
-                        .delay(0.1)
-                        .to(duration, { color: new Color(255, 255, 255, 0) })
-                        .call(() => {
-                            sprite!.color = new Color(255, 255, 255, 255)
-                            this.kill()
-                            resolve()
-                        })
-                        .start()
+
+            tween(sprite!)
+                .delay(0.1)
+                .to(duration, { color: new Color(255, 255, 255, 0) })
+                .call(() => {
+                    sprite!.color = new Color(255, 255, 255, 255)
+                    this.kill()
+
                 })
-            )
+                .start()
+
         }
     }
 

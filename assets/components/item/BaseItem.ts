@@ -1,7 +1,9 @@
-import { _decorator, Color, Component, Node, RichText, Sprite, tween, Vec3 } from 'cc'
+import { _decorator, Button, Color, Component, director, EventHandler, Node, RichText, Sprite, tween, Vec3 } from 'cc'
 import { TileConnect } from '../../type/type'
 import GameManager from '../manager/GameManager'
 import { ItemManager } from '../manager/ItemManager'
+import { Turn } from '../../type/global'
+import { UImanager } from '../ui-manager/UImanager'
 const { ccclass, property } = _decorator
 
 @ccclass('BaseItem')
@@ -27,13 +29,21 @@ class BaseItem extends Component implements TileConnect.IItem {
     note: Node | null = null
     @property(Node)
     noteLock: Node | null = null
+    itemName: string = 'name'
     currentNote: Node | null = this.note
+    protected item: string = 'UseItem'
     start() {
         // this.quantity = 10
         // this.init()
     }
     setquantity(n: number) {
         this.quantity = n
+        localStorage.setItem(this.itemName, String(this.quantity))
+        this.init()
+
+    }
+    protected update(dt: number): void {
+        if (this.quantity == 0) this.needToAds()
     }
 
     fade(toZero: boolean = true) {
@@ -50,6 +60,63 @@ class BaseItem extends Component implements TileConnect.IItem {
             .to(duration, { color: new Color(255, 255, 255, opacity) })
             .start()
     }
+
+    needToAds() {
+        this.quantityText!.string = 'ADS';
+        this.currentNote!.active = true;
+
+
+
+
+        const btn = this.node.getComponent(Button);
+        if (btn) {
+            btn.clickEvents.length = 0; // clear old events
+            const eventHandler = new EventHandler();
+            eventHandler.target = this.node; // or another node that has the ads logic
+            eventHandler.component = 'BaseItem'; // script name
+            eventHandler.handler = 'AdsPop'; // method to run
+            btn.clickEvents.push(eventHandler);
+        }
+    }
+
+    AdsPop() {
+        this.game!.ispause = true
+        this.game?.adsPop()
+        const btn = this.itemManager?.skipButton!.getComponent(Button);
+        if (btn) {
+            btn.clickEvents.length = 0; // clear old events
+            const eventHandler = new EventHandler();
+            eventHandler.target = this.node; // or another node that has the ads logic
+            eventHandler.component = 'BaseItem'; // script name
+            eventHandler.handler = 'increase'; // method to run
+            btn.clickEvents.push(eventHandler);
+        }
+    }
+
+    increase() {
+        this.setquantity(1)
+        localStorage.setItem(this.itemName, String(this.quantity))
+        this.init()
+        this.game!.ispause = false
+        this.game!.isgameOver = false
+        UImanager.hideAllPopups()
+        UImanager.togglePauseButton(true)
+        // director.emit(TileConnect.GAME_EVENTS.COUNTDOWN_RESET)
+        director.emit(TileConnect.GAME_EVENTS.START_COUNTDOWN)
+
+        this.game!.turnOnInput()
+        this.game!.switchTurn(Turn.START)
+        const btn = this.node.getComponent(Button);
+        if (btn) {
+            btn.clickEvents.length = 0; // clear old events
+            const eventHandler = new EventHandler();
+            eventHandler.target = this.itemManager!.node; // or another node that has the ads logic
+            eventHandler.component = 'ItemManager'; // script name
+            eventHandler.handler = this.item; // method to run
+            btn.clickEvents.push(eventHandler);
+        }
+    }
+
 
     init() {
         this.textChange()

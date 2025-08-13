@@ -283,6 +283,7 @@ class Tile extends Component implements TileConnect.ITile, TileConnect.IPoolObje
         this.wholeSprite?.setScale(new Vec3(scale, scale))
         this.originScale = scale
         this.node.getComponent(UITransform)?.setContentSize(new Size(scale * 100, scale * 100))
+
     }
     public onChoose() {
         this.choosingEffect!.active = true
