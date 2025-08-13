@@ -459,6 +459,8 @@ class Board extends Component implements TileConnect.IBoard {
         const extra = 1
         const height = level.gridHeight + extra * 2
         const width = level.gridWidth + extra * 2
+        this.matchedPairsCount = 0
+        this.respawnCount = 0
         this.board = []
         for (let y = 0; y < height; y++) {
             this.board[y] = []

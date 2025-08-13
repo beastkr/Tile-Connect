@@ -6,6 +6,7 @@ const { ccclass, property } = _decorator
 
 @ccclass('BoomDefuseItem')
 export class BoomDefuseItem extends BaseItem {
+    protected item: string = 'useBoom'
     @property(Animation)
     anim: Animation | null = null
     onUse(): void {

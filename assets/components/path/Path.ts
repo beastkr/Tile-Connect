@@ -52,7 +52,7 @@ export class Path extends Component implements TileConnect.IPoolObject {
         // Đặt vị trí node tại headCoord (đã là pixel position)
         tg.setPosition(this.headCoord.x, this.headCoord.y)
         console.log('length: ', length)
-        target.setScale(new Vec3(1, length / 12))
+        target.setScale(new Vec3(length / 36, 1))
         // Resize chiều dài
         // const uiTransform = target.getComponent(UITransform)
         // if (uiTransform) {
@@ -62,19 +62,17 @@ export class Path extends Component implements TileConnect.IPoolObject {
         // }
         sprite!.color = new Color(255, 255, 255, 255)
         if (tweening) {
-            AnimationHandler.animList.push(
-                new Promise<void>((resolve) => {
-                    tween(sprite!)
-                        .delay(0.1)
-                        .to(duration, { color: new Color(255, 255, 255, 0) })
-                        .call(() => {
-                            sprite!.color = new Color(255, 255, 255, 255)
-                            this.kill()
-                            resolve()
-                        })
-                        .start()
+
+            tween(sprite!)
+                .delay(0.1)
+                .to(duration, { color: new Color(255, 255, 255, 0) })
+                .call(() => {
+                    sprite!.color = new Color(255, 255, 255, 255)
+                    this.kill()
+
                 })
-            )
+                .start()
+
         }
     }
 

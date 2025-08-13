@@ -25,6 +25,7 @@ class SuperRocketItem extends BaseItem {
     overlay: Node | null = null
     @property(Node)
     rockets: Node[] = []
+    protected item: string = 'useSuperRocket'
     onUse(): void {
         if (this.clicked || this.quantity == 0 || this.locked) return
         super.onUse()

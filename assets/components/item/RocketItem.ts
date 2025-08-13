@@ -25,6 +25,7 @@ class RocketItem extends BaseItem {
     overlay: Node | null = null
     @property(Node)
     rockets: Node[] = []
+    protected item: string = 'useRocket'
 
     onUse(): void {
         if (this.clicked || this.quantity == 0 || this.locked) return
