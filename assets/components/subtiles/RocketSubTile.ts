@@ -238,6 +238,7 @@ export class RocketSubTile extends BaseSubTile {
                 .itemManager!.unlockItem(Item.SUPERROCKET)
         })
     }
+
 }
 function getAngleBetween(from: Vec3, to: Vec3): number {
     const dx = to.x - from.x
