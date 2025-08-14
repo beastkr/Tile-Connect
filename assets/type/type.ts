@@ -1,0 +1,123 @@
+import { Vec2 } from 'cc'
+import Board from '../components/board/Board'
+import { Level } from '../components/level/Level'
+import GameManager from '../components/manager/GameManager'
+import SubTilePool from '../components/subtiles/SubTilePool'
+import { SubType, Theme, Turn } from './global'
+
+export namespace TileConnect {
+    /*Base Tile Interface*/
+    export interface ITile {
+        addOnClickCallback(callback: (tile: ITile) => void): void
+        emitOnClickCallbacks(): void
+        clearOnClickCallbacks(): void
+        reSpawn(): void
+        setTheme(theme: Theme): void
+        getTheme(): Theme
+
+        getCoordinate(): Vec2
+        setCoordinate(newCoordinate: Vec2): void
+        playPolish(): void
+        getTypeID(): number
+        setTypeID(id: number): void
+        show(): void
+        attachSubType(subTile: ISubTile, key: SubType): void
+        detachSubType(key: SubType): void
+
+        onDead(board: Board, isMain: boolean, other: ITile): void
+
+        moveToRealPosition(level: Level): void
+
+        onChoose(): void
+        onUnchoose(): void
+    }
+
+    /*Base SubTile Interface*/
+    export interface ISubTile {
+        onDead(board: Board, isMain: boolean, other: ISubTile, killByRocket: boolean): void
+        onResolve(): void
+        onAttach(tile: ITile): void
+        onDetach(): void
+    }
+    export interface PhaseConfig {
+        tiles: [number, number][]
+        helpText: string
+        showHelpAfterClick?: boolean
+    }
+    export interface ILevelData {
+        GridHeight: number
+        GridWidth: number
+        Theme: string
+        Time: number
+        Difficulty: number
+        Tiles: {
+            NormalTiles: { [key: string]: number }
+            RocketTiles: number
+            BombEffects: number
+        }
+        Gravity: number
+        Circle: boolean
+    }
+    export interface IBoard {
+        board: ITile[][]
+
+        create(pool: IObjectPool<ITile>, level: Level): void
+        match(tile1: ITile, tile2: ITile): void
+        canMatch(tile1: ITile, tile2: ITile, path: Vec2[], turnNum: number): boolean
+        getPath(tile1: ITile, tile2: ITile): { path: Vec2[]; turnNum: number }
+        setUpManager(game: IGameManager): void
+        resetInput(): void
+        addSubTile(pool: SubTilePool, level: Level, key: SubType): void
+    }
+    export const GAME_EVENTS = {
+        START_COUNTDOWN: 'star-countdown',
+        COUNTDOWN_COMPLETE: 'countdown-complete',
+        GAME_OVER: 'game-over',
+        LEVEL_WIN: 'level-win',
+        COUNTDOWN_RESET: 'countdown-reset',
+    }
+
+    export interface ITurn {
+        onEnter(): void
+        onUpdate(): void
+        onExit(): void
+    }
+    export interface ITutorial {
+        onEnter(): void
+        onUpdate(): void
+        onExit(): void
+    }
+    /*Object Pool*/
+    export interface IPoolObject {
+        isUsed(): boolean
+        reSpawn(): void
+        kill(): void
+    }
+
+    export interface IObjectPool<T> {
+        initialize(game: GameManager): void
+        getFirstItem(): T | null
+
+        returnPool(object: T): void
+        returnMultiple(objects: T[]): void
+        returnAll(): void
+    }
+
+    export interface IGameManager {
+        currentLevel: Level
+        choose(tile: ITile): void
+        unChoose(): void
+        match(): void
+
+        poolInit(): void
+        createBoard(level: Level): void
+    }
+
+    export interface ITurnManager {
+        switchTurn(newTurn: Turn): void
+    }
+    export interface IItem {
+        quantity: number
+        onUse(): void
+    }
+}

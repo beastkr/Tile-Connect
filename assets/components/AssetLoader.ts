@@ -1,23 +1,21 @@
 import { _decorator, Component, director, ProgressBar, resources, SpriteFrame } from 'cc'
 const { ccclass, property } = _decorator
-
 @ccclass('AssetLoader')
 export class AssetLoader extends Component {
     @property(ProgressBar)
     private progressBar!: ProgressBar
-
     protected __preload(): void {
+        console.log('preloading')
         if (!this.progressBar) throw new Error('ProgressBar is required')
-        director.preloadScene('GameScene')
-        resources.preloadDir('sprite')
-        resources.preloadDir('font')
-        resources.preloadDir('texture-2d')
-        resources.preloadDir('ui-assets')
+        resources.loadDir('sfx')
+        director.preloadScene('Prototype')
+        // resources.preloadDir('sprite')
+
     }
 
     start() {
         resources.loadDir(
-            'images',
+            'AllTiles',
             SpriteFrame,
             (finished, total) => {
                 this.updateProgressBar(finished / total)
@@ -38,6 +36,6 @@ export class AssetLoader extends Component {
     }
 
     private switchToGameScene() {
-        director.loadScene('GameScene')
+        director.loadScene('Prototype')
     }
 }

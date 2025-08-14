@@ -2,11 +2,22 @@
   "__version__": "1.0.6",
   "general": {
     "designResolution": {
-      "width": 960,
-      "height": 1600,
+      "width": 720,
+      "height": 1280,
       "fitHeight": true,
-      "fitWidth": true
+      "fitWidth": false
     }
   },
-  "custom_joint_texture_layouts": []
+  "custom_joint_texture_layouts": [],
+  "layer": [],
+  "sorting-layer": {
+    "layers": [
+      {
+        "id": 0,
+        "name": "default",
+        "value": 0
+      }
+    ],
+    "increaseId": 2
+  }
 }

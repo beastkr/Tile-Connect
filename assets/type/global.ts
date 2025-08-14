@@ -1,0 +1,175 @@
+import { easing, Node, Vec2, Vec3, view } from 'cc'
+import { Level } from '../components/level/Level'
+import GameConfig from '../constants/GameConfig'
+
+export enum SubType {
+    BOOM = 'BOOM',
+    GRAVITY = 'GRAVITY',
+    ROCKET = 'ROCKET',
+    BUTTERFLY = 'BUTTERFLY',
+}
+export enum Turn {
+    LOAD,
+    START,
+    MATCH,
+    END,
+    PAUSE,
+    FAIL,
+    WIN,
+    BOOM,
+    ADS,
+}
+
+export enum TileType {
+    NONE = -1,
+    TYPE0 = 0,
+    TYPE1 = 1,
+    TYPE2 = 2,
+    TYPE3 = 3,
+    TYPE4 = 4,
+    TYPE5 = 5,
+    TYPE6 = 6,
+    TYPE7 = 7,
+    ROCKET = 8,
+}
+export enum Popup {
+    FAILPOPUP = 'failPopUp',
+    BOOMPOPUP = 'boomPopup',
+    WINPOPUP = 'victoryPopup',
+    PAUSEPOPUP = 'pausePopup',
+    ADSPOPUP = 'adsPopup',
+    CONTINUE = 'continuePopup',
+    ROCKETTUTORIAL = 'rocketTutorial',
+    BOOMTUTORIAL = 'Bomtuto',
+}
+
+export enum Theme {
+    NONE = '',
+    CAKE = 'Img0_',
+    FRUIT = 'Img1_',
+    FISH = 'Img2_',
+    CHAR = 'Img3_',
+    VEHICLE = 'Img4_',
+    ANIMAL = 'Img5_',
+    FASHION = 'Img6_',
+    SHELL = 'Img7_',
+    BUTTERFLY = 'Img8_',
+    DRINK = 'Img9_',
+}
+
+export function getTilePath(id: number, theme: Theme): string {
+    if (id == TileType.ROCKET) return 'AllTiles/rocket/spriteFrame'
+    return `AllTiles/${theme + String(id)}/spriteFrame`
+}
+export function getComboCount(id: number): string {
+    return `resources/animation/${id}`
+}
+export const FIREWORK_PATH = 'AllTiles/firework/spriteFrame'
+export function getTilePosition(
+    row: number,
+    col: number,
+    h: number,
+    w: number,
+    scale: number
+): Vec2 {
+    const halfWidth = (w * GameConfig.TileSize) / 2
+    const halfHeight = (h * GameConfig.TileSize) / 2
+
+    const x = col * GameConfig.TileSize + GameConfig.TileSize / 2 - halfWidth
+    const y = -(row * GameConfig.TileSize + GameConfig.TileSize / 2 - halfHeight)
+
+    return new Vec2(x, y)
+}
+export function getScale() {
+    const visibleSize = view.getVisibleSize() // Size { width, height }
+    const scaleX = visibleSize.width / 720
+    const scaleY = visibleSize.width / 1280
+    const scale = Math.max(scaleX, scaleY)
+    return new Vec3(scale, scale)
+}
+export function getTilePositionByLevel(
+    col: number, // x
+    row: number, // y
+    level: Level,
+    padding: number = 0
+): Vec2 {
+    const tileSize = level.tileSize
+    const fullWidth = (level.gridWidth + padding * 2) * tileSize
+    const fullHeight = (level.gridHeight + padding * 2) * tileSize
+
+    const posX = col * tileSize + tileSize / 2 - fullWidth / 2
+    const posY = -(row * tileSize + tileSize / 2 - fullHeight / 2)
+
+    return new Vec2(posX, posY)
+}
+
+export const SUBTILE_PATH = 'Canvas/SubtilePool'
+export const ROCKET_NODE_PATH = 'Canvas/SubtilePool/RocketPool'
+export const GRAVITY_NODE_PATH = 'Canvas/SubtilePool/GravityPool'
+export const BOOM_NODE_PATH = 'Canvas/SubtilePool/BoomPool'
+export enum Direction {
+    NONE = 0,
+    UP = 1,
+    RIGHT = 2,
+    DOWN = 3,
+    LEFT = 4,
+}
+
+export const directionValue = {
+    none: new Vec2(0, 0),
+    up: new Vec2(0, 1),
+    right: new Vec2(1, 0),
+    down: new Vec2(0, -1),
+    left: new Vec2(-1, 0),
+}
+
+export enum Item {
+    HINT = 'HintItem',
+    BOOM = 'BoomDefuseItem',
+    SHUFFLE = 'ShuffleItem',
+    ROCKET = 'RocketItem',
+    SUPERROCKET = 'SuperRocketItem',
+}
+export const ROCKET_PATH = 'sprite/prop_rocket/spriteFrame'
+
+// Usage in tween
+export function backInSlowEnd(t: number) {
+    if (t < 0.5) {
+        // First 50% of time → backIn acceleration
+        return easing.backIn(t * 2) / 2
+    } else {
+        // Second 50% of time → slow down to the end
+        return 0.5 + easing.cubicOut((t - 0.5) * 2) / 2
+    }
+}
+export function getAllDescendants(node: Node): Node[] {
+    const result: Node[] = []
+
+    function traverse(current: Node) {
+        for (const child of current.children) {
+            result.push(child)
+            traverse(child) // recursively collect child's children
+        }
+    }
+
+    traverse(node)
+    return result
+}
+
+export enum SFX {
+    CLICK = 'clicks',
+    COLLECT_STAR = 'collect_stars',
+    PROGRESS = 'progress_star',
+    LEVELSTART = 'level_start',
+    COMBO1 = 'combo_1',
+    COMBO2 = 'combo_2',
+    COMBO3 = 'combo_3',
+    COMBO4 = 'combo_4',
+    COMBO5 = 'combo_5',
+    LEVELCOMPLETE = 'level_complete',
+    THREE_STAR = 'three_stars',
+    ROCKET_FLY = 'rocket_fly',
+    EXPLODE = 'bomb_explode_1',
+    INVALID_MATCH = 'invalid_match'
+
+}
